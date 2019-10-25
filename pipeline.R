@@ -135,9 +135,7 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   # 
   # 
   
-  
-  
-  
+
   if(method == "450k_Ref_based"){
     lib = c("minfi","quadprog","FlowSorted.Blood.450k",
             "IlluminaHumanMethylation450kmanifest",
@@ -159,6 +157,7 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
       rownames(counts) = colnames(input_methyl)
       retun(counts)
     }
+    else{}
   
     ## adjust for cell proportions
     # cell =  counts
@@ -171,6 +170,31 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
     # write.table(tab1,file="Ewasher_data_minfi_CpG.csv",sep=",")
     # 
   }
+  
+  if(method == "EpiDISH_RPC"){
+    if(is.null(input_reference)){
+      print('Reference matrix set as whole blood by default!')
+      cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
+      return(cell_Prop)
+    }
+  }
+  
+  if(method == "EpiDISH_CBS"){
+    if(is.null(input_reference)){
+      print('Reference matrix set as whole blood by default!')
+      cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CBS")$estF
+      return(cell_Prop)
+    }
+  }
+  
+  if(method == "EpiDISH_CP"){
+    if(is.null(input_reference)){
+      print('Reference matrix set as whole blood by default!')
+      cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CP")$estF
+      return(cell_Prop)
+    }
+  }
+  
   
   if(method == "RUV"){
     
