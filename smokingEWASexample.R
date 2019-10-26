@@ -13,9 +13,9 @@ write.table(cell_Prop, "GSE50660_cell_prop_smoking_Epidish.txt", sep = "\t", col
 
 data(centDHSbloodDMC.m)
 library(RefFreeEWAS)
-cell_Prop_2 = projectMix(dat, centDHSbloodDMC.m)
 
-common_probe=intersect(row.names(centBloodSub.m),row.names(dat))
+
+common_probe=intersect(row.names(centDHSbloodDMC.m),row.names(dat))
 cell_Prop_2 = projectMix(dat[common_probe,], centDHSbloodDMC.m[common_probe,])
 
 ## boxplot of the estimated cell proportions
@@ -30,18 +30,6 @@ abline(1,1, col = "red")
 library(stats)
 for(i in 1:7){
   tmp <- cbind(cell_Prop[,i], cell_Prop_2[,i])
-  tmp <- as.data.frame(tmp)
-  colnames(tmp) <- c("epidish", "houseman")
-  reg <- lm(epidish~houseman, data=tmp)
-  plot(tmp, main = colnames(cell_Prop_2)[i])
-  abline(reg, col = "blue")
-  legend("topleft", bty="n", legend=paste("R2 is", format(summary(reg)$adj.r.squared)), col = "red", cex = 0.6)
-}
-
-
-
-for(i in 1:7){
-  tmp <- cbind(cell_Prop[,i], cell_Prop_2[,i])
   colnames(tmp) <- c("epidishRPC", "houseman")
   tmp <- as.data.frame(tmp)
   reg <- lm(houseman~epidishRPC, data = tmp)
@@ -50,3 +38,16 @@ for(i in 1:7){
   legend("topleft", bty="n", legend=paste("R2 is", format(summary(reg)$adj.r.squared)), col = "red", cex = 0.6)
 }
 
+
+
+
+lib = c("minfi","quadprog","FlowSorted.Blood.450k",
+        "IlluminaHumanMethylation450kmanifest",
+        "IlluminaHumanMethylation450kanno.ilmn12.hg19")
+lapply(lib, require, character.only = TRUE)
+
+
+
+
+data(LiuDataSub.m)
+BloodFrac.m <- epidish(beta.m = LiuDataSub.m, ref.m = centDHSbloodDMC.m, method = "RPC")$estF

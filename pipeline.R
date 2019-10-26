@@ -96,43 +96,46 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   
   if(method == "HousemanRef_based"){
     library(RefFreeEWAS)
+    # estimate cell proportions
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
+      library(EpiDISH)
+      data(centDHSbloodDMC.m)
+      common_probe=intersect(row.names(centDHSbloodDMC.m),row.names(input_methyl))
+      cell_Prop = projectMix(input_methyl[common_probe,], centDHSbloodDMC.m[common_probe,])
     }
     else{
-      #1. estimate cell proportions
-      cell_Prop = projectMix(input_methyl, input_reference)
-      print("Cell proportions estimated!")
+      common_probe=intersect(row.names(input_reference),row.names(input_methyl))
+      cell_Prop = projectMix(input_methyl[common_probe,], input_reference[common_probe,])
     }
   }
 
   
 
-  if(method == "450k_Ref_based"){
-    lib = c("minfi","quadprog","FlowSorted.Blood.450k",
-            "IlluminaHumanMethylation450kmanifest",
-            "IlluminaHumanMethylation450kanno.ilmn12.hg19");
-    lapply(lib, require, character.only = TRUE);
-    
-    #input_methyl
-    # grSet1=read.table("input_data.txt",header=T); grSet=grSet1[,-1];
-    # rownames(grSet)=grSet1[,1]; grSet=data.matrix(grSet)
-    # 
-    if(is.null(input_reference)){
-      referenceMset = get('FlowSorted.Blood.450k.compTable')
-      cell = c("CD8T","CD4T", "NK","Bcell","Mono","Gran","Eos")
-      compData = minfi:::pickCompProbes(referenceMset, cellTypes=cell)
-      coefs = compData$coefEsts
-      coefs = coefs[intersect(rownames(input_methyl),rownames(coefs)),]
-      rm(referenceMset)
-      counts = minfi:::projectCellType(input_methyl[rownames(coefs), ], coefs)
-      rownames(counts) = colnames(input_methyl)
-      retun(counts)
-    }
-    else{}
-  
- 
-  }
+  #### package install problems! 
+  #if(method == "450k_Ref_based"){
+  #   lib = c("minfi","quadprog","FlowSorted.Blood.450k",
+  #           "IlluminaHumanMethylation450kmanifest",
+  #           "IlluminaHumanMethylation450kanno.ilmn12.hg19");
+  #   lapply(lib, require, character.only = TRUE);
+  #   
+  #   #input_methyl
+  #   # grSet1=read.table("input_data.txt",header=T); grSet=grSet1[,-1];
+  #   # rownames(grSet)=grSet1[,1]; grSet=data.matrix(grSet)
+  #   # 
+  #   if(is.null(input_reference)){
+  #     referenceMset = get('FlowSorted.Blood.450k.compTable')
+  #     cell = c("CD8T","CD4T", "NK","Bcell","Mono","Gran","Eos")
+  #     compData = minfi:::pickCompProbes(referenceMset, cellTypes=cell)
+  #     coefs = compData$coefEsts
+  #     coefs = coefs[intersect(rownames(input_methyl),rownames(coefs)),]
+  #     rm(referenceMset)
+  #     counts = minfi:::projectCellType(input_methyl[rownames(coefs), ], coefs)
+  #     rownames(counts) = colnames(input_methyl)
+  #     retun(counts)
+  #   } 
+  #   ### else
+  # }
   
   if(method == "EpiDISH_RPC"){
     library(EpiDISH)
