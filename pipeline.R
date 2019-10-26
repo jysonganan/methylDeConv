@@ -101,39 +101,11 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
     }
     else{
       #1. estimate cell proportions
-      w = projectMix(input_methyl, input_reference)
+      cell_Prop = projectMix(input_methyl, input_reference)
       print("Cell proportions estimated!")
-      #2. adjust for cell proportions
-      mod1 <- model.matrix(~., cbind(input_phenotype, input_covariate, w))
-      fit1 <- lmFit(input_methyl, mod1, method = "robust")
-      fite1 <- eBayes(fit1)
-      tab1  = topTable(fite1, coef = "x1",number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
-      write.table(tab1,file="Ewasher_data_houseman_CpG.csv",sep=",")
-      return(w, fite1, tab1)
     }
   }
-    
-  #   beta=t(as.matrix(read.table(".../input_data.txt",sep="\t",header=T)))
-  #   source("Rcodes_Cell_mixture.R")
-  #   #This program will create a file by the name “Ewasher_Houseman_cell.csv”, 
-  #   # which will have cell proportions for the 204 subjects 
-  #   library(limma)
-  #   library(MASS)
-  #   cell = read.csv("Ewasher_data_housecell.csv",header=T)
-  #   cell1 = cell[,2]
-  #   cell2 = cell[,3]
-  #   cell3 = cell[,4]
-  #   cell4 = cell[,5]
-  #   cell5 = cell[,6]
-  #   cell6 = cell[,7]
-  #   
-  #   mod11 = model.matrix(~x1+x2+x3+x4+x5+x6+cell2+cell3+cell4+cell5+cell6)
-  #   fit1  = lmFit(y12,mod11,method="robust")
-  #   fite1 = eBayes(fit1)
-  #   tab1  = topTable(fite1, coef = "x1",number=length(y1[,1]), p.val=0.05,adjust = "fdr")
-  #   write.table(tab1,file="Ewasher_data_houseman_CpG.csv",sep=",")
-  # 
-  # 
+
   
 
   if(method == "450k_Ref_based"){
@@ -159,19 +131,11 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
     }
     else{}
   
-    ## adjust for cell proportions
-    # cell =  counts
-    # cell1 = cell[,1];cell2 = cell[,3];cell3 = cell[,4];cell5 = cell[,6];
-    # cell6 = cell[,7];cell7 = cell[,8];
-    # mod11 = model.matrix(~x1+x2+x3+x4+x5+x6+cell2+cell3+cell4+cell5+cell6+cell7);
-    # fit1  = lmFit(y12,mod11,method="robust");
-    # fite1 = eBayes(fit1);
-    # tab1  = topTable(fite1, coef = "x1",number=length(y1[,1]), p.val=0.05,adjust = "fdr");
-    # write.table(tab1,file="Ewasher_data_minfi_CpG.csv",sep=",")
-    # 
+ 
   }
   
   if(method == "EpiDISH_RPC"){
+    library(EpiDISH)
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
@@ -180,6 +144,7 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   }
   
   if(method == "EpiDISH_CBS"){
+    library(EpiDISH)
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CBS")$estF
@@ -188,6 +153,7 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   }
   
   if(method == "EpiDISH_CP"){
+    library(EpiDISH)
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CP")$estF
@@ -199,6 +165,24 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   if(method == "RUV"){
     
   }
+  
+  #2. adjust for cell proportions
+  mod1 <- model.matrix(~., cbind(input_phenotype, input_covariate, w))
+  fit1 <- lmFit(input_methyl, mod1, method = "robust")
+  fite1 <- eBayes(fit1)
+  tab1  = topTable(fite1, coef = "x1",number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
+  write.table(tab1,file="Ewasher_data_houseman_CpG.csv",sep=",")
+  return(w, fite1, tab1)
+  ## adjust for cell proportions
+  # cell =  counts
+  # cell1 = cell[,1];cell2 = cell[,3];cell3 = cell[,4];cell5 = cell[,6];
+  # cell6 = cell[,7];cell7 = cell[,8];
+  # mod11 = model.matrix(~x1+x2+x3+x4+x5+x6+cell2+cell3+cell4+cell5+cell6+cell7);
+  # fit1  = lmFit(y12,mod11,method="robust");
+  # fite1 = eBayes(fit1);
+  # tab1  = topTable(fite1, coef = "x1",number=length(y1[,1]), p.val=0.05,adjust = "fdr");
+  # write.table(tab1,file="Ewasher_data_minfi_CpG.csv",sep=",")
+  # 
 }
 
 setwd("/Users/junesong/Desktop/causal inference/FastLmm.Py/doc/FastLmm-EWASher/demo")
