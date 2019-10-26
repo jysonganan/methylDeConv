@@ -51,3 +51,7 @@ lapply(lib, require, character.only = TRUE)
 
 data(LiuDataSub.m)
 BloodFrac.m <- epidish(beta.m = LiuDataSub.m, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
+
+library(RefFreeEWAS)
+cell = RefFreeCellMix(as.matrix(dat), mu0 = NULL, K = 7, iters = 5, Yfinal = NULL, verbose = TRUE)
+cellProp = cell$Omega

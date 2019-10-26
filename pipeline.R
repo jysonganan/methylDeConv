@@ -4,11 +4,28 @@
 # O = y1[include,]
 # edata1 = edata[include,]
 
+MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL,numCelltypes = NULL, method = "RUV", normalized = TRUE){
+  if(normalized){
+    MethylDeconv_normalized(input_methyl, input_phenotype, input_covariate, input_reference, numCelltypes, method)
+  }
+  else{
+    ## RgSet
+    library(minfi)
+    print("Only could be blood and RGChannelset!")
+    output = estimateCellCounts(RGset, meanPlot = FALSE, returnAll = TRUE)
+  }
+}
+
+
+
+
 preprocess <- function(input_methyl, input_phenotype, input_covariate = NULL){
   
 }
+
 ## Generate reference profiles
-MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL,method = "RUV"){
+MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL, 
+                                    numCelltypes = NULL, method = "RUV"){
   
   x1 <- as.numeric(input_phenotype[,2])
   
@@ -52,7 +69,7 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
     ## def include before preprocess
     orign_methyl <- orign_methyl[include,]
     input_methyl <- input_methyl[include,]
-   
+    
     for (site in 1:nrow(orign_methyl))
     {
       model <- lm(orign_methyl[site,]~x1+x2+x3+x4+x5+x6)
@@ -86,11 +103,14 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
   }
   
   if(method == "RefFreeCellMix"){
-    library(RefFreeEWAS)
-    cell <- RefFreeCellMix(y2, mu0 = NULL, K = 7, iters = 5, Yfinal = NULL, verbose = TRUE)
-    mod1 <- model.matrix(~x1+x2+x3+x4+x5+x6+cell$Omega)
-    fit1 <- lmFit(y2, mod1, method = "robust")
-    fite1 <- eBayes(fit1)
+    if(is.null(numCelltypes)){
+      print("RefFreeCellMix requires the number of cell types!")
+    }
+    else{
+      library(RefFreeEWAS)
+      cell <- RefFreeCellMix(as.matrix(input_methyl), mu0 = NULL, K = numCelltypes, iters = 5, Yfinal = NULL, verbose = TRUE)
+      cell_Prop <- cell$Omega
+    }
   }
   
   
@@ -109,9 +129,9 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
       cell_Prop = projectMix(input_methyl[common_probe,], input_reference[common_probe,])
     }
   }
-
   
-
+  
+  
   #### package install problems! 
   #if(method == "450k_Ref_based"){
   #   lib = c("minfi","quadprog","FlowSorted.Blood.450k",
@@ -211,4 +231,3 @@ tmp1 = lm(t(edata)~x1);
 dim3 = EstDimRMT(cbind(t(coef(tmp1)), t(resid(tmp1))), FALSE)$dim;
 test1 = RefFreeEwasModel(y2,cbind(1,x1,x2,x3,x4,x5,x6),dim3);
 testBoot1 = BootRefFreeEwasModel(test1, 50)
-              
