@@ -162,7 +162,6 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
-      return(cell_Prop)
     }
   }
   
@@ -171,7 +170,6 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CBS")$estF
-      return(cell_Prop)
     }
   }
   
@@ -180,7 +178,6 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
     if(is.null(input_reference)){
       print('Reference matrix set as whole blood by default!')
       cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CP")$estF
-      return(cell_Prop)
     }
   }
   
@@ -190,42 +187,49 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
   }
   
   #2. adjust for cell proportions
-  mod1 <- model.matrix(~., cbind(input_phenotype, input_covariate, w))
-  fit1 <- lmFit(input_methyl, mod1, method = "robust")
-  fite1 <- eBayes(fit1)
-  tab1  = topTable(fite1, coef = "x1",number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
-  write.table(tab1,file="Ewasher_data_houseman_CpG.csv",sep=",")
-  return(w, fite1, tab1)
+  
+  if(method == "RefFreeCellMix"|method == "EpiDISH_RPC"|method == "EpiDISH_CBS"|method == "EpiDISH_CP"|method == "HousemanRef_based"){
+    library(limma)
+    mod1 <- model.matrix(~as.matrix(cbind(input_phenotype, input_covariate, cell_Prop)))
+    fit1 <- lmFit(input_methyl, mod1, method = "robust")
+    fite1 <- eBayes(fit1)
+    tab1  = topTable(fite1, coef = 2, number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
+    filename <- paste("AdjustedforCellPropCpGs_", method, ".txt", sep = "")
+    write.table(tab1, file = filename, sep="\t", col.names = T, quote = F)
+  }
+  
+  return(cell_Prop)
   ## adjust for cell proportions
-  # cell =  counts
-  # cell1 = cell[,1];cell2 = cell[,3];cell3 = cell[,4];cell5 = cell[,6];
-  # cell6 = cell[,7];cell7 = cell[,8];
-  # mod11 = model.matrix(~x1+x2+x3+x4+x5+x6+cell2+cell3+cell4+cell5+cell6+cell7);
-  # fit1  = lmFit(y12,mod11,method="robust");
-  # fite1 = eBayes(fit1);
-  # tab1  = topTable(fite1, coef = "x1",number=length(y1[,1]), p.val=0.05,adjust = "fdr");
-  # write.table(tab1,file="Ewasher_data_minfi_CpG.csv",sep=",")
-  # 
 }
 
-setwd("/Users/junesong/Desktop/causal inference/FastLmm.Py/doc/FastLmm-EWASher/demo")
-
-y <- read.table("input_data.txt", sep = "\t", header = T)
-y1 <- y[,-1]
-rownames(y1) = y[,1]
-miss = which(is.na(y1),arr.ind=TRUE)[,1]
-y1 = y1[-miss,]
-edata = as.matrix(log2(y1/(1-y1)))
 
 
-covar1 = read.table("input_phenotype.txt",header=FALSE);
-covar2<-read.table("covariates.txt",header=FALSE)
-x1 = as.numeric(covar1[,2]);
-x2<-as.numeric(covar2[,3])
-x3<-as.numeric(covar2[,4])
-x4<-as.numeric(covar2[,5])
-x5<-as.numeric(covar2[,6])
-x6<-as.numeric(covar2[,7])
+# setwd("/Users/junesong/Desktop/causal inference/FastLmm.Py/doc/FastLmm-EWASher/demo")
+# 
+# y <- read.table("input_data.txt", sep = "\t", header = T)
+# y1 <- y[,-1]
+# rownames(y1) = y[,1]
+# miss = which(is.na(y1),arr.ind=TRUE)[,1]
+# y1 = y1[-miss,]
+# edata = as.matrix(log2(y1/(1-y1)))
+# 
+# 
+# covar1 = read.table("input_phenotype.txt",header=FALSE);
+# covar2<-read.table("covariates.txt",header=FALSE)
+# x1 = as.numeric(covar1[,2]);
+# x2<-as.numeric(covar2[,3])
+# x3<-as.numeric(covar2[,4])
+# x4<-as.numeric(covar2[,5])
+# x5<-as.numeric(covar2[,6])
+# x6<-as.numeric(covar2[,7])
+# mod1 <- model.matrix(~x1+x2+x3+x4+x5+x6)
+# mod2 <- model.matrix(~cbind(covar1[,-1],covar2[,-c(1,2)]))
+# 
+# fit1 <- lmFit(edata, mod1, method = "robust")
+# fite1 <- eBayes(fit1)
+# tab2  = topTable(fite1, coef = 2, number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
+
+
 
 tmp1 = lm(t(edata)~x1);
 dim3 = EstDimRMT(cbind(t(coef(tmp1)), t(resid(tmp1))), FALSE)$dim;
