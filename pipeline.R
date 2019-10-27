@@ -17,12 +17,6 @@ MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, 
 }
 
 
-
-
-preprocess <- function(input_methyl, input_phenotype, input_covariate = NULL){
-  
-}
-
 ## Generate reference profiles
 MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL, 
                                     numCelltypes = NULL, method = "RUV"){
