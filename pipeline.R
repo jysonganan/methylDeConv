@@ -39,30 +39,37 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
   if(method == "RefFreeEWAS"){
     library(RefFreeEWAS)
     tmp1 <- lm(t(input_methyl)~x1)
-    dim3 <- EstDimRMT(cbind(t(coef(tmp1)),t(resid(tmp1))), FALSE)$dim
+    dim3 <- EstDimRMT(cbind(t(coef(tmp1)),t(resid(tmp1))))$dim
     if(is.null(input_covariate)){
-      test1 <- RefFreeEwasModel(input_methyl, cbind(1,x1), dim3)
+      test1 <- RefFreeEwasModel(input_methyl, cbind(1,x1), dim3, FALSE)
     }
     else{
       tmp2 <- cbind(1,x1)
       for (i in 1:length(x2list)){
         tmp2 <- cbind(tmp2, x2list[[i]])
       }
-      test1 <- RefFreeEwasModel(input_methyl,tmp2,dim3) 
+      test1 <- RefFreeEwasModel(input_methyl,tmp2,dim3, FALSE) 
     }
     testBoot1 = BootRefFreeEwasModel(test1, 50)
+    summary(testBoot1)
   }
   
   if(method == "SVA"){
     lib = c("MASS","sva","limma")
     lapply(lib, require, character.only = TRUE)
-    mod1 <- model.matrix(~.,cbind(input_phenotype, input_covariate))
-    mod2 <- model.matrix(~.,input_covariate)
+    
+    mod1 <- model.matrix(~as.matrix(cbind(input_phenotype, input_covariate)))
+    mod2 <- model.matrix(input_covariate)
+    
     svobj1 <- sva(input_methyl,mod1,mod2, n.sv = NULL, method = "two-step")
     modSv1 <- cbind(mod1, svobj1$sv)
+    
     fit1 <- lmFit(input_methyl, modSv1, method = "robust")
     fite1 <- eBayes(fit1)
-    #formdf1 <- as.formula(paste("~", paste(names(df1)[2:3],collapse="+")))
+  }
+  
+  if(method == "ISVA"){
+    library(isva)
   }
   
   if(method == "ReFACTor"){  #####
@@ -198,8 +205,14 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
     write.table(tab1, file = filename, sep="\t", col.names = T, quote = F)
   }
   
+  if(method == "SVA"){
+    tab1  = topTable(fite1, coef = 2, number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
+    filename <- paste("AdjustedforCellPropCpGs_", method, ".txt", sep = "")
+    write.table(tab1, file = filename, sep="\t", col.names = T, quote = F)
+  }
+  
   return(cell_Prop)
-  ## adjust for cell proportions
+
 }
 
 
@@ -229,9 +242,3 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
 # fite1 <- eBayes(fit1)
 # tab2  = topTable(fite1, coef = 2, number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
 
-
-
-tmp1 = lm(t(edata)~x1);
-dim3 = EstDimRMT(cbind(t(coef(tmp1)), t(resid(tmp1))), FALSE)$dim;
-test1 = RefFreeEwasModel(y2,cbind(1,x1,x2,x3,x4,x5,x6),dim3);
-testBoot1 = BootRefFreeEwasModel(test1, 50)
