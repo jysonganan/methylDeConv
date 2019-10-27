@@ -70,6 +70,7 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
   
   if(method == "ISVA"){
     library(isva)
+    fite1 <- DoISVA(input_methyl, input_phenotype, icamethod = "fastICA")
   }
   
   if(method == "ReFACTor"){  #####
@@ -209,6 +210,11 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
     tab1  = topTable(fite1, coef = 2, number=length(input_methyl[,1]), p.val=0.05,adjust = "fdr")
     filename <- paste("AdjustedforCellPropCpGs_", method, ".txt", sep = "")
     write.table(tab1, file = filename, sep="\t", col.names = T, quote = F)
+  }
+  
+  if(method == "ISVA"){
+    filename <- paste("AdjustedforCellPropCpGs_", method, ".txt", sep = "")
+    write.table(fite1, file = filename, sep="\t", col.names = T, quote = F)
   }
   
   return(cell_Prop)
