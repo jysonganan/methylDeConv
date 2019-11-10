@@ -4,7 +4,8 @@
 # O = y1[include,]
 # edata1 = edata[include,]
 
-MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL,numCelltypes = NULL, method = "RUV", normalized = TRUE){
+MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL,
+                         numCelltypes = NULL, method = "RUV", normalized = TRUE){
   if(normalized){
     MethylDeconv_normalized(input_methyl, input_phenotype, input_covariate, input_reference, numCelltypes, method)
   }
