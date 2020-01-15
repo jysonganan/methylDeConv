@@ -3,24 +3,31 @@
 # include = which(sd1>=quantile(sd1,0.05))
 # O = y1[include,]
 # edata1 = edata[include,]
-
 MethylDeconv <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL,
-                         numCelltypes = NULL, method = "RUV", normalized = TRUE){
+                         numCelltypes = NULL, method = "RUV", normalized = TRUE, tissue = "Blood"){
   if(normalized){
-    MethylDeconv_normalized(input_methyl, input_phenotype, input_covariate, input_reference, numCelltypes, method)
+    MethylDeconv_normalized(input_methyl, input_phenotype, input_covariate, input_reference, numCelltypes, method, tissue)
   }
   else{
-    ## RgSet
+    ## input is RgSet
     library(minfi)
-    print("Only could be blood and RGChannelset!")
-    output = estimateCellCounts(RGset, meanPlot = FALSE, returnAll = TRUE)
+    RGset <- input_methyl
+    GRset.quantile <- preprocessQuantile(RGset, fixOutliers = TRUE,
+                                         removeBadSamples = TRUE, badSampleCutoff = 10.5,
+                                         quantileNormalize = TRUE, stratified = TRUE, 
+                                         mergeManifest = FALSE, sex = NULL)
+    output <- list()
+    output[[1]] <- estimateCellCounts(RGset, meanPlot = FALSE, returnAll = FALSE)
+    output[[2]] <-  MethylDeconv_normalized(GRset.quantile, input_phenotype, input_covariate, input_reference, 
+                                            numCelltypes, method, tissue)
+    return(output)
   }
 }
 
 
 ## Generate reference profiles
 MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covariate = NULL, input_reference = NULL, 
-                                    numCelltypes = NULL, method = "RUV"){
+                                    numCelltypes = NULL, method = "RUV", tissue = "Blood"){
   
   x1 <- as.numeric(input_phenotype[,2])
   
@@ -30,6 +37,9 @@ MethylDeconv_normalized <- function(input_methyl, input_phenotype, input_covaria
       x2list[[i]] <- as.numeric(input_covariate[,i])
     }
   }
+  
+  
+  
   
   if(method == "RefFreeEWAS"){
     library(RefFreeEWAS)
