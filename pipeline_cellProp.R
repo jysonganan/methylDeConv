@@ -49,4 +49,18 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     }
     return(res)
   }
+  
+  if (method == "Houseman" && tissue == "DLPFC"){
+    library(FlowSorted.DLPFC.450k)
+    source("projectCellType.R")
+    if (is.null(custom_probes)){
+      load("FlowSorted.DLPFC.450k.ModelPars.RData")
+      res <- projectCellType(input_methyl[rownames(FlowSorted.DLPFC.450k.ModelPars),], 
+                             as.matrix(FlowSorted.DLPFC.450k.ModelPars))
+    }else{
+      load("FlowSorted.DLPFC.450k.compTable.RData")
+      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]))
+    }
+    return(res)
+  }
 }
