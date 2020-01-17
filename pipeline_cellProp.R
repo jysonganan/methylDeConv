@@ -105,6 +105,7 @@ MethylDeconv_BloodEPIC <- function(input_methyl, method = "Houseman", normalized
     library(minfi)
     library(FlowSorted.Blood.EPIC)
     data (IDOLOptimizedCpGs)
+    
     RGset <- input_methyl
     .isRGOrStop(RGset)
     .isEPICOrStop(RGset)
@@ -134,6 +135,21 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
       load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]))
     }
+    return(res)
+  }
+  if (method == "RPC"){
+    library(EpiDISH)
+    load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+    res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "RPC")
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "CBS"){
+    library(EpiDISH)
+    load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+    res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "CBS")
+    res <- res$estF
     return(res)
   }
 }
