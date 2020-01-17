@@ -1,3 +1,30 @@
+.isRGOrStop <- function(object){
+  if (!is(object, "RGChannelSet")){
+    stop("object is of class '", class(object), "', but needs to be of ",
+         "class 'RGChannelSet' or 'RGChannelSetExtended'")
+  }
+}
+
+.is450k <- function(object){
+  annotation(object)["array"] == "IlluminaHumanMethylation450k"
+}
+
+.isEPIC <- function(object){
+  annotation(object)["array"] == "IlluminaHumanMethylationEPIC"
+}
+
+.is450kOrStop <- function(object){
+  if (!.is450k(object)){
+    stop("object is not IlluminaHumanMethylation450k array!")
+  }
+}
+
+.isEPICOrStop <- function(object){
+  if (!.isEPIC(object)){
+    stop("object is not IlluminaHumanMethylationEPIC array!")
+  }
+}
+
 MethylDeconv <- function(input_methyl, method = "Houseman", normalized = TRUE, tissue = "Blood", custom_probes = NULL){
   if(normalized){
     # beta value input
@@ -7,6 +34,8 @@ MethylDeconv <- function(input_methyl, method = "Houseman", normalized = TRUE, t
     ## input is RgSet
     library(minfi)
     RGset <- input_methyl
+    .isRGOrStop(RGset)
+    .is450kOrStop(RGset)
     if (!tissue == "CordBlood"){
       GRset.normalized <- preprocessQuantile(RGset, fixOutliers = TRUE,
                                            removeBadSamples = TRUE, badSampleCutoff = 10.5,
@@ -60,6 +89,50 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     }else{
       load("FlowSorted.DLPFC.450k.compTable.RData")
       res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]))
+    }
+    return(res)
+  }
+}
+
+
+MethylDeconv_BloodEPIC <- function(input_methyl, method = "Houseman", normalized = TRUE, custom_probes = NULL){
+  if(normalized){
+    # beta value input
+    MethylDeconv_normalized_BloodEPIC(input_methyl, method, custom_probes)
+  }
+  else{
+    ## input is RgSet
+    library(minfi)
+    library(FlowSorted.Blood.EPIC)
+    data (IDOLOptimizedCpGs)
+    RGset <- input_methyl
+    .isRGOrStop(RGset)
+    .isEPICOrStop(RGset)
+    GRset.normalized <- preprocessNoob(RGset)
+    
+    output <- list()
+    output[[1]] <- estimateCellCounts2(RGset, compositeCellType = "Blood", processMethod = "preprocessNoob",
+                                       probeSelect = "IDOL", 
+                                       cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu"),
+                                       referencePlatform = "IlluminaHumanMethylationEPIC",
+                                       referenceset = NULL,
+                                       IDOLOptimizedCpGs =IDOLOptimizedCpGs,
+                                       returnAll = FALSE)
+    output[[2]] <- MethylDeconv_normalized_BloodEPIC(getBeta(GRset.normalized), method, custom_probes)
+    return(output)
+  }
+}
+
+MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman", custom_probes = NULL){
+  if (method == "Houseman"){
+    source("projectCellType.R")
+    if (is.null(custom_probes)){
+      load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+      res <- projectCellType(input_methyl[rownames(FlowSorted.Blood.EPIC.IDOLModelPars),], 
+                             as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars))}
+    else{
+      load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]))
     }
     return(res)
   }
