@@ -20,6 +20,22 @@ save(FlowSorted.DLPFC.450k.compTable, file = "FlowSorted.DLPFC.450k.compTable.RD
 FlowSorted.DLPFC.450k.ModelPars <- dat_frontCortex[[1]][dat_frontCortex[[2]], 3:4]
 save(FlowSorted.DLPFC.450k.ModelPars, file = "FlowSorted.DLPFC.450k.ModelPars.RData")
 
+
+## Blood, EPIC
+library(FlowSorted.Blood.EPIC)
+load("/Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.RData")
+data("IDOLOptimizedCpGs")
+GRset_EPIC <- preprocessNoob(FlowSorted.Blood.EPIC)
+
+##FlowSorted.Blood.EPIC.compTable, FlowSorted.Blood.EPIC.ModelPars
+dat_EPIC<- pickCompProbes(GRset_EPIC, cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu"), probeSelect = "both")
+FlowSorted.Blood.EPIC.compTable <- dat_EPIC[[1]]
+save(FlowSorted.Blood.EPIC.compTable, file = "FlowSorted.Blood.EPIC.compTable.RData")
+FlowSorted.Blood.EPIC.ModelPars <- dat_EPIC[[1]][dat_EPIC[[2]], 3:8]
+save(FlowSorted.Blood.EPIC.ModelPars, file = "FlowSorted.Blood.EPIC.ModelPars.RData")
+FlowSorted.Blood.EPIC.IDOLModelPars <- dat_EPIC[[1]][IDOLOptimizedCpGs, 3:8]
+save(FlowSorted.Blood.EPIC.IDOLModelPars, file = "FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+
 # library(FlowSorted.Blood.450k)
 # GRset.normalized <- preprocessQuantile(FlowSorted.Blood.450k)
 # GRset.normalized <- getBeta(GRset.normalized)
