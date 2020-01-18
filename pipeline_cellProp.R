@@ -36,6 +36,10 @@ MethylDeconv <- function(input_methyl, method = "Houseman", normalized = TRUE, t
     RGset <- input_methyl
     .isRGOrStop(RGset)
     .is450kOrStop(RGset)
+    if (tissue == "Breast"|tissue == "genericEpithelial"){
+      stop("For breast tissue/ generic epithelial tissue, 
+           only support normalized beta matrix, doesn't support RGset!")
+    }
     if (!tissue == "CordBlood"){
       GRset.normalized <- preprocessQuantile(RGset, fixOutliers = TRUE,
                                            removeBadSamples = TRUE, badSampleCutoff = 10.5,
@@ -93,6 +97,34 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     return(res)
   }
   
+  if (method == "Houseman" && tissue == "Breast"){
+    library(EpiDISH)
+    source("projectCellType.R")
+    if (is.null(custom_probes)){
+      data("centEpiFibFatIC.m")
+      res <- projectCellType(input_methyl[rownames(centEpiFibFatIC.m),], 
+                             centEpiFibFatIC.m)
+    }else{
+      stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
+           custom probes do not work!")
+    }
+    return(res)
+  }
+  
+  if (method == "Houseman" && tissue == "genericEpithelial"){
+    library(EpiDISH)
+    source("projectCellType.R")
+    if (is.null(custom_probes)){
+      data("centEpiFibIC.m")
+      res <- projectCellType(input_methyl[rownames(centEpiFibIC.m),], 
+                             centEpiFibIC.m)
+    }else{
+      stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
+           custom probes do not work!")
+    }
+    return(res)
+    }
+  
   if (method == "RPC" && tissue == "Blood"){
     library(FlowSorted.Blood.450k)
     library(EpiDISH)
@@ -131,6 +163,32 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     res <- res$estF
     return(res)
   }
+  
+  if (method == "RPC" && tissue == "Breast"){
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      data("centEpiFibFatIC.m")
+      res <- epidish(input_methyl, centEpiFibFatIC.m, method = "RPC")
+    }else{
+      stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
+           custom probes do not work!")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "RPC" && tissue == "genericEpithelial"){
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      data("centEpiFibIC.m")
+      res <- epidish(input_methyl, centEpiFibIC.m, method = "RPC")
+    }else{
+      stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
+           custom probes do not work!")
+    }
+    res <- res$estF
+    return(res)
+    }
   
   if (method == "CBS" && tissue == "Blood"){
     library(FlowSorted.Blood.450k)
@@ -171,6 +229,31 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     return(res)
   }
   
+  if (method == "CBS" && tissue == "Breast"){
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      data("centEpiFibFatIC.m")
+      res <- epidish(input_methyl, centEpiFibFatIC.m, method = "CBS")
+    }else{
+      stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
+           custom probes do not work!")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "CBS" && tissue == "genericEpithelial"){
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      data("centEpiFibIC.m")
+      res <- epidish(input_methyl, centEpiFibIC.m, method = "CBS")
+    }else{
+      stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
+           custom probes do not work!")
+    }
+    res <- res$estF
+    return(res)
+    }
 }
 
 
@@ -259,27 +342,4 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
 
 
 
-if(method == "EpiDISH_RPC"){
-  library(EpiDISH)
-  if(is.null(input_reference)){
-    print('Reference matrix set as whole blood by default!')
-    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
-  }
-}
-
-if(method == "EpiDISH_CBS"){
-  library(EpiDISH)
-  if(is.null(input_reference)){
-    print('Reference matrix set as whole blood by default!')
-    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CBS")$estF
-  }
-}
-
-if(method == "EpiDISH_CP"){
-  library(EpiDISH)
-  if(is.null(input_reference)){
-    print('Reference matrix set as whole blood by default!')
-    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CP")$estF
-  }
-}
 
