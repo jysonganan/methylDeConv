@@ -92,6 +92,85 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     }
     return(res)
   }
+  
+  if (method == "RPC" && tissue == "Blood"){
+    library(FlowSorted.Blood.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.JaffeModelPars), method = "RPC")
+    }
+    else{
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[cutom_probes,3:8]), method = "RPC")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "RPC" && tissue == "CordBlood"){
+    library(FlowSorted.CordBlood.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.ModelPars), method = "RPC")
+    }else{
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[cutom_probes,3:9]), method = "RPC")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "RPC" && tissue == "DLPFC"){
+    library(FlowSorted.DLPFC.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      load("FlowSorted.DLPFC.450k.ModelPars.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.ModelPars), method = "RPC")
+    }else{
+      load("FlowSorted.DLPFC.450k.compTable.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]), method = "RPC")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "CBS" && tissue == "Blood"){
+    library(FlowSorted.Blood.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.JaffeModelPars), method = "CBS")
+    }
+    else{
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[cutom_probes,3:8]), method = "CBS")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "CBS" && tissue == "CordBlood"){
+    library(FlowSorted.CordBlood.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.ModelPars), method = "CBS")
+    }else{
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[cutom_probes,3:9]), method = "CBS")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
+  if (method == "CBS" && tissue == "DLPFC"){
+    library(FlowSorted.DLPFC.450k)
+    library(EpiDISH)
+    if (is.null(custom_probes)){
+      load("FlowSorted.DLPFC.450k.ModelPars.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.ModelPars), method = "CBS")
+    }else{
+      load("FlowSorted.DLPFC.450k.compTable.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]), method = "CBS")
+    }
+    res <- res$estF
+    return(res)
+  }
+  
 }
 
 
@@ -137,19 +216,70 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
     }
     return(res)
   }
+  
   if (method == "RPC"){
     library(EpiDISH)
-    load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
-    res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "RPC")
+    if (is.null(custom_probes)){
+      load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "RPC")
+    }
+    else{
+      load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]), method = "RPC")
+    }
     res <- res$estF
     return(res)
   }
   
   if (method == "CBS"){
     library(EpiDISH)
-    load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
-    res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "CBS")
+    if (is.null(custom_probes)){
+      load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPar), method = "CBS")
+    }
+    else{
+      load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]), method = "CBS")
+    }
     res <- res$estF
     return(res)
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+if(method == "EpiDISH_RPC"){
+  library(EpiDISH)
+  if(is.null(input_reference)){
+    print('Reference matrix set as whole blood by default!')
+    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "RPC")$estF
+  }
+}
+
+if(method == "EpiDISH_CBS"){
+  library(EpiDISH)
+  if(is.null(input_reference)){
+    print('Reference matrix set as whole blood by default!')
+    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CBS")$estF
+  }
+}
+
+if(method == "EpiDISH_CP"){
+  library(EpiDISH)
+  if(is.null(input_reference)){
+    print('Reference matrix set as whole blood by default!')
+    cell_Prop <- epidish(beta.m = input_methyl, ref.m = centDHSbloodDMC.m, method = "CP")$estF
+  }
+}
+
