@@ -118,11 +118,13 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       data("centEpiFibIC.m")
       res <- projectCellType(input_methyl[rownames(centEpiFibIC.m),], 
                              centEpiFibIC.m)
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibIC.m, centDHSbloodDMC.m, h.CT.idx = 3, method = "CP")
     }else{
       stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
            custom probes do not work!")
     }
-    return(res)
+    return(list(res,res2))
     }
   
   if (method == "RPC" && tissue == "Blood"){
@@ -182,12 +184,14 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       data("centEpiFibIC.m")
       res <- epidish(input_methyl, centEpiFibIC.m, method = "RPC")
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibIC.m, centDHSbloodDMC.m, h.CT.idx = 3, method = "RPC")
     }else{
       stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
            custom probes do not work!")
     }
     res <- res$estF
-    return(res)
+    return(list(res, res2))
     }
   
   if (method == "CBS" && tissue == "Blood"){
@@ -247,12 +251,14 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       data("centEpiFibIC.m")
       res <- epidish(input_methyl, centEpiFibIC.m, method = "CBS")
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibIC.m, centDHSbloodDMC.m, h.CT.idx = 3, method = "CBS")
     }else{
       stop("For generic epithelial tissue, only support EpiDISH selected probes (centEpiFibIC.m), 
            custom probes do not work!")
     }
     res <- res$estF
-    return(res)
+    return(list(res,res2))
     }
 }
 
