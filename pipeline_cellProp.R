@@ -63,10 +63,12 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     library(FlowSorted.Blood.450k)
     source("projectCellType.R")
     if (is.null(custom_probes)){
-      res <- projectCellType(input_methyl[rownames(FlowSorted.Blood.450k.JaffeModelPars),], 
-                             as.matrix(FlowSorted.Blood.450k.JaffeModelPars))
+      use_probes <- intersect(rownames(input_methyl), rownames(FlowSorted.Blood.450k.JaffeModelPars))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             as.matrix(FlowSorted.Blood.450k.JaffeModelPars[use_probes,]))
     }else{
-      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.Blood.450k.compTable[cutom_probes,3:8]))
+      use_probes <- intersect(intersect(rownames(input_methyl), custom_probes), rownames(FlowSorted.Blood.450k.compTable))
+      res <- projectCellType(input_methyl[use_probes,],as.matrix(FlowSorted.Blood.450k.compTable[use_probes,3:8]))
     }
     return(res)
   }
@@ -75,10 +77,12 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     library(FlowSorted.CordBlood.450k)
     source("projectCellType.R")
     if (is.null(custom_probes)){
-      res <- projectCellType(input_methyl[rownames(FlowSorted.CordBlood.450k.ModelPars),], 
-                             as.matrix(FlowSorted.CordBlood.450k.ModelPars))
+      use_probes <- interect(rownames(input_methyl), rownames(FlowSorted.CordBlood.450k.ModelPars))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             as.matrix(FlowSorted.CordBlood.450k.ModelPars[use_probes,]))
     }else{
-      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.CordBlood.450k.compTable[cutom_probes,3:9]))
+      use_probes <- intersect(intersect(rownames(input_methyl), custom_probes), rownames(FlowSorted.CordBlood.450k.compTable))
+      res <- projectCellType(input_methyl[use_probes,],as.matrix(FlowSorted.CordBlood.450k.compTable[use_probes,3:9]))
     }
     return(res)
   }
@@ -88,11 +92,13 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     source("projectCellType.R")
     if (is.null(custom_probes)){
       load("FlowSorted.DLPFC.450k.ModelPars.RData")
-      res <- projectCellType(input_methyl[rownames(FlowSorted.DLPFC.450k.ModelPars),], 
-                             as.matrix(FlowSorted.DLPFC.450k.ModelPars))
+      use_probes <- interect(rownames(input_methyl), rownames(FlowSorted.DLPFC.450k.ModelPars))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             as.matrix(FlowSorted.DLPFC.450k.ModelPars[use_probes,]))
     }else{
       load("FlowSorted.DLPFC.450k.compTable.RData")
-      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]))
+      use_probes <- intersect(intersect(rownames(input_methyl), custom_probes), rownames(FlowSorted.DLPFC.450k.compTable))
+      res <- projectCellType(input_methyl[use_probes,],as.matrix(FlowSorted.DLPFC.450k.compTable[use_probes,3:4]))
     }
     return(res)
   }
@@ -102,8 +108,9 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     source("projectCellType.R")
     if (is.null(custom_probes)){
       data("centEpiFibFatIC.m")
-      res <- projectCellType(input_methyl[rownames(centEpiFibFatIC.m),], 
-                             centEpiFibFatIC.m)
+      use_probes <- intersect(rownames(input_methyl),rownames(centEpiFibFatIC.m))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             centEpiFibFatIC.m[use_probes,])
     }else{
       stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
            custom probes do not work!")
@@ -116,8 +123,9 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     source("projectCellType.R")
     if (is.null(custom_probes)){
       data("centEpiFibIC.m")
-      res <- projectCellType(input_methyl[rownames(centEpiFibIC.m),], 
-                             centEpiFibIC.m)
+      use_probes <- intersect(rownames(input_methyl),rownames(centEpiFibIC.m))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             centEpiFibIC.m[use_probes,])
       data("centDHSbloodDMC.m")
       res2 <- hepidish(input_methyl, centEpiFibIC.m, centDHSbloodDMC.m, h.CT.idx = 3, method = "CP")
     }else{
@@ -297,11 +305,13 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
     source("projectCellType.R")
     if (is.null(custom_probes)){
       load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
-      res <- projectCellType(input_methyl[rownames(FlowSorted.Blood.EPIC.IDOLModelPars),], 
-                             as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars))}
+      use_probes <- intersect(rownames(input_methyl), rownames(FlowSorted.Blood.EPIC.IDOLModelPars))
+      res <- projectCellType(input_methyl[use_probes,], 
+                             as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars[use_probes,]))}
     else{
       load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
-      res <- projectCellType(input_methyl[custom_probes,],as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]))
+      use_probes <- intersect(intersect(rownames(FlowSorted.Blood.EPIC.compTable), custom_probes),rownames(input_methyl))
+      res <- projectCellType(input_methyl[use_probes,],as.matrix(FlowSorted.Blood.EPIC.compTable[use_probes,3:8]))
     }
     return(res)
   }
