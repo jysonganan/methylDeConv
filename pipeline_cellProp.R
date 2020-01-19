@@ -179,12 +179,14 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       data("centEpiFibFatIC.m")
       res <- epidish(input_methyl, centEpiFibFatIC.m, method = "RPC")
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibFatIC.m, centDHSbloodDMC.m, h.CT.idx = 4, method = "RPC")
     }else{
       stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
            custom probes do not work!")
     }
     res <- res$estF
-    return(res)
+    return(list(res, res2))
   }
   
   if (method == "RPC" && tissue == "genericEpithelial"){
@@ -246,12 +248,14 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       data("centEpiFibFatIC.m")
       res <- epidish(input_methyl, centEpiFibFatIC.m, method = "CBS")
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibFatIC.m, centDHSbloodDMC.m, h.CT.idx = 4, method = "CBS")
     }else{
       stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
            custom probes do not work!")
     }
     res <- res$estF
-    return(res)
+    return(list(res,res2))
   }
   
   if (method == "CBS" && tissue == "genericEpithelial"){
