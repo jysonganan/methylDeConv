@@ -40,6 +40,10 @@ path <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadin
 MethylTab <- readTCGA(path, dataType = "methylation")
 
 
+
+
+
+
 ## KICH
 downloadTCGA(cancerTypes = "KICH", dataSet = "Merge_methylation__humanmethylation450", 
              destDir = "/Users/junesong/Desktop/causal inference", date = "2016-01-28")
@@ -71,6 +75,75 @@ mse(res4[[2]],res5[[2]])
 mse(res4[[2]],res6[[2]])
 mse(res5[[2]],res6[[2]])
 
+
+boxplot(res1, main = "KICH: Blood-Houseman")
+boxplot(res2, main = "KICH: Blood-RPC")
+boxplot(res3, main = "KICH: Blood-CIBERSORT")
+
+
+boxplot(res4[[2]][,c("CD8T","CD4T","NK","B","Mono","Neutro","Eosino","Epi","Fib")], main = "KICH: Epithelial-Houseman")
+boxplot(res5[[2]][,c("CD8T","CD4T","NK","B","Mono","Neutro","Eosino","Epi","Fib")], main = "KICH: Epithelial-RPC")
+boxplot(res6[[2]][,c("CD8T","CD4T","NK","B","Mono","Neutro","Eosino","Epi","Fib")], main = "KICH: Epithelial-CIBERSORT")
+
+# Download Clinical data
+downloadTCGA(cancerTypes = "KICH", destDir = "/Users/junesong/Desktop/causal inference", date = "2016-01-28")
+clinicalTab <- read.table("/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_Clinical.Level_1.2016012800.0.0/KICH.clin.merged.txt",
+                          header = F, sep = "\t", fill = T, quote = "")
+rownames(clinicalTab) <- as.character(clinicalTab[,1])
+clinicalTab <- clinicalTab[,-1]
+colnames(clinicalTab) <- NULL
+colnames(clinicalTab) <- as.character(as.matrix(clinicalTab[12,]))
+clinicalTab <- clinicalTab[c(11,244,265,276,323,325),]
+colnames(clinicalTab) <- toupper(colnames(clinicalTab))
+
+age_dat_blood <- matrix(NA, 66, 7)
+samples <- substr(rownames(res1),1,12)
+rownames(age_dat_blood) <- samples
+age_dat_blood[,1:6] <- res1
+age_dat_blood[,7] <- as.character(clinicalTab[1, match(samples,colnames(clinicalTab))])
+age_dat_blood <- apply(age_dat_blood, 2, as.numeric)
+colnames(age_dat_blood) <- c(colnames(res1),"age")
+age_dat_blood <- as.data.frame(age_dat_blood)
+
+age_dat_blood_epithelial <- matrix(NA, 66, 10)
+samples <- substr(rownames(res4[[2]]),1,12)
+rownames(age_dat_blood_epithelial) <- samples
+age_dat_blood_epithelial[,1:9] <- res4[[2]]
+age_dat_blood_epithelial[,10] <- as.character(clinicalTab[1, match(samples,colnames(clinicalTab))])
+age_dat_blood_epithelial <- apply(age_dat_blood_epithelial, 2, as.numeric)
+colnames(age_dat_blood_epithelial) <- c(colnames(res4[[2]]),"age")
+age_dat_blood_epithelial <- as.data.frame(age_dat_blood_epithelial)
+
+
+library(ggplot2)
+library(tidyr)
+# p = ggplot() + 
+#   geom_point(data = age_dat_blood, aes(x = age, y = CD8T), color = "blue") +
+#   geom_point(data = age_dat_blood, aes(x = age, y = CD4T), color = "red") +
+#   geom_point(data = age_dat_blood, aes(x = age, y = NK), color = "black") +
+#   geom_point(data = age_dat_blood, aes(x = age, y = Bcell), color = "green") +
+#   geom_point(data = age_dat_blood, aes(x = age, y = Mono), color = "yellow") +
+#   geom_point(data = age_dat_blood, aes(x = age, y = Gran), color = "purple") +
+
+
+df <- gather(age_dat_blood, series,value,-age)
+ggplot(df) + geom_point(aes(age ,value,color=series)) +
+  xlab('age') +
+  ylab('proportions') +
+  ggtitle("KICH: Blood-Houseman")
+
+ggplot(df) + geom_point(aes(age ,value,color=series)) +
+  geom_smooth(aes(age ,value,color=series)) +
+  xlab('age') +
+  ylab('proportions') +
+  ggtitle("KICH: Blood-Houseman")
+
+df <- gather(age_dat_blood_epithelial, series,value,-age)
+ggplot(df) + geom_point(aes(age ,value,color=series)) +
+  geom_smooth(aes(age ,value,color=series)) +
+  xlab('age') +
+  ylab('proportions') +
+  ggtitle("KICH: Epithelial-Houseman")
 
 
 library(magrittr)
