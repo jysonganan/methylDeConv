@@ -1,4 +1,5 @@
 projectCellType <- function(Y, coefCellType, contrastCellType = NULL, nonnegative = TRUE, lessThanOne = FALSE){
+  library(quadprog)
   if (is.null(contrastCellType)) {
     Xmat <- coefCellType
   } else {
