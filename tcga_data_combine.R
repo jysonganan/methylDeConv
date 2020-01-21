@@ -146,6 +146,93 @@ ggplot(df) + geom_point(aes(age ,value,color=series)) +
   ggtitle("KICH: Epithelial-Houseman")
 
 
+gender_dat_blood <- matrix(NA, 66, 7)
+samples <- substr(rownames(res1),1,12)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:6] <- res1
+gender_dat_blood[,7] <- as.character(as.matrix(clinicalTab[2, match(samples,colnames(clinicalTab))]))
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:6] <- apply(gender_dat_blood[1:6], 2, as.numeric)
+colnames(gender_dat_blood) <- c(colnames(res1),"gender")
+
+df <- gather(gender_dat_blood, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("KICH: Blood-Houseman")
+
+gender_dat_epithelial <- matrix(NA, 66, 10)
+samples <- substr(rownames(res1),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:9] <- res4[[2]]
+gender_dat_epithelial[,10] <- as.character(as.matrix(clinicalTab[2, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:9] <- apply(gender_dat_epithelial[1:9], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(res4[[2]]),"gender")
+
+df <- gather(gender_dat_epithelial, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("KICH: Epithelial-Houseman")
+
+
+
+
+
+gender_dat_epithelial <- matrix(NA, 66, 10)
+samples <- substr(rownames(res4[[2]]),1,12)
+rownames(age_dat_blood_epithelial) <- samples
+age_dat_blood_epithelial[,1:9] <- res4[[2]]
+age_dat_blood_epithelial[,10] <- as.character(clinicalTab[1, match(samples,colnames(clinicalTab))])
+age_dat_blood_epithelial <- apply(age_dat_blood_epithelial, 2, as.numeric)
+colnames(age_dat_blood_epithelial) <- c(colnames(res4[[2]]),"age")
+age_dat_blood_epithelial <- as.data.frame(age_dat_blood_epithelial)
+
+
+##### Survival plots
+clinicalTab <- read.table("/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_Clinical.Level_1.2016012800.0.0/KICH.clin.merged.txt",
+                          header = F, sep = "\t", fill = T, quote = "")
+rownames(clinicalTab) <- as.character(clinicalTab[,1])
+clinicalTab <- clinicalTab[,-1]
+colnames(clinicalTab) <- NULL
+colnames(clinicalTab) <- as.character(as.matrix(clinicalTab[12,]))
+survTab <- clinicalTab[c(17,19, 325),]
+colnames(survTab) <- toupper(colnames(survTab))
+samples <- substr(rownames(res1),1,12)
+survTab <- survTab[,match(samples, colnames(survTab))]
+survTab <- t(survTab)
+survTab <- as.data.frame(survTab)
+survTab[,1] <- as.numeric(as.character(survTab[,1]))
+survTab[,2] <- as.numeric(as.character(survTab[,2]))
+survTab <- cbind(survTab,res1)
+survTab$status <- as.numeric(survTab$patient.vital_status == "dead")
+
+library(survival)
+library(ranger)
+library(ggplot2)
+library(dplyr)
+library(ggfortify)
+
+survTab$days <- rep(NA,66)
+survTab[which(survTab$status == 1),11] <- survTab[which(survTab$status == 1),1]
+survTab[which(survTab$status == 0),11] <- survTab[which(survTab$status == 0),2]
+
+survTab$trt <- factor((survTab$CD4T < 0.367),labels = c("high_CD4T","low_CD4T"))
+## 0 cencored 1 observed.
+km_trt_fit <- survfit(Surv(days, status) ~ trt, data=survTab)
+summary(km_trt_fit)
+autoplot(km_trt_fit)
+autoplot(km_trt_fit,main = "KICH: Blood-Houseman")
+
+
+
+
+
+
+
+
+
 library(magrittr)
 infoTCGA()
 head()
