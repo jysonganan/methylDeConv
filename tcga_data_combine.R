@@ -213,6 +213,7 @@ library(ranger)
 library(ggplot2)
 library(dplyr)
 library(ggfortify)
+library(survminer)
 
 survTab$days <- rep(NA,66)
 survTab[which(survTab$status == 1),11] <- survTab[which(survTab$status == 1),1]
@@ -224,9 +225,15 @@ km_trt_fit <- survfit(Surv(days, status) ~ trt, data=survTab)
 summary(km_trt_fit)
 autoplot(km_trt_fit)
 autoplot(km_trt_fit,main = "KICH: Blood-Houseman")
+## or ggplot
+ggsurvplot(km_trt_fit, data = survTab, pval = TRUE, title = "KICH: Blood-Houseman")
 
 
 
+cox <- coxph(Surv(days, status) ~ CD8T + CD4T + NK + Bcell + Mono + Gran, data=survTab)
+summary(cox)
+cox_fit <- survfit(cox)
+autoplot(cox_fit)
 
 
 
