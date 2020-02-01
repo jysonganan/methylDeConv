@@ -1,6 +1,8 @@
 ## 40 samples from individuals hospitalized with acute mania as well as unaffected controls.
 
 library(GEOquery)
+
+# supplemental files to GEO series (GSE), GEO platforms (GPL) and GEO samples (GSM)
 getGEOSuppFiles("GSE68777")
 untar("GSE68777/GSE68777_RAW.tar", exdir = "GSE68777/idat")
 head(list.files("GSE68777/idat", pattern = "idat"))
@@ -8,8 +10,13 @@ head(list.files("GSE68777/idat", pattern = "idat"))
 idatFiles <- list.files("GSE68777/idat", pattern = "idat.gz$", full = TRUE)
 sapply(idatFiles, gunzip, overwrite = TRUE)
 
-# rgSet <- read.450k.exp("GSE68777/idat")
-# rgSet
+library(minfi)
+#targets <- read.metharray.sheet("GSE68777/idat") #however, no sample sheet!
+rgSet <- read.metharray.exp("GSE68777/idat")
+# 450k, (622399,40)
+
+
+
 
 ### phenotype data stored in GEO
 geoMat <- getGEO("GSE68777")
@@ -23,10 +30,17 @@ pD$sex <- sub("^Sex: ", "", pD$sex)
 
 ## add phenotype data
 sampleNames(rgSet) <- sub(".*_5", "5", sampleNames(rgSet))
+
 rownames(pD) <- pD$title
 pD <- pD[sampleNames(rgSet),]
+pD <- as(pD, "DataFrame")
 pData(rgSet) <- pD
 rgSet
+
+
+
+
+
 
 
 ##
