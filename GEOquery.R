@@ -373,12 +373,24 @@ pD.all <- pData(geoMat_110530[[1]])
 
 ## 6 GSE69914
 # 450k, whole blood, purified breast epithelial cells.
-### limit reached
 geoMat_69914<- getGEO("GSE69914")
 pD.all <- pData(geoMat_69914[[1]])
+# 407 47
+pD <- pD.all[, c("title", "geo_accession", 
+                 "status(0=normal 1=normal-adjacent 2=breast cancer 3=normal-brca1 4=cancer-brca1):ch1")]
+
+getGEOSuppFiles("GSE69914")
+untar("GSE69914/GSE69914_RAW.tar", exdir = "GSE69914/idat")
+## head(list.files("GSE69914/idat", pattern = "idat"))
+## not idat.gz files
 
 
-##7 GSE67919
+
+## 7 GSE67919
+# 450k, whole blood, purified breast epithelial cells.
 geoMat_67919<- getGEO("GSE67919")
 
-## 8 
+## 8 GSE77797
+# 12 artificial reconstructed mixtures of purified leukocyte subtypes measured on 450k platform 
+# with mixture proportions from a six-component Dirichlet distribution.
+geoMat_77797<- getGEO("GSE77797")
