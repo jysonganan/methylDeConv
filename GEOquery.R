@@ -398,7 +398,112 @@ head(list.files("GSE67919/idat", pattern = "idat"))
 ## not idat.gz file
 
 
-## 8 GSE77797
+## 8 GSE77797 whole blood 18 samples
 # 12 artificial reconstructed mixtures of purified leukocyte subtypes measured on 450k platform 
 # with mixture proportions from a six-component Dirichlet distribution.
 geoMat_77797<- getGEO("GSE77797")
+pD.all <- pData(geoMat_77797[[1]])
+# 18 47
+getGEOSuppFiles("GSE77797")
+untar("GSE77797/GSE77797_RAW.tar", exdir = "GSE77797/idat")
+head(list.files("GSE77797/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE77797/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+
+library(minfi)
+rgSet_77797 <- read.metharray.exp("GSE77797/idat")
+
+pD <- pD.all[, c("title", "geo_accession", "b cell (%):ch1", "cd4+ t cell (%):ch1", "cd8+ t cell (%):ch1",
+                 "granulocyte (%):ch1", "monocyte (%):ch1", "natural killer cell (%):ch1")]
+
+
+## add phenotype data
+sampleNames(rgSet_77797) <- substr(sampleNames(rgSet_77797), 1, 10)
+pD <- pD[sampleNames(rgSet_77797),]
+pD <- as(pD, "DataFrame")
+pData(rgSet_77797) <- pD
+rgSet_77797
+
+grSet_77797 <- preprocessQuantile(rgSet_77797)
+getBeta(grSet_77797)[1:3,1:3]
+head(getIslandStatus(grSet_77797))
+betaMat_77797 <- getBeta(grSet_77797)
+## 485512      18
+res1 <- MethylDeconv(betaMat_77797, method = "Houseman")
+res2 <- MethylDeconv(betaMat_77797, method = "RPC")
+res3 <- MethylDeconv(betaMat_77797, method = "CBS")
+###
+res1_1 <- MethylDeconv(rgSet_77797, method = "Houseman", normalized = FALSE)
+#res2_1 <- MethylDeconv(rgSet_77797, method = "RPC", normalized = FALSE)
+#res3_1 <- MethylDeconv(rgSet_77797, method = "RPC", normalized = FALSE)
+
+pD_77797 <- pD.all[, c("title", "geo_accession", "b cell (%):ch1", "cd4+ t cell (%):ch1", "cd8+ t cell (%):ch1",
+                             "granulocyte (%):ch1", "monocyte (%):ch1", "natural killer cell (%):ch1")]
+pD_77797 <- pD_77797[sampleNames(rgSet_77797),]
+facs_77797 <- pD_77797[,3:8]
+colnames(facs_77797) <- c("Bcell", "CD4T", "CD8T","Gran","Mono","NK")
+facs_77797_prop <- cbind(facs_77797[,"CD8T"], facs_77797[,"CD4T"], facs_77797[,"NK"],
+                          facs_77797[,"Bcell"],facs_77797[,"Mono"],facs_77797[,"Gran"])
+facs_77797_prop <- as.data.frame(facs_77797_prop)
+rownames(facs_77797_prop) = rownames(res1)
+colnames(facs_77797_prop) = colnames(res1)
+for (i in 1:6){
+  facs_77797_prop[,i] <- as.numeric(as.character(facs_77797_prop[,i]))
+}
+facs_77797_prop <- facs_77797_prop/100
+
+rsquared = corr = rmse = rep(NA, 6)
+library(hydroGOF)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res1[,i]~facs_77797_prop[,i]))$r.squared
+  corr[i] <- cor(res1[,i], facs_77797_prop[,i], method = "spearman")
+}
+rmse <- mse(res1, facs_77797_prop)
+
+library(tidyr)
+library(ggplot2)
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                 SpearmanCorr = corr)
+ggplot(data = df %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
+
+
+
+rsquared = corr = rmse = rep(NA, 6)
+library(hydroGOF)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res2[,i]~facs_77797_prop[,i]))$r.squared
+  corr[i] <- cor(res2[,i], facs_77797_prop[,i], method = "spearman")
+}
+rmse <- mse(res2, facs_77797_prop)
+
+library(tidyr)
+library(ggplot2)
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                 SpearmanCorr = corr)
+ggplot(data = df %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
+
+
+
+rsquared = corr = rmse = rep(NA, 6)
+library(hydroGOF)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res3[,i]~facs_77797_prop[,i]))$r.squared
+  corr[i] <- cor(res3[,i], facs_77797_prop[,i], method = "spearman")
+}
+rmse <- mse(res3, facs_77797_prop)
+
+library(tidyr)
+library(ggplot2)
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                 SpearmanCorr = corr)
+ggplot(data = df %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
