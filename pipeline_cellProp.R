@@ -77,7 +77,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     library(FlowSorted.CordBlood.450k)
     source("projectCellType.R")
     if (is.null(custom_probes)){
-      use_probes <- interect(rownames(input_methyl), rownames(FlowSorted.CordBlood.450k.ModelPars))
+      use_probes <- intersect(rownames(input_methyl), rownames(FlowSorted.CordBlood.450k.ModelPars))
       res <- projectCellType(input_methyl[use_probes,], 
                              as.matrix(FlowSorted.CordBlood.450k.ModelPars[use_probes,]))
     }else{
