@@ -278,7 +278,7 @@ facs_112618_prop
 
 rsquared <- rep(NA, 6)
 for (i in 1:6){
-  rsquared[i] <- summary(lm(res1[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
+  rsquared[i] <- summary(lm(res1[,i]~as.numeric(as.character(facs_112618_prop[,i]))))$r.squared
 }
 df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
                  Rsquared = rsquared)
@@ -290,7 +290,7 @@ p
 
 corr <- rep(NA, 6)
 for (i in 1:6){
-  corr[i] <-cor(res1[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
+  corr[i] <-cor(res1[,i],as.numeric(as.character(facs_112618_prop[,i])),method = "spearman")
 }
 df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
                  SpearmanCorr = corr)
@@ -301,55 +301,55 @@ p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
 p
 
 
-rsquared <- rep(NA, 6)
-for (i in 1:6){
-  rsquared[i] <- summary(lm(res2[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
-}
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
-                 Rsquared = rsquared)
-library(ggplot2)
-p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
-  geom_bar(stat="identity",width=0.5)+
-  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
-p
 
-corr <- rep(NA, 6)
-for (i in 1:6){
-  corr[i] <-cor(res2[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
-}
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
-                 SpearmanCorr = corr)
+library(tidyr)
 library(ggplot2)
-p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
-  geom_bar(stat="identity",width=0.5)+
-  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
-p
+df1 <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                 SpearmanCorr = corr)
+ggplot(data = df1 %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
 
 
 
 rsquared <- rep(NA, 6)
 for (i in 1:6){
-  rsquared[i] <- summary(lm(res3[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
+  rsquared[i] <- summary(lm(res2[,i]~as.numeric(as.character(facs_112618_prop[,i]))))$r.squared
 }
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
-                 Rsquared = rsquared)
-library(ggplot2)
-p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
-  geom_bar(stat="identity",width=0.5)+
-  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
-p
-
 corr <- rep(NA, 6)
 for (i in 1:6){
-  corr[i] <-cor(res3[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
+  corr[i] <-cor(res2[,i],as.numeric(as.character(facs_112618_prop[,i])),method = "spearman")
 }
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
-                 SpearmanCorr = corr)
-library(ggplot2)
-p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
-  geom_bar(stat="identity",width=0.5)+
-  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
-p
+df1 <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                  SpearmanCorr = corr)
+ggplot(data = df1 %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
+
+
+
+
+rsquared <- rep(NA, 6)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res3[,i]~as.numeric(as.character(facs_112618_prop[,i]))))$r.squared
+}
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res3[,i],as.numeric(as.character(facs_112618_prop[,i])),method = "spearman")
+}
+df1 <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+                  SpearmanCorr = corr)
+ggplot(data = df1 %>% gather(Variable, values, -cellType), 
+       aes(x = cellType, y = values, fill = Variable)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
+
+
+
+
+
 
 
 
