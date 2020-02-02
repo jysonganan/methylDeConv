@@ -130,6 +130,7 @@ betaMat_127824 <- getBeta(grSet_127824)
 ## 485512     24
 
 res1 <- MethylDeconv(betaMat_127824, method = "Houseman", normalized = TRUE, tissue = "CordBlood")
+# res1_1 <- MethylDeconv(rgSet_127824, method = "Houseman", normalized = FALSE, tissue = "CordBlood")
 ### check correlation
 pD_127824 <- pD.all[, c("title", "geo_accession", "b cells:ch1", "cd4t cells:ch1", "cd8t cells:ch1", "granulocytes:ch1", 
                  "monocytes:ch1", "nk cells:ch1", "nrbcs:ch1", "Sex:ch1", "subject status:ch1", "tissue:ch1")]
@@ -137,3 +138,247 @@ pD_127824 <- pD_127824[sampleNames(rgSet_127824),]
 facs_127824 <- pD_127824[,3:9]
 facs_127824_prop <- apply(facs_127824,1,function(x){return(as.numeric(x)/sum(as.numeric(x)))})
 facs_127824_prop <- t(facs_127824_prop)
+
+rsquared <- rep(NA, 7)
+for (i in 1:7){
+  rsquared[i] <- summary(lm(res1[,i]~as.numeric(facs_127824[,i])))$r.squared
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 7)
+for (i in 1:7){
+  corr[i] <- cor(res1[,i], as.numeric(facs_127824_prop[,i]), method = "spearman")
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+
+#
+res2 <- MethylDeconv(betaMat_127824, method = "RPC", normalized = TRUE, tissue = "CordBlood")
+rsquared <- rep(NA, 7)
+for (i in 1:7){
+  rsquared[i] <- summary(lm(res2[,i]~as.numeric(facs_127824[,i])))$r.squared
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 7)
+for (i in 1:7){
+  corr[i] <- cor(res2[,i], as.numeric(facs_127824_prop[,i]), method = "spearman")
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+res3 <- MethylDeconv(betaMat_127824, method = "CBS", normalized = TRUE, tissue = "CordBlood")
+rsquared <- rep(NA, 7)
+for (i in 1:7){
+  rsquared[i] <- summary(lm(res3[,i]~as.numeric(facs_127824[,i])))$r.squared
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 7)
+for (i in 1:7){
+  corr[i] <- cor(res3[,i], as.numeric(facs_127824_prop[,i]), method = "spearman")
+}
+df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+
+
+## 4. Methylation measured on EPIC platform whole blood, compared with FACS measured cell proportions.
+getGEOSuppFiles("GSE112618")
+untar("GSE112618/GSE112618_RAW.tar", exdir = "GSE112618/idat")
+head(list.files("GSE112618/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE112618/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+library(minfi)
+rgSet_112618 <- read.metharray.exp("GSE112618/idat")
+
+geoMat_112618 <- getGEO("GSE112618")
+pD.all <- pData(geoMat_112618[[1]])
+
+
+pD <- pD.all[, c("title", "geo_accession", "bcell proportion:ch1", "cd4t proportion:ch1", "cd8t proportion:ch1",
+                 "granulocytes proportion:ch1", "monocytes proportion:ch1", "neutrophils proportion:ch1", 
+                 "nk proportion:ch1","Sex:ch1")]
+
+
+
+
+## add phenotype data
+sampleNames(rgSet_112618) <- substr(sampleNames(rgSet_112618), 1, 10)
+pD <- pD[sampleNames(rgSet_112618),]
+pD <- as(pD, "DataFrame")
+pData(rgSet_112618) <- pD
+rgSet_112618
+
+# res1 <- MethylDeconv_BloodEPIC(rgSet_112618, method = "Houseman", normalized = FALSE)
+# res2 <- MethylDeconv_BloodEPIC(rgSet_112618, method = "RPC", normalized = FALSE)
+# res3 <- MethylDeconv_BloodEPIC(rgSet_112618, method = "CBS", normalized = FALSE)
+
+##
+grSet_112618 <- preprocessNoob(rgSet_112618)
+getBeta(grSet_112618)[1:3,1:3]
+head(getIslandStatus(grSet_112618))
+betaMat_112618 <- getBeta(grSet_112618)
+## 866091      6
+res1 <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "Houseman")
+res2 <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "RPC")
+res3 <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "CBS")
+###
+
+
+
+pD_112618 <-pD.all[, c("title", "geo_accession", "bcell proportion:ch1", "cd4t proportion:ch1", "cd8t proportion:ch1",
+                       "granulocytes proportion:ch1", "monocytes proportion:ch1", "neutrophils proportion:ch1", 
+                       "nk proportion:ch1","Sex:ch1")]
+pD_112618 <- pD_112618[sampleNames(rgSet_112618),]
+facs_112618 <- pD_112618[,3:9]
+colnames(facs_112618) <- c("Bcell", "CD4T", "CD8T","Gran","Mono","Neutro","NK")
+facs_112618_prop <- cbind(facs_112618[,"CD8T"], facs_112618[,"CD4T"], facs_112618[,"NK"],
+                          facs_112618[,"Bcell"],facs_112618[,"Mono"],
+                          as.numeric(facs_112618[,"Gran"])+as.numeric(facs_112618[,"Neutro"]))
+facs_112618_prop <- as.data.frame(facs_112618_prop)
+rownames(facs_112618_prop) = rownames(res1)
+colnames(facs_112618_prop) = colnames(res1)
+facs_112618_prop
+
+rsquared <- rep(NA, 6)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res1[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res1[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+
+rsquared <- rep(NA, 6)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res2[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res2[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+
+
+rsquared <- rep(NA, 6)
+for (i in 1:6){
+  rsquared[i] <- summary(lm(res3[,i]~as.numeric(facs_112618_prop[,i])))$r.squared
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 Rsquared = rsquared)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=Rsquared)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(rsquared,2)), vjust=-0.3, size=3.5)
+p
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res3[,i],as.numeric(facs_112618_prop[,i]),method = "spearman")
+}
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"),
+                 SpearmanCorr = corr)
+library(ggplot2)
+p<-ggplot(data=df, aes(x=cellType, y=SpearmanCorr)) +
+  geom_bar(stat="identity",width=0.5)+
+  geom_text(aes(label= round(corr,2)), vjust=-0.3, size=3.5)
+p
+
+
+
+## 5 GSE110530
+# Methylation measured on EPIC platform, compared with FACS measured cell proportions
+getGEOSuppFiles("GSE110530")
+untar("GSE110530/GSE110530_RAW.tar", exdir = "GSE110530/idat")
+head(list.files("GSE110530/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE110530/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+library(minfi)
+rgSet_110530 <- read.metharray.exp("GSE110530/idat")
+
+geoMat_110530 <- getGEO("GSE110530")
+pD.all <- pData(geoMat_110530[[1]])
+
+## missing FACS counts for 5 samples of the total 12 samples
+
+
+
+## 6 GSE69914
+# 450k, whole blood, purified breast epithelial cells.
+### limit reached
+geoMat_69914<- getGEO("GSE69914")
+pD.all <- pData(geoMat_69914[[1]])
+
+
+##7 GSE67919
+geoMat_67919<- getGEO("GSE67919")
+
+## 8 
