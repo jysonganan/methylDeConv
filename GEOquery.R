@@ -387,8 +387,16 @@ untar("GSE69914/GSE69914_RAW.tar", exdir = "GSE69914/idat")
 
 
 ## 7 GSE67919
-# 450k, whole blood, purified breast epithelial cells.
+# 450k, breast epithelial cells with race, sex, age, smoking information.
 geoMat_67919<- getGEO("GSE67919")
+pD.all <- pData(geoMat_67919[[1]])
+# 96 49
+
+getGEOSuppFiles("GSE67919")
+untar("GSE67919/GSE67919_RAW.tar", exdir = "GSE67919/idat")
+head(list.files("GSE67919/idat", pattern = "idat"))
+## not idat.gz file
+
 
 ## 8 GSE77797
 # 12 artificial reconstructed mixtures of purified leukocyte subtypes measured on 450k platform 
