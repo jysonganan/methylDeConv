@@ -92,8 +92,18 @@ head(list.files("GSE15014/idat", pattern = "idat"))
 
 
 ## 2 whole blood for over 650 samples in RA cases and control (Liu data)
-## geoMat_42861 <- getGEO("GSE42861")
-## limit reached
+geoMat_42861 <- getGEO("GSE42861")
+pD.all <- pData(geoMat_42861[[1]])
+
+getGEOSuppFiles("GSE42861")
+untar("GSE42861/GSE42861_RAW.tar", exdir = "GSE42861/idat")
+head(list.files("GSE42861/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE42861/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+## too large !
+
+
 
 
 ##3 Test data of seven cell types (Gran, Mono, Bcell, CD4T, CD8T, NK and nRBCs) with matched FACS counts.
@@ -136,12 +146,15 @@ pD_127824 <- pD.all[, c("title", "geo_accession", "b cells:ch1", "cd4t cells:ch1
                  "monocytes:ch1", "nk cells:ch1", "nrbcs:ch1", "Sex:ch1", "subject status:ch1", "tissue:ch1")]
 pD_127824 <- pD_127824[sampleNames(rgSet_127824),]
 facs_127824 <- pD_127824[,3:9]
+for (i in 1:7){
+  facs_127824[,i] <- as.numeric(facs_127824[,i])
+}
 facs_127824_prop <- apply(facs_127824,1,function(x){return(as.numeric(x)/sum(as.numeric(x)))})
 facs_127824_prop <- t(facs_127824_prop)
 
 rsquared <- rep(NA, 7)
 for (i in 1:7){
-  rsquared[i] <- summary(lm(res1[,i]~as.numeric(facs_127824[,i])))$r.squared
+  rsquared[i] <- summary(lm(res1[,i]~facs_127824_prop[,i]))$r.squared
 }
 df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
                  Rsquared = rsquared)
@@ -153,7 +166,7 @@ p
 
 corr <- rep(NA, 7)
 for (i in 1:7){
-  corr[i] <- cor(res1[,i], as.numeric(facs_127824_prop[,i]), method = "spearman")
+  corr[i] <- cor(res1[,i], facs_127824_prop[,i], method = "spearman")
 }
 df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
                  SpearmanCorr = corr)
@@ -168,7 +181,7 @@ p
 res2 <- MethylDeconv(betaMat_127824, method = "RPC", normalized = TRUE, tissue = "CordBlood")
 rsquared <- rep(NA, 7)
 for (i in 1:7){
-  rsquared[i] <- summary(lm(res2[,i]~as.numeric(facs_127824[,i])))$r.squared
+  rsquared[i] <- summary(lm(res2[,i]~facs_127824[,i]))$r.squared
 }
 df <- data.frame(cellType = c("Bcell","CD4T","CD8T","Gran","Mono","NK","nRBC"),
                  Rsquared = rsquared)
@@ -379,23 +392,87 @@ pD.all <- pData(geoMat_69914[[1]])
 pD <- pD.all[, c("title", "geo_accession", 
                  "status(0=normal 1=normal-adjacent 2=breast cancer 3=normal-brca1 4=cancer-brca1):ch1")]
 
-getGEOSuppFiles("GSE69914")
-untar("GSE69914/GSE69914_RAW.tar", exdir = "GSE69914/idat")
+#getGEOSuppFiles("GSE69914")
+#untar("GSE69914/GSE69914_RAW.tar", exdir = "GSE69914/idat")
 ## head(list.files("GSE69914/idat", pattern = "idat"))
 ## not idat.gz files
+betaMat_69914 <- read.table("GSE69914_series_matrix.txt", skip = 73, header = T, sep = "\t", nrows = 485577)
+rownames(betaMat_69914) <- betaMat_69914[,1]
+betaMat_69914 <- betaMat_69914[,-1]
+
+###
 
 
 
-## 7 GSE67919
+
+
+## 7 GSE67919 #96 samples
 # 450k, breast epithelial cells with race, sex, age, smoking information.
 geoMat_67919<- getGEO("GSE67919")
 pD.all <- pData(geoMat_67919[[1]])
+pD <- pD.all[, c("title", "geo_accession", "age at surgery:ch1",
+                 "alcohol use:ch1","gender:ch1","menopausal status:ch1","race:ch1","tissue type:ch1")]
 # 96 49
 
 getGEOSuppFiles("GSE67919")
 untar("GSE67919/GSE67919_RAW.tar", exdir = "GSE67919/idat")
 head(list.files("GSE67919/idat", pattern = "idat"))
-## not idat.gz file
+## not idat.gz file, only GPL file
+betaMat_67919 <- read.table("GSE67919_series_matrix.txt", skip = 70, header = T, sep = "\t", nrows = 485577)
+rownames(betaMat_67919) <- betaMat_67919[,1]
+betaMat_67919 <- betaMat_67919[,-1]
+
+res1 <- MethylDeconv(betaMat_67919, tissue = "Breast", method = "Houseman")
+res2 <- MethylDeconv(betaMat_67919, tissue = "Breast", method = "RPC")
+#res3 <- MethylDeconv(betaMat_67919, tissue = "Breast", method = "CBS")
+tissue_dat_blood <- matrix(NA, 96, 5)
+samples <- rownames(res1)
+rownames(tissue_dat_blood) <- samples
+tissue_dat_blood[,1:4] <- res1
+tissue_dat_blood[,5] <- as.character(pD[,"tissue type:ch1"])
+tissue_dat_blood <- as.data.frame(tissue_dat_blood)
+tissue_dat_blood[1:4] <- apply(tissue_dat_blood[1:4], 2, as.numeric)
+tissue_dat_blood[,5] <- as.character(tissue_dat_blood[,5])
+
+colnames(tissue_dat_blood) <- c(colnames(res1),"tissue")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(tissue_dat_blood, series,value,-tissue)
+ggplot(df) + geom_boxplot(aes(series ,value,color= tissue)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE67919-Breast-Houseman")
+
+
+
+#res1 <- MethylDeconv(betaMat_67919, tissue = "genericEpithelial", method = "Houseman")
+res2 <- MethylDeconv(betaMat_67919, tissue = "genericEpithelial", method = "RPC")
+res2 <-res2[[2]]
+#res3 <- MethylDeconv(betaMat_67919, tissue = "Breast", method = "CBS")
+tissue_dat_blood <- matrix(NA, 96, 10)
+samples <- rownames(res2)
+rownames(tissue_dat_blood) <- samples
+tissue_dat_blood[,1:9] <- res2
+tissue_dat_blood[,10] <- as.character(pD[,"tissue type:ch1"])
+tissue_dat_blood <- as.data.frame(tissue_dat_blood)
+tissue_dat_blood[1:9] <- apply(tissue_dat_blood[1:9], 2, as.numeric)
+tissue_dat_blood[,10] <- as.character(tissue_dat_blood[,10])
+
+colnames(tissue_dat_blood) <- c(colnames(res2),"tissue")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(tissue_dat_blood, series,value,-tissue)
+ggplot(df) + geom_boxplot(aes(series ,value,color= tissue)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE67919-genericEpithelial-RPC")
+
+
+
+
+
 
 
 ## 8 GSE77797 whole blood 18 samples
@@ -507,3 +584,307 @@ ggplot(data = df %>% gather(Variable, values, -cellType),
        aes(x = cellType, y = values, fill = Variable)) + 
   geom_bar(stat = 'identity', position = 'dodge')+
   geom_text(aes(label= round(values,2)), position = position_dodge(0.9))
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################################
+################################################################################################################
+#######EWAS 
+# GSE30870 age 40 samples 450k
+library(GEOquery)
+geoMat_30870<- getGEO("GSE30870")
+pD.all <- pData(geoMat_30870[[1]])
+# 40 37
+
+pD <- pD.all[, c("title", "geo_accession", "source_name_ch1",  "age:ch1", "cell type:ch1", "disease status:ch1",
+                 "tissue:ch1")]
+
+getGEOSuppFiles("GSE30870")
+untar("GSE30870/GSE30870_RAW.tar", exdir = "GSE30870/idat")
+head(list.files("GSE30870/idat", pattern = "idat"))
+## not idat files, gpl files
+
+betaMat_30870 <- read.table("GSE30870_series_matrix.txt", skip = 63, header = T, sep = "\t", nrows = 485577)
+
+rownames(betaMat_30870) <- betaMat_30870[,1]
+betaMat_30870 <- betaMat_30870[,-1]
+# dim 485577     40
+
+res1 <- MethylDeconv(betaMat_30870, method = "Houseman")
+res2 <- MethylDeconv(betaMat_30870, method = "RPC")
+#res3 <- MethylDeconv(betaMat_30870, method = "CBS")
+
+age_dat_blood <- matrix(NA, 40, 7)
+samples <- rownames(res1)
+rownames(age_dat_blood) <- samples
+age_dat_blood[,1:6] <- res1
+age_dat_blood[,7] <- as.character(pD[,3])
+age_dat_blood <- as.data.frame(age_dat_blood)
+age_dat_blood[1:6] <- apply(age_dat_blood[1:6], 2, as.numeric)
+age_dat_blood[,7] <- as.character(age_dat_blood[,7])
+colnames(age_dat_blood) <- c(colnames(res1),"age")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(age_dat_blood, series,value,-age)
+ggplot(df) + geom_boxplot(aes(series ,value,color=age)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE30870-Houseman")
+
+# betaMat_30870_cordBlood <- betaMat_30870[,c(2,22:40)]
+# betaMat_30870_wholeBlood <- betaMat_30870[,c(1,3:21)]
+# res1_cordBlood <- MethylDeconv(betaMat_30870_cordBlood, tissue = "CordBlood", method = "Houseman")
+# res1[c(2,22:40),]
+
+
+
+
+
+
+
+
+
+
+
+
+# GSE50660 smoking 464 samples, blood
+library(GEOquery)
+geoMat_50660<- getGEO("GSE50660")
+pD.all <- pData(geoMat_50660[[1]])
+pD <- pD.all[, c("title", "geo_accession",  "age:ch1", "gender:ch1", 
+                 "smoking (0, 1 and 2, which represent never, former and current smokers):ch1",
+                 "tissue:ch1")]
+getGEOSuppFiles("GSE50660")
+untar("GSE50660/GSE50660_RAW.tar", exdir = "GSE50660/idat")
+head(list.files("GSE50660/idat", pattern = "idat"))
+# no idat files ----> processed.txt
+betaMat_50660 <- read.table("GSE50660/GSE50660_matrix_processed.txt", header = T, sep = "\t")
+rownames(betaMat_50660) <- betaMat_50660[,1]
+betaMat_50660 <- betaMat_50660[,-1]
+colnames(betaMat_50660) <- rownames(pD)
+res1 <- MethylDeconv(betaMat_50660, method = "Houseman")
+res2 <- MethylDeconv(betaMat_50660, method = "RPC")
+res3 <- MethylDeconv(betaMat_50660, method = "CBS")
+
+gender_dat_blood <- matrix(NA, 464, 7)
+samples <- rownames(res1)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:6] <- res1
+gender_dat_blood[,7] <- pD[,4]
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:6] <- apply(gender_dat_blood[1:6], 2, as.numeric)
+gender_dat_blood[,7] <- as.character(gender_dat_blood[,7])
+colnames(gender_dat_blood) <- c(colnames(res1),"gender")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(gender_dat_blood, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE50660-Houseman")
+
+
+
+smoking_dat_blood <- matrix(NA, 464, 7)
+samples <- rownames(res1)
+rownames(smoking_dat_blood) <- samples
+smoking_dat_blood[,1:6] <- res1
+smoking_dat_blood[,7] <- pD[,5]
+smoking_dat_blood <- as.data.frame(smoking_dat_blood)
+smoking_dat_blood[1:6] <- apply(smoking_dat_blood[1:6], 2, as.numeric)
+smoking_dat_blood[,7] <- as.character(smoking_dat_blood[,7])
+for (i in 1:464){
+  if (smoking_dat_blood[i,7] == "0"){
+    smoking_dat_blood[i,7] <- "never"
+  }
+  if (smoking_dat_blood[i,7] == "1"){
+    smoking_dat_blood[i,7] <- "former"
+  }
+  if (smoking_dat_blood[i,7] == "2"){
+    smoking_dat_blood[i,7] <- "current"
+  }
+}
+colnames(smoking_dat_blood) <- c(colnames(res1),"smoking")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(smoking_dat_blood, series,value,-smoking)
+ggplot(df) + geom_boxplot(aes(series ,value,color= smoking)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE50660-Houseman")
+
+
+
+
+
+
+
+
+
+
+
+
+
+# GSE42861 smoking ## 689 samples, have idat files!
+library(GEOquery)
+geoMat_42861<- getGEO("GSE42861")
+pD.all <- pData(geoMat_42861[[1]])
+
+
+
+
+
+
+
+
+
+
+
+
+# whole blood of 30 SLE patients and normal 25 controls
+# GSE82221
+library(GEOquery)
+geoMat_82221<- getGEO("GSE82221")
+pD.all <- pData(geoMat_82221[[1]])
+# 55 samples
+pD <- pD.all[, c("title", "geo_accession",  "age:ch1", "Sex:ch1", "tissue:ch1")]
+
+betaMat_82221 <- read.table("GSE82221-GPL13534_series_matrix.txt", skip = 60, header = T, sep = "\t", nrows = 485577)
+
+rownames(betaMat_82221) <- betaMat_82221[,1]
+betaMat_82221 <- betaMat_82221[,-1]
+# dim 485577     55
+
+### sample names are not the same!!
+res1 <- MethylDeconv(betaMat_82221, method = "Houseman")
+res2 <- MethylDeconv(betaMat_82221, method = "RPC")
+#res3 <- MethylDeconv(betaMat_82221, method = "CBS")
+
+# patient_dat_blood <- matrix(NA, 55, 7)
+# samples <- rownames(res1)
+# rownames(patient_dat_blood) <- samples
+# patient_dat_blood[,1:6] <- res1
+# patient_dat_blood[,7] <- pD[,1]
+# 
+# patient_dat_blood <- as.data.frame(patient_dat_blood)
+# patient_dat_blood[1:6] <- apply(patient_dat_blood[1:6], 2, as.numeric)
+# patient_dat_blood[,7] <- as.character(patient_dat_blood[,7])
+# 
+# colnames(patient_dat_blood) <- c(colnames(res1),"group")
+# 
+# library(ggplot2)
+# library(tidyr)
+# df <- gather(patient_dat_blood, series,value,-group)
+# ggplot(df) + geom_boxplot(aes(series ,value,color= group)) +
+#   xlab('cell types')+
+#   ylab('proportions') +
+#   ggtitle("GSE82221-Houseman")
+# 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## EPIC GBM, GSE116298  47 samples
+library(GEOquery)
+geoMat_116298<- getGEO("GSE116298")
+pD.all <- pData(geoMat_116298[[1]])
+pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
+
+getGEOSuppFiles("GSE116298")
+head(list.files("/Users/junesong/Desktop/causal inference/CellProportion/methylDeConv/GSE116298/GSE116298_RAW"))
+
+idatFiles <- list.files("/Users/junesong/Desktop/causal inference/CellProportion/methylDeConv/GSE116298/GSE116298_RAW", 
+                        pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+
+
+library(minfi)
+rgSet_116298 <- read.metharray.exp("/Users/junesong/Desktop/causal inference/CellProportion/methylDeConv/GSE116298/GSE116298_RAW",
+                                   force=TRUE)
+#dim: 1051539 47 
+
+sampleNames(rgSet_116298) <- substr(sampleNames(rgSet_116298), 1, 10)
+pD <- pD[sampleNames(rgSet_116298),]
+pD <- as(pD, "DataFrame")
+pData(rgSet_116298) <- pD
+rgSet_116298
+
+grSet_116298 <- preprocessNoob(rgSet_116298)
+getBeta(grSet_116298)[1:3,1:3]
+head(getIslandStatus(grSet_116298))
+betaMat_116298 <- getBeta(grSet_116298)
+## 865859     47
+res1 <- MethylDeconv_BloodEPIC(betaMat_116298, method = "Houseman")
+res2 <- MethylDeconv_BloodEPIC(betaMat_116298, method = "RPC")
+res3 <- MethylDeconv_BloodEPIC(betaMat_116298, method = "CBS")
+
+pD.all <- pData(geoMat_116298[[1]])
+pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
+tissue_dat_blood <- matrix(NA, 47, 7)
+samples <- rownames(res2)
+rownames(tissue_dat_blood) <- samples
+tissue_dat_blood[,1:6] <- res2
+tissue_dat_blood[,7] <- pD[,4]
+tissue_dat_blood <- as.data.frame(tissue_dat_blood)
+tissue_dat_blood[1:6] <- apply(tissue_dat_blood[1:6], 2, as.numeric)
+tissue_dat_blood[,7] <- as.character(tissue_dat_blood[,7])
+
+colnames(tissue_dat_blood) <- c(colnames(res2),"tissue")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(tissue_dat_blood, series,value,-tissue)
+ggplot(df) + geom_boxplot(aes(series ,value,color= tissue)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE116298-EPIC-RPC")
+
+
+pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
+gender_dat_blood <- matrix(NA, 47, 7)
+samples <- rownames(res2)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:6] <- res2
+gender_dat_blood[,7] <- pD[,3]
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:6] <- apply(gender_dat_blood[1:6], 2, as.numeric)
+gender_dat_blood[,7] <- as.character(gender_dat_blood[,7])
+
+colnames(gender_dat_blood) <- c(colnames(res2),"gender")
+
+library(ggplot2)
+library(tidyr)
+df <- gather(gender_dat_blood, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color= gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE116298-EPIC-RPC")
