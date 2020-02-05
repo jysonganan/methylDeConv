@@ -281,13 +281,37 @@ pD_112618 <-pD.all[, c("title", "geo_accession", "bcell proportion:ch1", "cd4t p
 pD_112618 <- pD_112618[sampleNames(rgSet_112618),]
 facs_112618 <- pD_112618[,3:9]
 colnames(facs_112618) <- c("Bcell", "CD4T", "CD8T","Gran","Mono","Neutro","NK")
-facs_112618_prop <- cbind(facs_112618[,"CD8T"], facs_112618[,"CD4T"], facs_112618[,"NK"],
-                          facs_112618[,"Bcell"],facs_112618[,"Mono"],
+facs_112618_prop <- cbind(as.numeric(facs_112618[,"CD8T"]), as.numeric(facs_112618[,"CD4T"]), 
+                          as.numeric(facs_112618[,"NK"]),
+                          as.numeric(facs_112618[,"Bcell"]),as.numeric(facs_112618[,"Mono"]),
                           as.numeric(facs_112618[,"Gran"])+as.numeric(facs_112618[,"Neutro"]))
 facs_112618_prop <- as.data.frame(facs_112618_prop)
 rownames(facs_112618_prop) = rownames(res1)
 colnames(facs_112618_prop) = colnames(res1)
 facs_112618_prop
+### check correlation within each sample; 1D scatter plot (vertical scatter plot)
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res1[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+
+corr2 <- rep(NA,6)
+for (i in 1:6){
+  corr2[i] <-cor(res2[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+
+corr3 <- rep(NA,6)
+for (i in 1:6){
+  corr3[i] <-cor(res3[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+
+df <- data.frame("Houseman" = corr, "RPC" = corr2, "CBS" = corr3)
+stripchart(df, frame = TRUE, vertical = TRUE,
+           method = "jitter", pch = c(21, 18, 16),
+           col = c("#999999", "#E69F00", "#56B4E9"),
+           main = "Correlation within each sample", xlab = "Dose", ylab = "Spearman correlation", ylim = c(0,1))
+###
+
 
 rsquared <- rep(NA, 6)
 for (i in 1:6){
@@ -530,6 +554,31 @@ for (i in 1:6){
 }
 facs_77797_prop <- facs_77797_prop/100
 
+
+### check correlation within each sample; 1D scatter plot (vertical scatter plot)
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(res1[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+
+corr2 <- rep(NA,18)
+for (i in 1:18){
+  corr2[i] <-cor(res2[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+
+corr3 <- rep(NA,18)
+for (i in 1:18){
+  corr3[i] <-cor(res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+
+df <- data.frame("Houseman" = corr, "RPC" = corr2, "CBS" = corr3)
+stripchart(df, frame = TRUE, vertical = TRUE,
+           method = "jitter", pch = c(21, 18, 16),
+           col = c("#999999", "#E69F00", "#56B4E9"),
+           main = "Correlation within each sample", ylab = "Spearman correlation", ylim = c(0,1))
+#######
+
+
 rsquared = corr = rmse = rep(NA, 6)
 library(hydroGOF)
 for (i in 1:6){
@@ -540,7 +589,7 @@ rmse <- mse(res1, facs_77797_prop)
 
 library(tidyr)
 library(ggplot2)
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Gran"), Rsquared = rsquared,
                  SpearmanCorr = corr)
 ggplot(data = df %>% gather(Variable, values, -cellType), 
        aes(x = cellType, y = values, fill = Variable)) + 
@@ -559,7 +608,7 @@ rmse <- mse(res2, facs_77797_prop)
 
 library(tidyr)
 library(ggplot2)
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Gran"), Rsquared = rsquared,
                  SpearmanCorr = corr)
 ggplot(data = df %>% gather(Variable, values, -cellType), 
        aes(x = cellType, y = values, fill = Variable)) + 
@@ -578,7 +627,7 @@ rmse <- mse(res3, facs_77797_prop)
 
 library(tidyr)
 library(ggplot2)
-df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Neu"), Rsquared = rsquared,
+df <- data.frame(cellType = c("CD8T","CD4T","NK","Bcell","Mono","Gran"), Rsquared = rsquared,
                  SpearmanCorr = corr)
 ggplot(data = df %>% gather(Variable, values, -cellType), 
        aes(x = cellType, y = values, fill = Variable)) + 
