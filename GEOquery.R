@@ -862,7 +862,7 @@ res2 <- MethylDeconv(betaMat_82221, method = "RPC")
 
 
 
-## EPIC GBM, GSE116298  47 samples
+## EPIC GBM, GSE116298  18 samples (some replicates)
 library(GEOquery)
 geoMat_116298<- getGEO("GSE116298")
 pD.all <- pData(geoMat_116298[[1]])
@@ -898,24 +898,43 @@ res3 <- MethylDeconv_BloodEPIC(betaMat_116298, method = "CBS")
 
 pD.all <- pData(geoMat_116298[[1]])
 pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
-tissue_dat_blood <- matrix(NA, 47, 7)
+
+pD[,"title"] <- gsub("_.*","",as.character(pD[,"title"]))
+for (i in 1:25){
+  pD[i,4] <- "High-grade glioma"
+}
+
+tissue_dat_blood <- matrix(NA, 47, 8)
 samples <- rownames(res2)
 rownames(tissue_dat_blood) <- samples
 tissue_dat_blood[,1:6] <- res2
 tissue_dat_blood[,7] <- pD[,4]
+tissue_dat_blood[,8] <- pD[,"title"]
 tissue_dat_blood <- as.data.frame(tissue_dat_blood)
 tissue_dat_blood[1:6] <- apply(tissue_dat_blood[1:6], 2, as.numeric)
 tissue_dat_blood[,7] <- as.character(tissue_dat_blood[,7])
+tissue_dat_blood[,8] <- as.character(tissue_dat_blood[,8])
+colnames(tissue_dat_blood) <- c(colnames(res2),"tissue", "title")
 
-colnames(tissue_dat_blood) <- c(colnames(res2),"tissue")
-
+df <- aggregate(tissue_dat_blood[,1:6],list(tissue_dat_blood$title), mean)
+df[,1] <- c(rep("High-grade glioma",12), rep("Meningioma",3))
+colnames(df)[1] <- "tissue"
 library(ggplot2)
 library(tidyr)
-df <- gather(tissue_dat_blood, series,value,-tissue)
-ggplot(df) + geom_boxplot(aes(series ,value,color= tissue)) +
+df1 <- gather(df, series,value,-tissue)
+ggplot(df1) + geom_boxplot(aes(series ,value,color= tissue)) +
   xlab('cell types')+
   ylab('proportions') +
   ggtitle("GSE116298-EPIC-RPC")
+
+df <- data.frame("Houseman" = corr, "RPC" = corr2, "CBS" = corr3)
+df1 <- gather(df, series,value,-tissue)
+ggplot(df1) + geom_jitter(aes(series ,value,color= tissue), position=position_jitter(0.2)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE116298-EPIC-RPC")
+
+
 
 
 pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
