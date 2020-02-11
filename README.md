@@ -1,2 +1,2 @@
 # methylDeConv
-Pipeline for deconvolution of methylation data.
+Computational pipeline for deconvolution of methylation data.
