@@ -125,3 +125,4 @@ load("xCell.data.rda")
 # 10808 genes and 489 signatures
 length(intersect(xCell.data$genes,rownames(genelevel_betaMat_127824_rank)))
 ## 10694 shared
+source("xCell_custom.R")
