@@ -126,3 +126,104 @@ load("xCell.data.rda")
 length(intersect(xCell.data$genes,rownames(genelevel_betaMat_127824_rank)))
 ## 10694 shared
 source("xCell_custom.R")
+xCellScores<- xCellAnalysis(genelevel_betaMat_127824_rank, rnaseq = FALSE)
+## 67 24
+save(xCellScores, file = "xCellScores_127824.RData")
+
+
+library(GEOquery)
+geoMat_127824 <- getGEO("GSE127824")
+pD.all <- pData(geoMat_127824[[1]])
+pD_127824 <- pD.all[, c("title", "geo_accession", "b cells:ch1", "cd4t cells:ch1", "cd8t cells:ch1", "granulocytes:ch1", 
+                        "monocytes:ch1", "nk cells:ch1", "nrbcs:ch1", "Sex:ch1", "subject status:ch1", "tissue:ch1")]
+sampleNames(rgSet_127824) <- substr(sampleNames(rgSet_127824), 1, 10)
+pD_127824 <- pD_127824[sampleNames(rgSet_127824),]
+facs_127824 <- pD_127824[,3:9]
+for (i in 1:7){
+  facs_127824[,i] <- as.numeric(facs_127824[,i])
+}
+facs_127824_prop <- apply(facs_127824,1,function(x){return(as.numeric(x)/sum(as.numeric(x)))})
+facs_127824_prop <- t(facs_127824_prop)
+# 24 7
+
+source("pipeline_cellProp.R")
+res1 <- MethylDeconv(betaMat_127824, method = "Houseman", normalized = TRUE, tissue = "CordBlood")
+res2 <- MethylDeconv(betaMat_127824, method = "RPC", normalized = TRUE, tissue = "CordBlood")
+res3 <- MethylDeconv(betaMat_127824, method = "CBS", normalized = TRUE, tissue = "CordBlood")
+# 24 7
+
+colnames(facs_127824_prop) <- colnames(res1)
+
+xCellScores <- t(xCellScores)
+rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
+
+# plots
+boxplot(xCellScores, las = 2,cex.axis = 0.5)
+
+# df_plot <- cbind(cbind(res1[,1], xCellScores[,"B-cells"]),"Bcell")
+# df_plot <- rbind(df_plot, cbind(cbind(res1[,2],xCellScores[,"CD4+ T-cells"]), "CD4T"))
+# df_plot <- rbind(df_plot, cbind(cbind(res1[,3],xCellScores[,"CD8+ T-cells"]), "CD8T"))
+# df_plot <- rbind(df_plot, cbind(cbind(res1[,5],xCellScores[,"Monocytes"]), "Mono"))
+# #df_plot <- rbind(df_plot, cbind(cbind(res1[,6],xCellScores[,"NK cells"]), "NK"))
+# df_plot <- as.data.frame(df_plot)
+# df_plot[,1] <- as.numeric(as.character(df_plot[,1]))
+# df_plot[,2] <- as.numeric(as.character(df_plot[,2]))
+# df_plot[,3] <- as.character(df_plot[,3])
+# colnames(df_plot) <- c("EstProp_pipeline", "xCellScore", "type")
+# library(ggplot2)
+# ggplot(df_plot) + geom_point(aes(EstProp_pipeline, xCellScore, color=type))+
+#   geom_smooth(aes(EstProp_pipeline, xCellScore, color=type)) +
+#   xlab('EstProp_pipeline') +
+#   ylab('xCellScore') 
+
+## check correlation within each sample
+# df_xCellScore <- xCellScores[,c("B-cells", "CD4+ T-cells", "CD8+ T-cells", "Monocytes")]
+# df_xCellScore <- apply(df_xCellScore,1,function(x){return(x/sum(x))})
+# df_xCellScore <- t(df_xCellScore)
+# df_res1 <- res1[,c(1,2,3,5)]
+# df_res1 <- apply(df_res1,1,function(x){return(x/sum(x))})
+# df_res1 <- t(df_res1)
+# df_res2 <- res2[,c(1,2,3,5)]
+# df_res2 <- apply(df_res2,1,function(x){return(x/sum(x))})
+# df_res2 <- t(df_res2)
+# df_res3 <- res3[,c(1,2,3,5)]
+# df_res3 <- apply(df_res3,1,function(x){return(x/sum(x))})
+# df_res3 <- t(df_res3)
+# corr <- rep(NA, 24)
+# for (i in 1:24){
+#   corr[i] <- cor(df_res1[i,], df_xCellScore[i,], method = "spearman")
+# }
+# 
+# corr2 <- rep(NA, 24)
+# for (i in 1:24){
+#   corr2[i] <- cor(df_res2[i,], df_xCellScore[i,], method = "spearman")
+# }
+# 
+# corr3 <- rep(NA, 24)
+# for (i in 1:24){
+#   corr3[i] <- cor(df_res3[i,], df_xCellScore[i,], method = "spearman")
+# }
+# 
+# df_facs <- facs_127824_prop[,c(1,2,3,5)]
+# df_facs <- apply(df_facs,1,function(x){return(x/sum(x))})
+# df_facs <- t(df_facs)
+# corr4 <- rep(NA, 24)
+# for (i in 1:24){
+#   corr4[i] <- cor(df_facs[i,], df_xCellScore[i,], method = "spearman")
+# }
+# 
+# df <- data.frame("Houseman" = corr, "RPC" = corr2, "CBS" = corr3, "FACS" = corr4)
+# stripchart(df, frame = TRUE, vertical = TRUE,
+#            method = "jitter", pch = c(21, 18, 16, 14),
+#            col = c("#999999", "#E69F00", "#56B4E9", "009E73"),
+#            main = "Correlation with xCellScores within each sample", ylab = "Spearman correlation", ylim = c(0,1))
+
+
+
+
+
+
+
+
+
+

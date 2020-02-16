@@ -119,6 +119,7 @@ rgSet_127824 <- read.metharray.exp("GSE127824/idat")
 
 geoMat_127824 <- getGEO("GSE127824")
 pD.all <- pData(geoMat_127824[[1]])
+
 pD <- pD.all[, c("title", "geo_accession", "b cells:ch1", "cd4t cells:ch1", "cd8t cells:ch1", "granulocytes:ch1", 
   "monocytes:ch1", "nk cells:ch1", "nrbcs:ch1", "Sex:ch1", "subject status:ch1", "tissue:ch1")]
 
