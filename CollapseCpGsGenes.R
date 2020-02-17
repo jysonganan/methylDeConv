@@ -430,9 +430,9 @@ length(intersect(xCell.data$genes,rownames(genelevel_BetaMatrix_KICH_rank)))
 ## 8955 shared
 source("xCell_custom.R")
 xCellScores<- xCellAnalysis(genelevel_BetaMatrix_KICH_rank, rnaseq = FALSE)
-## 67 24
+## 67 66
 save(xCellScores, file = "xCellScores_KICH_methyl.RData")
-
+#save(xCellScores, file = "xCellScores_KICH_methyl_SeqTrue.RData")
 xCellScores <- t(xCellScores)
 rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
 
@@ -444,8 +444,63 @@ boxplot(xCellScores, las = 2,cex.axis = 0.5)
 library(RTCGA)
 checkTCGA('Dates')
 datInfo <- checkTCGA("DataSets","KICH", date = "2016-01-28")
-downloadTCGA(cancerTypes = "KICH", dataSet = "Merge_methylation__humanmethylation450", 
+downloadTCGA(cancerTypes = "KICH", dataSet = "rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level", 
              destDir = "/Users/junesong/Desktop/causal inference", date = "2016-01-28")
-path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_methylation__humanmethylation450__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.2016012800.0.0/MethylDataset", full.names = TRUE, recursive = TRUE)
-MethylTab_KICH <- readTCGA(path_KICH,dataType = "methylation")
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level_3.2016012800.0.0/RNADataset", full.names = TRUE, recursive = TRUE)
+RNATab_KICH <- readTCGA(path_KICH,dataType = "rnaseq")
+rownames(RNATab_KICH) <- RNATab_KICH[,1]
+RNATab_KICH <- RNATab_KICH[,-1]
+RNATab_KICH <- t(RNATab_KICH)
 
+sample_shared <- intersect(substr(as.character(MethylTab_KICH[,1]),1,19),substr(colnames(RNATab_KICH),1,19))
+colnames(RNATab_KICH) <- substr(colnames(RNATab_KICH),1,19)
+RNATab_KICH <- RNATab_KICH[,sample_shared]
+# 20531    66
+
+genes_all <- rownames(RNATab_KICH)
+genes_all <- gsub("\\|.*","", genes_all)
+# 20502 unqiue
+RNATab_KICH <- RNATab_KICH[-(1:29),]
+# 20502    66
+rownames(RNATab_KICH) <- genes_all[-(1:29)]
+
+
+RNA_KICH_rank <- apply(RNATab_KICH,2,rank)
+
+load("xCell.data.rda")
+# 10808 genes and 489 signatures
+length(intersect(xCell.data$genes,rownames(RNA_KICH_rank)))
+## 10808 shared
+source("xCell_custom.R")
+xCellScores<- xCellAnalysis(RNA_KICH_rank, rnaseq = TRUE)
+## 67 66
+save(xCellScores, file = "xCellScores_KICH_RNA.RData")
+
+xCellScores <- t(xCellScores)
+rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
+
+# plots
+boxplot(xCellScores, las = 2,cex.axis = 0.5)
+
+load("xCellScores_KICH_methyl.RData")
+#load("xCellScores_KICH_methyl_SeqTrue.RData")
+xCellScores <- t(xCellScores)
+scores_methyl <- xCellScores
+
+load("xCellScores_KICH_RNA.RData")
+xCellScores <- t(xCellScores)
+scores_RNA <- xCellScores
+
+df <- rbind(scores_methyl, scores_RNA)
+df_plot <- matrix(NA,8448,3)
+df_plot[,1] <- as.vector(as.matrix(df[,1:64]))
+method <- c(rep("methyl",66), rep("RNA",66))
+df_plot[,2] <- rep(method,64)
+df_plot[,3] <- rep(colnames(df)[1:64],each = 132)
+colnames(df_plot) <- c("scores", "method","CellType")
+df_plot <- as.data.frame(df_plot)
+df_plot[,1] <- as.numeric(as.character(df_plot[,1]))
+
+library(ggplot2)
+ggplot(df_plot) + geom_boxplot(aes(CellType ,scores,color= method)) +
+  ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
