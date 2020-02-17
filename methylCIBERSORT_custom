@@ -1,1 +1,13 @@
 library(MethylCIBERSORT)
+
+data("StromalMatrix_V2")
+
+Int <- intersect(rownames(Mat), rownames(Stromal_v2))
+Mat <- Mat[match(Int, rownames(Mat)),]
+Stromal_v2 <- Stromal_v2[match(Int, rownames(Stromal_v2)),]
+
+Signature <- FeatureSelect.V4(CellLines.matrix = NULL, Heatmap = FALSE, export = TRUE, sigName = "ExampleType", 
+Stroma.matrix = Stromal_v2, deltaBeta = 0.2, FDR = 0.01, MaxDMRs = 100, Phenotype.stroma = Stromal_v2.pheno)
+# Once a signature has been generated, the next step is to take a beta value matrix of bulk tumour samples 
+# and prep it for CIBERSORT deconvolution.
+Prep.CancerType(Beta = BulkData, Probes = rownames(Signature$SignatureMatrix), fname = "ExportData")
