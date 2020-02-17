@@ -221,9 +221,231 @@ boxplot(xCellScores, las = 2,cex.axis = 0.5)
 
 
 
+####################
+# 67919 breast epithelial cells
+#####################
+
+betaMat_67919 <- read.table("GSE67919_series_matrix.txt", skip = 70, header = T, sep = "\t", nrows = 485577)
+rownames(betaMat_67919) <- betaMat_67919[,1]
+betaMat_67919 <- betaMat_67919[,-1]
+# 485577 96
+
+manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
+# 486428     33
+annot <- manifest[match(rownames(betaMat_67919),manifest[,1]),]
+# 485577     96
+annot_df <- as.data.frame(annot)
+head(annot_df[,"UCSC_RefGene_Name"],100)
+
+var_per_CpG <- apply(betaMat_67919,1,var)
+var_per_CpG <- as.data.frame(var_per_CpG)
+rownames(var_per_CpG) <- rownames(betaMat_67919)
+
+
+annot_df_oneGene <- annot_df
+rownames(annot_df_oneGene) <- annot_df[,1]
+annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
+annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
+head(annot_df_oneGene)
+length(unique(annot_df_oneGene[,4]))
+## unique UCSC_RefGene_Name 20622
+## For each gene, select the probe with highest variance
+gene_list <- unique(annot_df_oneGene[,"UCSC_RefGene_Name"])
+CpG_maxVar_list <- rep(NA, length(gene_list))
 
 
 
 
 
+
+for (i in 1:length(gene_list)){
+  gene <- gene_list[i]
+  CpGs <- rownames(annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Name"] == gene,])
+  var_per_CpG_sub <- var_per_CpG[CpGs,]
+  if(!is.na(var_per_CpG_sub)){
+    CpG_maxVar_list[i] <- CpGs[which.max(var_per_CpG_sub)]
+  }else{
+    CpG_maxVar_list[i] <- NA
+  }
+}
+
+
+
+
+
+save("CpG_maxVar_list", file = "CpG_maxVar_list_GSE67919.RData")
+
+genelevel_betaMat_67919 <- betaMat_67919[CpG_maxVar_list,]
+rownames(genelevel_betaMat_67919) <- gene_list
+genelevel_betaMat_67919 <- genelevel_betaMat_67919[-4,]
+genelevel_betaMat_67919 <- genelevel_betaMat_67919[complete.cases(genelevel_betaMat_67919),]
+# 20621 genes
+# remove missing
+# 13495 96
+genelevel_betaMat_67919_rank <- apply(-genelevel_betaMat_67919,2,rank)
+
+load("xCell.data.rda")
+# 10808 genes and 489 signatures
+length(intersect(xCell.data$genes,rownames(genelevel_betaMat_67919_rank)))
+## 7194 shared
+source("xCell_custom.R")
+xCellScores<- xCellAnalysis(genelevel_betaMat_67919_rank, rnaseq = FALSE)
+## 67 24
+save(xCellScores, file = "xCellScores_67919.RData")
+
+xCellScores <- t(xCellScores)
+rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
+# plots
+boxplot(xCellScores, las = 2,cex.axis = 0.5)
+
+xCellScores_breast <- xCellScores
+load("xCellScores_127824.RData")
+xCellScores <- t(xCellScores)
+rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
+xCellScores_cordblood <- xCellScores
+
+
+## plot
+df_plot <- rbind(xCellScores_breast, xCellScores_cordblood)
+df_plot <- cbind(df_plot, c(rep("Breast", 96), rep("CordBlood",24)))
+df_plot <- as.data.frame(df_plot)
+df_plot[,1:67] <- apply(df_plot[,1:67],2,function(x){return(as.numeric(as.character(x)))})
+df_plot[,68] <- as.character(df_plot[,68])
+colnames(df_plot)[68] <- "tissue"
+
+df_plot_2 <- matrix(NA, 7680, 3)
+df_plot_2[,1] <- as.vector(as.matrix(df_plot[,1:64]))
+df_plot_2[,2] <- rep(df_plot[,68],64)
+df_plot_2[,3] <- rep(colnames(df_plot)[1:64],each = 120)
+colnames(df_plot_2) <- c("scores", "tissue","CellType")
+df_plot_2 <- as.data.frame(df_plot_2)
+df_plot_2[,1] <- as.numeric(as.character(df_plot_2[,1]))
+
+
+
+library(ggplot2)
+ggplot(df_plot_2) + geom_boxplot(aes(CellType ,scores,color= tissue)) +
+  xlab('cell types')+
+  ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+df_plot_2 <- matrix(NA, 360, 3)
+df_plot_2[,1] <- as.vector(as.matrix(df_plot[,65:67]))
+df_plot_2[,2] <- rep(df_plot[,68],3)
+df_plot_2[,3] <- rep(colnames(df_plot)[65:67],each = 120)
+colnames(df_plot_2) <- c("scores", "tissue","types")
+df_plot_2 <- as.data.frame(df_plot_2)
+df_plot_2[,1] <- as.numeric(as.character(df_plot_2[,1]))
+
+
+library(ggplot2)
+ggplot(df_plot_2) + geom_boxplot(aes(types ,scores,color= tissue)) +
+  xlab('types')+
+  ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+
+
+
+
+
+
+
+
+
+###################################
+# TCGA KICH
+###################################
+library(RTCGA)
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_methylation__humanmethylation450__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.2016012800.0.0/MethylDataset", full.names = TRUE, recursive = TRUE)
+MethylTab_KICH <- readTCGA(path_KICH,dataType = "methylation")
+BetaMatrix_KICH <- matrix(NA,485577,66)
+BetaMatrix_KICH <- t(MethylTab_KICH[,-1])
+colnames(BetaMatrix_KICH) <- as.character(MethylTab_KICH[,1])
+rownames(BetaMatrix_KICH) <- colnames(MethylTab_KICH)[-1]
+## dim: 485577 66
+
+manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
+# 486428     33
+annot <- manifest[match(rownames(BetaMatrix_KICH),manifest[,1]),]
+# 485577     33
+annot_df <- as.data.frame(annot)
+head(annot_df[,"UCSC_RefGene_Name"],100)
+
+var_per_CpG <- apply(BetaMatrix_KICH,1,var)
+var_per_CpG <- as.data.frame(var_per_CpG)
+rownames(var_per_CpG) <- rownames(BetaMatrix_KICH)
+
+
+annot_df_oneGene <- annot_df
+rownames(annot_df_oneGene) <- annot_df[,1]
+annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
+annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
+head(annot_df_oneGene)
+length(unique(annot_df_oneGene[,4]))
+## unique UCSC_RefGene_Name 20622
+## For each gene, select the probe with highest variance
+gene_list <- unique(annot_df_oneGene[,"UCSC_RefGene_Name"])
+CpG_maxVar_list <- rep(NA, length(gene_list))
+
+
+
+
+
+
+for (i in 1:length(gene_list)){
+  gene <- gene_list[i]
+  CpGs <- rownames(annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Name"] == gene,])
+  var_per_CpG_sub <- var_per_CpG[CpGs,]
+  if(!is.na(var_per_CpG_sub)){
+    CpG_maxVar_list[i] <- CpGs[which.max(var_per_CpG_sub)]
+  }else{
+    CpG_maxVar_list[i] <- NA
+  }
+}
+
+
+
+
+
+save("CpG_maxVar_list", file = "CpG_maxVar_list_TCGAKICH.RData")
+miss_id <- which(is.na(CpG_maxVar_list) == TRUE)
+CpG_maxVar_list <- CpG_maxVar_list[-miss_id]
+gene_list <- gene_list[-miss_id]
+
+genelevel_BetaMatrix_KICH <- BetaMatrix_KICH[CpG_maxVar_list,]
+rownames(genelevel_BetaMatrix_KICH) <- gene_list
+#16857 66
+genelevel_BetaMatrix_KICH <- genelevel_BetaMatrix_KICH[-2,]
+genelevel_BetaMatrix_KICH <- genelevel_BetaMatrix_KICH[complete.cases(genelevel_BetaMatrix_KICH),]
+# remove missing
+# 16856    66
+genelevel_BetaMatrix_KICH_rank <- apply(-genelevel_BetaMatrix_KICH,2,rank)
+
+load("xCell.data.rda")
+# 10808 genes and 489 signatures
+length(intersect(xCell.data$genes,rownames(genelevel_BetaMatrix_KICH_rank)))
+## 8955 shared
+source("xCell_custom.R")
+xCellScores<- xCellAnalysis(genelevel_BetaMatrix_KICH_rank, rnaseq = FALSE)
+## 67 24
+save(xCellScores, file = "xCellScores_KICH_methyl.RData")
+
+xCellScores <- t(xCellScores)
+rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
+
+# plots
+boxplot(xCellScores, las = 2,cex.axis = 0.5)
+
+
+############ KICH RNA expression
+library(RTCGA)
+checkTCGA('Dates')
+datInfo <- checkTCGA("DataSets","KICH", date = "2016-01-28")
+downloadTCGA(cancerTypes = "KICH", dataSet = "Merge_methylation__humanmethylation450", 
+             destDir = "/Users/junesong/Desktop/causal inference", date = "2016-01-28")
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_methylation__humanmethylation450__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.2016012800.0.0/MethylDataset", full.names = TRUE, recursive = TRUE)
+MethylTab_KICH <- readTCGA(path_KICH,dataType = "methylation")
 
