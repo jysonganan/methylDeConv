@@ -1,4 +1,6 @@
 # collapse CpGs into genes
+
+## correct version TCGA KICH
 library(IlluminaHumanMethylation450kmanifest)
 data(IlluminaHumanMethylation450kmanifest)
 library(minfi)
@@ -247,6 +249,7 @@ rownames(annot_df_oneGene) <- annot_df[,1]
 annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
 annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
 head(annot_df_oneGene)
+
 length(unique(annot_df_oneGene[,4]))
 ## unique UCSC_RefGene_Name 20622
 ## For each gene, select the probe with highest variance
@@ -374,11 +377,6 @@ annot <- manifest[match(rownames(BetaMatrix_KICH),manifest[,1]),]
 annot_df <- as.data.frame(annot)
 head(annot_df[,"UCSC_RefGene_Name"],100)
 
-var_per_CpG <- apply(BetaMatrix_KICH,1,var)
-var_per_CpG <- as.data.frame(var_per_CpG)
-rownames(var_per_CpG) <- rownames(BetaMatrix_KICH)
-
-
 annot_df_oneGene <- annot_df
 rownames(annot_df_oneGene) <- annot_df[,1]
 annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
@@ -386,6 +384,21 @@ annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation
 head(annot_df_oneGene)
 length(unique(annot_df_oneGene[,4]))
 ## unique UCSC_RefGene_Name 20622
+
+annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
+#365860      4
+BetaMatrix_KICH <- BetaMatrix_KICH[match(rownames(annot_df_oneGene),rownames(BetaMatrix_KICH)),]
+#365860      66
+
+var_per_CpG <- apply(BetaMatrix_KICH,1,var)
+var_per_CpG <- as.data.frame(var_per_CpG)
+rownames(var_per_CpG) <- rownames(BetaMatrix_KICH)
+
+
+
+
+
+
 ## For each gene, select the probe with highest variance
 gene_list <- unique(annot_df_oneGene[,"UCSC_RefGene_Name"])
 CpG_maxVar_list <- rep(NA, length(gene_list))
@@ -398,46 +411,105 @@ CpG_maxVar_list <- rep(NA, length(gene_list))
 for (i in 1:length(gene_list)){
   gene <- gene_list[i]
   CpGs <- rownames(annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Name"] == gene,])
-  var_per_CpG_sub <- var_per_CpG[CpGs,]
-  if(!is.na(var_per_CpG_sub)){
-    CpG_maxVar_list[i] <- CpGs[which.max(var_per_CpG_sub)]
-  }else{
-    CpG_maxVar_list[i] <- NA
+  if (length(CpGs) == 1){
+    CpG_maxVar_list[i] <- CpGs
   }
+  else{
+    var_per_CpG_sub <- var_per_CpG[CpGs,1]
+    if(sum(is.na(var_per_CpG_sub))==length(CpGs)){
+      CpG_maxVar_list[i] <- NA
+    }
+    else{
+      CpG_maxVar_list[i] <- CpGs[which.max(var_per_CpG_sub)]
+    }
+    }
 }
 
 
 
-
-
 save("CpG_maxVar_list", file = "CpG_maxVar_list_TCGAKICH.RData")
+
 miss_id <- which(is.na(CpG_maxVar_list) == TRUE)
 CpG_maxVar_list <- CpG_maxVar_list[-miss_id]
 gene_list <- gene_list[-miss_id]
 
 genelevel_BetaMatrix_KICH <- BetaMatrix_KICH[CpG_maxVar_list,]
 rownames(genelevel_BetaMatrix_KICH) <- gene_list
-#16857 66
-genelevel_BetaMatrix_KICH <- genelevel_BetaMatrix_KICH[-2,]
+#20473 66
 genelevel_BetaMatrix_KICH <- genelevel_BetaMatrix_KICH[complete.cases(genelevel_BetaMatrix_KICH),]
 # remove missing
-# 16856    66
+# 20347 66
 genelevel_BetaMatrix_KICH_rank <- apply(-genelevel_BetaMatrix_KICH,2,rank)
 
 load("xCell.data.rda")
 # 10808 genes and 489 signatures
 length(intersect(xCell.data$genes,rownames(genelevel_BetaMatrix_KICH_rank)))
-## 8955 shared
+## 10667 shared
 source("xCell_custom.R")
 xCellScores<- xCellAnalysis(genelevel_BetaMatrix_KICH_rank, rnaseq = FALSE)
 ## 67 66
 save(xCellScores, file = "xCellScores_KICH_methyl.RData")
-#save(xCellScores, file = "xCellScores_KICH_methyl_SeqTrue.RData")
+
 xCellScores <- t(xCellScores)
 rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
 
 # plots
 boxplot(xCellScores, las = 2,cex.axis = 0.5)
+
+
+
+
+
+### alternatively, take the average
+library(RTCGA)
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_methylation__humanmethylation450__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.2016012800.0.0/MethylDataset", full.names = TRUE, recursive = TRUE)
+MethylTab_KICH <- readTCGA(path_KICH,dataType = "methylation")
+BetaMatrix_KICH <- matrix(NA,485577,66)
+BetaMatrix_KICH <- t(MethylTab_KICH[,-1])
+colnames(BetaMatrix_KICH) <- as.character(MethylTab_KICH[,1])
+rownames(BetaMatrix_KICH) <- colnames(MethylTab_KICH)[-1]
+## dim: 485577 66
+
+manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
+# 486428     33
+annot <- manifest[match(rownames(BetaMatrix_KICH),manifest[,1]),]
+# 485577     33
+annot_df <- as.data.frame(annot)
+head(annot_df[,"UCSC_RefGene_Name"],100)
+
+annot_df_oneGene <- annot_df
+rownames(annot_df_oneGene) <- annot_df[,1]
+annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
+annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
+head(annot_df_oneGene)
+
+# aggregate
+annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
+#365860      4
+BetaMatrix_KICH <- BetaMatrix_KICH[match(rownames(annot_df_oneGene),rownames(BetaMatrix_KICH)),]
+#365860      66
+BetaMatrix_KICH <- cbind(BetaMatrix_KICH,annot_df_oneGene[,"UCSC_RefGene_Name"])
+BetaMatrix_KICH <- as.data.frame(BetaMatrix_KICH)
+BetaMatrix_KICH[,1:66] <- apply(BetaMatrix_KICH[,1:66],2,as.numeric)
+colnames(BetaMatrix_KICH)[67] <- "UCSC_RefGene_Name"
+
+
+aggdata <-aggregate(BetaMatrix_KICH[,1:66], by= list(BetaMatrix_KICH$UCSC_RefGene_Name),
+                    FUN=mean, na.rm=TRUE)
+rownames(aggdata) <- aggdata[,1]
+aggdata <- aggdata[,-1]
+#20621    66
+sum(complete.cases(aggdata))
+#20348
+aggdata <- aggdata[complete.cases(aggdata),]
+aggdata <- apply(-aggdata,2,rank)
+load("xCell.data.rda")
+# 10808 genes and 489 signatures
+length(intersect(xCell.data$genes,rownames(aggdata)))
+#10694
+source("xCell_custom.R")
+xCellScores<- xCellAnalysis(aggdata, rnaseq = FALSE)
+save(xCellScores, file = "xCellScores_KICH_methyl_mean.RData")
 
 
 ############ KICH RNA expression
@@ -483,7 +555,7 @@ rownames(xCellScores) <- substr(rownames(xCellScores), 1, 10)
 boxplot(xCellScores, las = 2,cex.axis = 0.5)
 
 load("xCellScores_KICH_methyl.RData")
-#load("xCellScores_KICH_methyl_SeqTrue.RData")
+#load("xCellScores_KICH_methyl_mean.RData")
 xCellScores <- t(xCellScores)
 scores_methyl <- xCellScores
 
@@ -504,3 +576,35 @@ df_plot[,1] <- as.numeric(as.character(df_plot[,1]))
 library(ggplot2)
 ggplot(df_plot) + geom_boxplot(aes(CellType ,scores,color= method)) +
   ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+## check average correlation scores 
+load("xCellScores_KICH_methyl.RData")
+xCellScores <- t(xCellScores)
+scores_methyl <- xCellScores
+
+load("xCellScores_KICH_RNA.RData")
+xCellScores <- t(xCellScores)
+scores_RNA <- xCellScores
+
+load("xCellScores_KICH_methyl_mean.RData")
+xCellScores <- t(xCellScores)
+scores_methyl_mean <- xCellScores
+
+corr <- rep(NA, 66)
+# for (i in 1:66){
+#   corr[i] <- cor(scores_methyl[i,1:64],scores_RNA[i,1:64], method = "spearman")
+# }
+
+for (i in 1:66){
+  corr[i] <- cor(scores_methyl[i,1:64],scores_RNA[i,1:64])
+}
+
+for (i in 1:66){
+  corr[i] <- cor(scores_methyl_mean[i,1:64],scores_RNA[i,1:64])
+}
+
+for (i in 1:66){
+  corr[i] <- cor(scores_methyl_mean[i,1:64],scores_methyl[i,1:64])
+}
