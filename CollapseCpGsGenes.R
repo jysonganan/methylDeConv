@@ -512,6 +512,48 @@ xCellScores<- xCellAnalysis(aggdata, rnaseq = FALSE)
 save(xCellScores, file = "xCellScores_KICH_methyl_mean.RData")
 
 
+### alternatively, take the PCA
+
+library(RTCGA)
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_methylation__humanmethylation450__jhu_usc_edu__Level_3__within_bioassay_data_set_function__data.Level_3.2016012800.0.0/MethylDataset", full.names = TRUE, recursive = TRUE)
+MethylTab_KICH <- readTCGA(path_KICH,dataType = "methylation")
+BetaMatrix_KICH <- matrix(NA,485577,66)
+BetaMatrix_KICH <- t(MethylTab_KICH[,-1])
+colnames(BetaMatrix_KICH) <- as.character(MethylTab_KICH[,1])
+rownames(BetaMatrix_KICH) <- colnames(MethylTab_KICH)[-1]
+## dim: 485577 66
+
+manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
+# 486428     33
+annot <- manifest[match(rownames(BetaMatrix_KICH),manifest[,1]),]
+# 485577     33
+annot_df <- as.data.frame(annot)
+head(annot_df[,"UCSC_RefGene_Name"],100)
+
+annot_df_oneGene <- annot_df
+rownames(annot_df_oneGene) <- annot_df[,1]
+annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
+annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
+head(annot_df_oneGene)
+
+annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
+#365860      4
+BetaMatrix_KICH <- BetaMatrix_KICH[match(rownames(annot_df_oneGene),rownames(BetaMatrix_KICH)),]
+#365860      66
+BetaMatrix_KICH <- cbind(BetaMatrix_KICH,annot_df_oneGene[,"UCSC_RefGene_Name"])
+BetaMatrix_KICH <- as.data.frame(BetaMatrix_KICH)
+BetaMatrix_KICH[,1:66] <- apply(BetaMatrix_KICH[,1:66],2,as.numeric)
+colnames(BetaMatrix_KICH)[67] <- "UCSC_RefGene_Name"
+
+# prcomp
+
+
+
+
+
+
+
+
 ############ KICH RNA expression
 library(RTCGA)
 checkTCGA('Dates')
