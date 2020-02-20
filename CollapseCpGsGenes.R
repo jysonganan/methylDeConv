@@ -1,41 +1,6 @@
 # collapse CpGs into genes
 
 ## correct version TCGA KICH
-library(IlluminaHumanMethylation450kmanifest)
-data(IlluminaHumanMethylation450kmanifest)
-library(minfi)
-
-df <- getProbeInfo(IlluminaHumanMethylation450kmanifest, type = c("I", "II", "Control",
-                              "I-Green", "I-Red", "SnpI", "SnpII"))
-class(df)
-getManifestInfo(IlluminaHumanMethylation450kmanifest, type = c("nLoci", "locusNames"))
-
-head(getProbeInfo(IlluminaHumanMethylation450kmanifest, type = "I"))
-head(IlluminaHumanMethylation450kmanifest@data$TypeI)
-head(IlluminaHumanMethylation450kmanifest@data$TypeII)
-head(IlluminaHumanMethylation450kmanifest@data$TypeControl)
-
-
-getProbeInfo(IlluminaHumanMethylation450kmanifest) #DataFrame with 135476 rows and 8 columns
-getProbeInfo(IlluminaHumanMethylation450kmanifest, type = "II") #DataFrame with 350036 rows and 4 columns
-# or
-IlluminaHumanMethylation450kmanifest@data$TypeI #DataFrame with 135476 rows and 8 columns
-IlluminaHumanMethylation450kmanifest@data$TypeII #DataFrame with 350036 rows and 4 columns
-
-IlluminaHumanMethylation450kmanifest@data$TypeControl #DataFrame with 850 rows and 4 columns
-
-getManifestInfo(IlluminaHumanMethylation450kmanifest) #485512
-getManifestInfo(IlluminaHumanMethylation450kmanifest, type = "locusNames") #chracter with length 485512
-getManifest(IlluminaHumanMethylation450kmanifest)
-
-getControlAddress(IlluminaHumanMethylation450kmanifest, controlType = "NORM_A")
-getControlAddress(IlluminaHumanMethylation450kmanifest, controlType = "NORM_C")
-getControlAddress(IlluminaHumanMethylation450kmanifest, controlType = "NORM_G")
-getControlAddress(IlluminaHumanMethylation450kmanifest, controlType = "NORM_T")
-
-
-
-
 
 manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
 # column names: UCSC_RefGene_Name, UCSC_RefGene_Group
@@ -45,7 +10,6 @@ manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip =
 # UCSC_RefGene_Name: Gene1;Gene2;Gene1
 
 # UCSC_RefGene_Group: TSS200;Body;1stExon
-
 
 
 library(minfi)
@@ -95,11 +59,6 @@ genelevel_betaMat_127824 <- genelevel_betaMat_127824[-3,]
 # reverse: smaller rank, smaller expression
 genelevel_betaMat_127824_rank <- apply(-genelevel_betaMat_127824,2,rank)
 
-
-
-
-library(IlluminaHumanMethylation450k.db)
-CpG_annotation <- as.list(IlluminaHumanMethylation450kSYMBOL[mappedkeys(IlluminaHumanMethylation450kSYMBOL)])
 
 #averaging all probes within 200KB of transcription start site (TSS) to represent a gene-level methylation. 
 # Obviously 200KB is arbitrary and also the assumption of something close to TSS is very important 
