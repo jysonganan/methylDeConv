@@ -84,6 +84,9 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average"){
     BetaMatrix <- as.data.frame(BetaMatrix)
     res <- sapply(split(BetaMatrix[,1:66], BetaMatrix$UCSC_RefGene_Name), pcaCollapse)
     res <- t(res)
+    gene_names <- rownames(res)
+    res <- apply(res,2,function(x){return(as.numeric(x))})
+    rownames(res) <- gene_names
     return(res)
   }
 }
@@ -92,6 +95,24 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average"){
   
 
   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   
     
 
@@ -645,6 +666,7 @@ boxplot(xCellScores, las = 2,cex.axis = 0.5)
 
 load("xCellScores_KICH_methyl.RData")
 #load("xCellScores_KICH_methyl_mean.RData")
+#load("xCellScores_KICH_methyl_PCA.RData")
 xCellScores <- t(xCellScores)
 scores_methyl <- xCellScores
 
@@ -681,6 +703,10 @@ load("xCellScores_KICH_methyl_mean.RData")
 xCellScores <- t(xCellScores)
 scores_methyl_mean <- xCellScores
 
+load("xCellScores_KICH_methyl_PCA.RData")
+xCellScores <- t(xCellScores)
+scores_methyl_PCA <- xCellScores
+
 corr <- rep(NA, 66)
 # for (i in 1:66){
 #   corr[i] <- cor(scores_methyl[i,1:64],scores_RNA[i,1:64], method = "spearman")
@@ -696,4 +722,8 @@ for (i in 1:66){
 
 for (i in 1:66){
   corr[i] <- cor(scores_methyl_mean[i,1:64],scores_methyl[i,1:64])
+}
+
+for (i in 1:66){
+  corr[i] <- cor(scores_methyl_PCA[i,1:64],scores_methyl[i,1:64])
 }
