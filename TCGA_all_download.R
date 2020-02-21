@@ -22,6 +22,7 @@ for (i in 1:length(disease_all)){
   BetaMatrix <- BetaMatrix[,-1]
   BetaMatrix <- t(BetaMatrix)
   save(BetaMatrix, file = paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_methyl/",disease,"_methyl.RData"))
+  rm(BetaMatrix)
 }
 
 # Download RNAseq data
