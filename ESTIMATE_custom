@@ -1,7 +1,9 @@
 ## input gene expression profiles (rows: genes, cols: samples) -- and rank.
 
-estimate_custom <- function(ExpressionMat, platform = "affymetrix"){
+estimate_custom <- function(ExpressionMat, platform=c("affymetrix", "agilent", "illumina")){
+
   library(estimate)
+  platform <- match.arg(platform)
   m <- ExpressionMat
   gene.names <- rownames(ExpressionMat)
   sample.names <- colnames(ExpressionMat)
