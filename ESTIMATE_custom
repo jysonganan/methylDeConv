@@ -1,1 +1,83 @@
+in.file <- "/Library/Frameworks/R.framework/Versions/3.6/Resources/library/estimate/extdata/sample_input.gct"
+# read in gct file
+# expression profile, rows: probes, cols: samples
+ds <- read.delim(in.file, header = TRUE, sep = "\t", skip = 2, row.names = 1, blank.lines.skip = TRUE, as.is = TRUE, na.strings = "")
 
+descs <- ds[,1]
+ds <- ds[-1] # delete first column
+row.names <- row.names(ds)
+names <- names(ds) # column names
+dataset <- list(ds = ds, row.names = row.names, descs = descs, names = names)
+
+
+
+
+m <- data.matrix(dataset$ds)
+gene.names <- dataset$row.names
+sample.names <- dataset$names
+ 
+Ns <- length(m[1, ]) # Number of genes
+Ng <- length(m[, 1]) # Number of samples
+
+
+
+    ## Loop over gene sets
+    score.matrix <- matrix(0, nrow=N.gs, ncol=Ns)
+    for (gs.i in 1:N.gs) {
+        gene.set <- gs[gs.i,]
+        gene.overlap <- intersect(gene.set, gene.names)
+        print(paste(gs.i, "gene set:", gs.names[gs.i], " overlap=", length(gene.overlap)))
+        if (length(gene.overlap) == 0) { 
+           score.matrix[gs.i, ] <- rep(NA, Ns)
+           next
+        } else {
+            ES.vector <- vector(length=Ns)
+         
+            ## Enrichment score
+            for (S.index in 1:Ns) {
+                gene.list <- order(m[, S.index], decreasing=TRUE)            
+                gene.set2 <- match(gene.overlap, gene.names)
+                correl.vector <- m[gene.list, S.index]
+          
+                TAG <- sign(match(gene.list, gene.set2, nomatch=0))    # 1 (TAG) & 0 (no.TAG)
+                no.TAG <- 1 - TAG 
+                N <- length(gene.list) 
+                Nh <- length(gene.set2) 
+                Nm <-  N - Nh 
+                correl.vector <- abs(correl.vector)^0.25
+                sum.correl  <- sum(correl.vector[TAG == 1])
+                P0 <- no.TAG / Nm
+                F0 <- cumsum(P0)
+                Pn <- TAG * correl.vector / sum.correl
+                Fn <- cumsum(Pn)
+                RES <- Fn - F0
+                max.ES <- max(RES)
+                min.ES <- min(RES)
+                if (max.ES > - min.ES) {
+                    arg.ES <- which.max(RES)
+                } else {
+                    arg.ES <- which.min(RES)
+                }
+                ES <- sum(RES)
+                EnrichmentScore <- list(ES=ES,
+                                        arg.ES=arg.ES,
+                                        RES=RES,
+                                        indicator=TAG)
+                ES.vector[S.index] <- EnrichmentScore$ES
+            }
+            score.matrix[gs.i, ] <- ES.vector
+        }
+    }
+
+    score.data <- data.frame(score.matrix)
+    names(score.data) <- sample.names
+    row.names(score.data) <- gs.names
+    estimate.score <- apply(score.data, 2, sum)
+    
+        if (platform != "affymetrix"){
+        score.data <- rbind(score.data, estimate.score)
+        rownames(score.data) <- c("StromalScore",
+                                  "ImmuneScore",
+                                  "ESTIMATEScore")
+    } else{
+    }
