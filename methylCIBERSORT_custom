@@ -79,6 +79,24 @@ Featureselect.V2 <- function(CellLines.matrix, Heatmap = FALSE, nCores = 4, reps
 
 
 
+
+
+
+
+
+################################
+#### apply FeatureSelect.V4
+################################
+library(MethylCIBERSORT)
+data("StromalMatrix_V2")
+Signature <- FeatureSelect.V4(CellLines.matrix = NULL, Heatmap = FALSE, export = TRUE, sigName = "ExampleType", Stroma.matrix = Stromal_v2, deltaBeta = 0.2, FDR = 0.01, MaxDMRs = 100, Phenotype.stroma = Stromal_v2.pheno)
+
+
+
+
+
+
+
 # prepare input file for CIBERSORT
 Prep.CancerType <- function(Beta, Probes, fname) {
 
@@ -88,10 +106,6 @@ Prep.CancerType <- function(Beta, Probes, fname) {
   Beta <- cbind(NAME, data.frame(Beta))
   write.table(Beta, file = paste0(fname,".txt"),sep = "\t", row.names = FALSE, quote = F )
 }
-
-
-
-
 
 
 
