@@ -52,6 +52,8 @@ Featureselect.V2 <- function(CellLines.matrix, Heatmap = FALSE, nCores = 4, reps
   if(Unlog) { Mat3 <- 2^Mat3}
   
   
+  #### the colMedians (for each probe (col), medians of samples within a cell type), i.e. the reference dataset.
+  
   # #Then , export object
   # if(export) {
   #   
