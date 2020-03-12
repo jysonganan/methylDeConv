@@ -727,3 +727,61 @@ for (i in 1:66){
 for (i in 1:66){
   corr[i] <- cor(scores_methyl_PCA[i,1:64],scores_methyl[i,1:64])
 }
+
+
+
+
+## compare ESTIMATE and xCell
+
+library(RTCGA)
+checkTCGA('Dates')
+datInfo <- checkTCGA("DataSets","KICH", date = "2016-01-28")
+
+path_KICH <- list.files(path = "/Users/junesong/Desktop/causal inference/gdac.broadinstitute.org_KICH.Merge_rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level_3.2016012800.0.0/RNADataset", full.names = TRUE, recursive = TRUE)
+RNATab_KICH <- readTCGA(path_KICH,dataType = "rnaseq")
+rownames(RNATab_KICH) <- RNATab_KICH[,1]
+RNATab_KICH <- RNATab_KICH[,-1]
+RNATab_KICH <- t(RNATab_KICH)
+
+sample_shared <- intersect(substr(as.character(MethylTab_KICH[,1]),1,19),substr(colnames(RNATab_KICH),1,19))
+colnames(RNATab_KICH) <- substr(colnames(RNATab_KICH),1,19)
+RNATab_KICH <- RNATab_KICH[,sample_shared]
+# 20531    66
+
+genes_all <- rownames(RNATab_KICH)
+genes_all <- gsub("\\|.*","", genes_all)
+# 20502 unqiue
+RNATab_KICH <- RNATab_KICH[-(1:29),]
+# 20502    66
+rownames(RNATab_KICH) <- genes_all[-(1:29)]
+
+
+
+source("estimate_custom.R")
+estimate_score <- estimate_custom(RNATab_KICH)
+save(estimate_score, file = "ESTIMATEScores_KICH_RNA.RData")
+scores_RNA_estimate <- t(estimate_score)
+  
+load("xCellScores_KICH_RNA.RData")
+xCellScores <- t(xCellScores)
+scores_RNA <- xCellScores
+scores_RNA_xCell <- scores_RNA[,65:67]
+
+dat1 <- scores_RNA_xCell[,c(1,2)]
+dat2 <- scores_RNA_estimate[,c(2,1)]
+
+df<- rbind(dat1, log(dat2,10000000))
+df_plot <- matrix(NA,264,3)
+df_plot[,1] <- as.vector(as.matrix(df[,1:2]))
+method <- c(rep("xCell_RNA",66), rep("ESTIMATE_RNA",66))
+df_plot[,2] <- rep(method,2)
+df_plot[,3] <- rep(colnames(df)[1:2],each = 132)
+colnames(df_plot) <- c("scores", "method","CellType")
+df_plot <- as.data.frame(df_plot)
+df_plot[,1] <- as.numeric(as.character(df_plot[,1]))
+
+library(ggplot2)
+ggplot(df_plot) + geom_boxplot(aes(CellType ,scores,color= method)) +
+  ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
