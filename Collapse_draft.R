@@ -665,3 +665,22 @@ df_plot[,1] <- as.numeric(as.character(df_plot[,1]))
 library(ggplot2)
 ggplot(df_plot) + geom_boxplot(aes(CellType ,scores,color= method)) +
   ylab('scores') + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+
+
+
+
+
+
+
+###### cshl server collapse_draft
+## TCGA KICH 
+## average collapsing
+load("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_methyl/KICH_methyl.RData")
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/CollapseCpGsGenes.R")
+aggdata <- CollapseCpGsGenes(BetaMatrix)
+aggdata_rank <- apply(-aggdata,2,rank)
+load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell_custom.R")
+xCellScores<- xCellAnalysis(aggdata_rank, rnaseq = FALSE)
+
