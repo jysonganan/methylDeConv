@@ -688,3 +688,18 @@ source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell_custom.R")
 xCellScores_average_noReverseRank <-  xCellAnalysis(aggdata_rank_noReverse, rnaseq = TRUE)
 xCellScores_average <- xCellAnalysis(aggdata_rank, rnaseq = TRUE)
 save("xCellScores_average","xCellScores_average_noReverseRank", "BetaMatrix_maxvar","BetaMatrix_pca",file = "/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/KICH_collapse_res.RData")
+
+
+## average collapsing
+load("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_methyl/KICH_methyl.RData")
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/CollapseCpGsGenes.R")
+aggdata <- CollapseCpGsGenes(BetaMatrix, include = "TSS200")
+BetaMatrix_maxvar_TSS200 <- CollapseCpGsGenes(BetaMatrix, method = "maxvar", include = "TSS200")
+BetaMatrix_pca_TSS200 <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "TSS200")
+aggdata_rank_noReverse <- apply(aggdata,2,rank)
+aggdata_rank <- apply(-aggdata,2,rank)
+load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell_custom.R")
+xCellScores_average_noReverseRank_TSS200 <-  xCellAnalysis(aggdata_rank_noReverse, rnaseq = TRUE)
+xCellScores_average_TSS200 <- xCellAnalysis(aggdata_rank, rnaseq = TRUE)
+save("xCellScores_average_TSS200","xCellScores_average_noReverseRank_TSS200", "BetaMatrix_maxvar_TSS200","BetaMatrix_pca_TSS200",file = "/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/KICH_collapse_res_TSS200.RData")
