@@ -1,4 +1,4 @@
-load("xCell.data.rda")
+load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
 library(GSVA)
 library(GSEABase)
 library(pracma)
