@@ -1,15 +1,24 @@
 # collapse CpGs into genes
 
 ## correct version TCGA KICH
-CollapseCpGsGenes <- function(BetaMatrix, method = "average"){
+CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = NULL){
   manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
   #manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
   annot <- manifest[match(rownames(BetaMatrix),manifest[,1]),]
   annot_df <- as.data.frame(annot)
+  
   annot_df_oneGene <- annot_df
   rownames(annot_df_oneGene) <- annot_df[,1]
   annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
-  annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", "UCSC_RefGene_Name")]
+  annot_df_oneGene[,"UCSC_RefGene_Group"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Group"])
+  if (include == "TSS200"){
+    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"]=="TSS200",]
+  }
+  if (include == "TSS200&TSS1500"){
+    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"] %in% c("TSS1500","TSS200"),]
+  }
+  annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", 
+                                          "UCSC_RefGene_Name","UCSC_RefGene_Group")]
   annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
   BetaMatrix <- BetaMatrix[match(rownames(annot_df_oneGene),rownames(BetaMatrix)),]
   
