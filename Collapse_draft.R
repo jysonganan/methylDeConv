@@ -683,4 +683,4 @@ aggdata_rank <- apply(-aggdata,2,rank)
 load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
 source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell_custom.R")
 xCellScores<- xCellAnalysis(aggdata_rank, rnaseq = FALSE)
-
+save("xCellScores","aggdata_rank", file = "/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/KICH_collapse_res.RData")
