@@ -66,10 +66,10 @@ for (i in 1:length(disease_all)){
   system(paste("mv",paste0(folder_name, "/",disease,"*.txt"),sub_folder_name))
   
   path_disease <- list.files(path = sub_folder_name, full.names = TRUE, recursive = TRUE)
-  RNAMatrix <- readTCGA(path_disease, dataType = "mRNA")
-  rownames(RNAMatrix) <- RNAMatrix[,1]
-  RNAMatrix <- RNAMatrix[,-1]
-  RNAMatrix <- t(RNAMatrix)
-  save(RNAMatrix, file = paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna/",disease,"_mrna.RData"))
+  mRNAMatrix <- readTCGA(path_disease, dataType = "mRNA")
+  rownames(mRNAMatrix) <- mRNAMatrix[,1]
+  mRNAMatrix <- mRNAMatrix[,-1]
+  mRNAMatrix <- t(mRNAMatrix)
+  save(mRNAMatrix, file = paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna/",disease,"_mrna.RData"))
 }
 
