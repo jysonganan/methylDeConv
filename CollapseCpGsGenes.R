@@ -79,8 +79,8 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
     BetaMatrix <- BetaMatrix[which(no_na < dim(BetaMatrix)[2]-1),]
     # impute the remaining missing values
 
-    BetaMatrix[,1:66] <- t(apply(BetaMatrix[,1:66],1,function(x){x[is.na(x)] <- median(x, na.rm = TRUE);return(x)}))
-    BetaMatrix[,67] <- as.character(BetaMatrix[,67])
+    BetaMatrix[,-dim(BetaMatrix)[2]] <- t(apply(BetaMatrix[,-dim(BetaMatrix)[2]],1,function(x){x[is.na(x)] <- median(x, na.rm = TRUE);return(x)}))
+    BetaMatrix[,dim(BetaMatrix)[2]] <- as.character(BetaMatrix[,dim(BetaMatrix)[2]])
     pcaCollapse <- function(x){
       if(dim(x)[1] == 1){
         return(x)
@@ -91,7 +91,7 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
       }
     }
     BetaMatrix <- as.data.frame(BetaMatrix)
-    res <- sapply(split(BetaMatrix[,1:66], BetaMatrix$UCSC_RefGene_Name), pcaCollapse)
+    res <- sapply(split(BetaMatrix[,-dim(BetaMatrix)[2]], BetaMatrix$UCSC_RefGene_Name), pcaCollapse)
     res <- t(res)
     gene_names <- rownames(res)
     res <- apply(res,2,function(x){return(as.numeric(x))})

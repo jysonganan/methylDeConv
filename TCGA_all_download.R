@@ -49,3 +49,27 @@ for (i in 1:length(disease_all)){
   disease <- disease_all[i]
   downloadTCGA(cancerTypes = disease, destDir = "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_clinical", date = "2016-01-28")
 }
+
+
+
+# Download mRNA data
+disease_all <- c("BRCA","COAD","COADREAD","GBMLGG","KIPAN","KIRC","KIRP","LGG","LUAD","LUSC",
+                 "OV","READ","UCEC")
+
+for (i in 1:length(disease_all)){
+  disease <- disease_all[i]
+  downloadTCGA(cancerTypes = disease, dataSet = "Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3", destDir = "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna", date = "2016-01-28")
+  folder_name <- paste0("gdac.broadinstitute.org_",disease,".Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.2016012800.0.0")
+  folder_name <- paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna/", folder_name)
+  sub_folder_name <- paste0(folder_name,"/mRNADataset")
+  system(paste("mkdir",sub_folder_name))
+  system(paste("mv",paste0(folder_name, "/",disease,"*.txt"),sub_folder_name))
+  
+  path_disease <- list.files(path = sub_folder_name, full.names = TRUE, recursive = TRUE)
+  mRNAMatrix <- readTCGA(path_disease, dataType = "mRNA")
+  rownames(mRNAMatrix) <- mRNAMatrix[,1]
+  mRNAMatrix <- mRNAMatrix[,-1]
+  mRNAMatrix <- t(mRNAMatrix)
+  save(mRNAMatrix, file = paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna/",disease,"_mrna.RData"))
+}
+

@@ -24,15 +24,15 @@ source("ESTIMATE_custom.R")
 
 BetaMatrix_average <- CollapseCpGsGenes(BetaMatrix, include = "all")
 BetaMatrix_maxvar <- CollapseCpGsGenes(BetaMatrix, method = "maxvar", include = "all")
-BetaMatrix_pca <- CollapseCpGsGenes(BetaMatrix, method = "pca", include = "all")
+BetaMatrix_pca <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "all")
 
 BetaMatrix_average_TSS200 <- CollapseCpGsGenes(BetaMatrix, include = "TSS200")
 BetaMatrix_maxvar_TSS200 <- CollapseCpGsGenes(BetaMatrix, method = "maxvar", include = "TSS200")
-BetaMatrix_pca_TSS200 <- CollapseCpGsGenes(BetaMatrix, method = "pca", include = "TSS200")
+BetaMatrix_pca_TSS200 <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "TSS200")
 
 BetaMatrix_average_TSS <- CollapseCpGsGenes(BetaMatrix, include = "TSS200&TSS1500")
 BetaMatrix_maxvar_TSS <- CollapseCpGsGenes(BetaMatrix, method = "maxvar", include = "TSS200&TSS1500")
-BetaMatrix_pca_TSS <- CollapseCpGsGenes(BetaMatrix, method = "pca", include = "TSS200&TSS1500")
+BetaMatrix_pca_TSS <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "TSS200&TSS1500")
 
 # xCell
 tmp_rank <- apply(-BetaMatrix_average, 2, rank)
