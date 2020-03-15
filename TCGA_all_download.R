@@ -53,6 +53,9 @@ for (i in 1:length(disease_all)){
 
 
 # Download mRNA data
+disease_all <- c("BRCA","COAD","COADREAD","GBM","GBMLGG","KIPAN","KIRC","KIRP","LGG","LUAD","LUSC",
+                 "OV","READ","UCEC")
+
 for (i in 1:length(disease_all)){
   disease <- disease_all[i]
   downloadTCGA(cancerTypes = disease, dataSet = "Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3", destDir = "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna", date = "2016-01-28")
