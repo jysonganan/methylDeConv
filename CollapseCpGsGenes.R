@@ -1,7 +1,7 @@
 # collapse CpGs into genes
 
 ## correct version TCGA KICH
-CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = NULL){
+CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
   manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
   #manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
   annot <- manifest[match(rownames(BetaMatrix),manifest[,1]),]
