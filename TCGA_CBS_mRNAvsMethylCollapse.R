@@ -24,6 +24,7 @@ res_mRNA_cibersort <- CIBERSORT(sig_matrix, mRNAMatrix_nona)
 
 
 ### collapsing
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/CollapseCpGsGenes.R")
 BetaMatrix_average <- CollapseCpGsGenes(BetaMatrix, include = "all")
 BetaMatrix_maxvar <- CollapseCpGsGenes(BetaMatrix, method = "maxvar", include = "all")
 BetaMatrix_pca <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "all")
