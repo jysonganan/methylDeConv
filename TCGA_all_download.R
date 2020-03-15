@@ -73,3 +73,86 @@ for (i in 1:length(disease_all)){
   save(RNAMatrix, file = paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mrna/",disease,"_mrna.RData"))
 }
 
+#### instead mRNA
+library(magrittr)
+library(dplyr)
+library(devtools)
+library(RTCGA)
+(cohorts <- infoTCGA() %>% 
+   rownames() %>% 
+   sub("-counts", "", x=.))
+
+
+# dir.create( "data2" )
+releaseDate <- "2016-01-28"
+sapply( cohorts, function(element){
+tryCatch({
+downloadTCGA( cancerTypes = element, 
+              dataSet = "Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3",
+              destDir = "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA", 
+              date = releaseDate )},
+error = function(cond){
+   cat("Error: Maybe there weren't mutations data for ", element, " cancer.\n")
+}
+)
+})
+
+list.files( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA") %>% 
+   file.path( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA", .) %>%
+   file.rename( to = substr(.,start=1,stop=50))
+
+list.files( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA") %>%
+   file.path( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA", .) %>%
+   sapply(function(x){
+      if (x == "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA/NA")
+         file.remove(x)      
+   })
+
+list.files( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA") %>% 
+   file.path( "/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA", .) %>%
+   sapply(function(x){
+      file.path(x, list.files(x)) %>%
+         grep(pattern = "MANIFEST.txt", x = ., value=TRUE) %>%
+         file.remove()
+      })
+
+list.files("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA") %>%
+   file.path("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_mRNA", .) %>%
+   sapply(function(y){
+      file.path(y, list.files(y)) %>%
+      assign( value = .,
+              x = paste0(list.files(y) %>%
+                            gsub(x = .,
+                                 pattern = "\\..*",
+                                 replacement = "") %>%
+                            gsub(x=., pattern="-", replacement = "_"),
+                         ".mRNA.path"),
+              envir = .GlobalEnv)
+   })
+
+ls() %>%
+   grep("mRNA\\.path", x = ., value = TRUE) %>% 
+   sapply(function(element){
+      tryCatch({
+         readTCGA(get(element, envir = .GlobalEnv),
+               dataType = "mRNA") %>%
+         assign(value = .,
+                x = sub("\\.path", "", x = element),
+                envir = .GlobalEnv )
+      }, error = function(cond){
+         cat(element)
+      }) 
+     invisible(NULL)
+    }    
+)
+
+grep( "mRNA", ls(), value = TRUE) %>%
+   grep("path", x=., value = TRUE, invert = TRUE) %>%
+   cat( sep="," ) #can one to id better? as from use_data documentation:
+   # ...    Unquoted names of existing objects to save
+   devtools::use_data(BRCA.mRNA,COAD.mRNA,COADREAD.mRNA,GBMLGG.mRNA,
+                      KIPAN.mRNA,KIRC.mRNA,KIRP.mRNA,LGG.mRNA,LUAD.mRNA,
+                      LUSC.mRNA,OV.mRNA,READ.mRNA,UCEC.mRNA,
+                      overwrite = TRUE,
+                      compress="xz")
+
