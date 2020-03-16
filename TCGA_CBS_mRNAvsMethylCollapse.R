@@ -80,49 +80,17 @@ save("res_mRNA_cibersort", "res_collapse_average_all_cibersort", "res_collapse_m
 
 ##### check results
 ## within cell type, across samples
-corr <- rep(NA,22)
-names(corr) <- colnames(res_mRNA_cibersort)[1:22]
-for (i in 1:22){
-  corr[i] <- cor(res_mRNA_cibersort[,i],res_collapse_average_TSS200_cibersort[,i], method = "spearman")
-}
-
-## within sample, across cell types
-corr <- rep(NA,253)
-for (i in 1:253){
-  corr[i] <- cor(res_mRNA_cibersort[i,1:22],res_collapse_pca_TSS_cibersort[i,1:22], method = "spearman")
-}
-
-
-
-
-if (method == "RPC" && tissue == "Breast"){
-  library(EpiDISH)
-  if (is.null(custom_probes)){
-    data("centEpiFibFatIC.m")
-    res <- epidish(input_methyl, centEpiFibFatIC.m, method = "RPC")
-    data("centDHSbloodDMC.m")
-    res2 <- hepidish(input_methyl, centEpiFibFatIC.m, centDHSbloodDMC.m, h.CT.idx = 4, method = "RPC")
-  }else{
-    stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
-         custom probes do not work!")
-  }
-  res <- res$estF
-  return(list(res, res2))
-  }
-
-
-if (method == "CBS" && tissue == "Breast"){
-  library(EpiDISH)
-  if (is.null(custom_probes)){
-    data("centEpiFibFatIC.m")
-    res <- epidish(input_methyl, centEpiFibFatIC.m, method = "CBS")
-    data("centDHSbloodDMC.m")
-    res2 <- hepidish(input_methyl, centEpiFibFatIC.m, centDHSbloodDMC.m, h.CT.idx = 4, method = "CBS")
-  }else{
-    stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
-         custom probes do not work!")
-  }
-  res <- res$estF
-  return(list(res,res2))
-  }
-
+# corr <- rep(NA,22)
+# names(corr) <- colnames(res_mRNA_cibersort)[1:22]
+# for (i in 1:22){
+#   corr[i] <- cor(res_mRNA_cibersort[,i],res_collapse_average_TSS200_cibersort[,i], method = "spearman")
+# }
+# 
+# ## within sample, across cell types
+# corr <- rep(NA,253)
+# for (i in 1:253){
+#   corr[i] <- cor(res_mRNA_cibersort[i,1:22],res_collapse_pca_TSS_cibersort[i,1:22], method = "spearman")
+# }
+# 
+# 
+# 
