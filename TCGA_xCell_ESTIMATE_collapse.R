@@ -36,39 +36,39 @@ BetaMatrix_pca_TSS <- CollapseCpGsGenes(BetaMatrix, method = "PCA", include = "T
 
 # xCell
 tmp_rank <- apply(-BetaMatrix_average, 2, rank)
-BetaMatrix_average_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_average_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation average - include all, completed!")
 
 tmp_rank <- apply(-BetaMatrix_maxvar, 2, rank)
-BetaMatrix_maxvar_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_maxvar_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation maxvar - include all, completed!")
 
 tmp_rank <- apply(-BetaMatrix_pca, 2, rank)
-BetaMatrix_pca_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_pca_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation pca - include all, completed!")
 
 tmp_rank <- apply(-BetaMatrix_average_TSS200, 2, rank)
-BetaMatrix_average_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_average_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation average - include TSS200, completed!")
 
 tmp_rank <- apply(-BetaMatrix_maxvar_TSS200, 2, rank)
-BetaMatrix_maxvar_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_maxvar_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation maxvar - include TSS200, completed!")
 
 tmp_rank <- apply(-BetaMatrix_pca_TSS200, 2, rank)
-BetaMatrix_pca_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_pca_TSS200_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation pca - include TSS200, completed!")
 
 tmp_rank <- apply(-BetaMatrix_average_TSS, 2, rank)
-BetaMatrix_average_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_average_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation average - include TSS200&TSS1500, completed!")
 
 tmp_rank <- apply(-BetaMatrix_maxvar_TSS, 2, rank)
-BetaMatrix_maxvar_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_maxvar_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation maxvar - include TSS200&TSS1500, completed!")
 
 tmp_rank <- apply(-BetaMatrix_pca_TSS, 2, rank)
-BetaMatrix_pca_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = TRUE)
+BetaMatrix_pca_TSS_xCell <- xCellAnalysis(tmp_rank, rnaseq = FALSE)
 print("xcell - methylation pca - include TSS200&TSS1500, completed!")
 
 tmp_rank <- apply(RNAMatrix,2,rank)
