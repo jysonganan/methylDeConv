@@ -112,11 +112,13 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       use_probes <- intersect(rownames(input_methyl),rownames(centEpiFibFatIC.m))
       res <- projectCellType(input_methyl[use_probes,], 
                              centEpiFibFatIC.m[use_probes,])
+      data("centDHSbloodDMC.m")
+      res2 <- hepidish(input_methyl, centEpiFibFatIC.m, centDHSbloodDMC.m, h.CT.idx = 4, method = "CP")
     }else{
       stop("For breast tissue, only support EpiDISH selected probes (centEpiFibFatIC.m), 
            custom probes do not work!")
     }
-    return(res)
+    return(list(res,res2))
   }
   
   if (method == "Houseman" && tissue == "genericEpithelial"){
