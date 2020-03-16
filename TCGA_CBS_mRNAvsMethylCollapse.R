@@ -60,7 +60,7 @@ BetaMatrix_pca_TSS_nona <- t(BetaMatrix_pca_TSS_nona)
 
 
 
-res_collapse_average_all_cibersort <- cibersortCIBERSORT(sig_matrix, BetaMatrix_average_nona)
+res_collapse_average_all_cibersort <- CIBERSORT(sig_matrix, BetaMatrix_average_nona)
 res_collapse_maxvar_all_cibersort <- CIBERSORT(sig_matrix, BetaMatrix_maxvar_nona)
 res_collapse_pca_all_cibersort <- CIBERSORT(sig_matrix, BetaMatrix_pca_nona)
 
