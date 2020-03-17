@@ -94,3 +94,235 @@ save("res_mRNA_cibersort", "res_collapse_average_all_cibersort", "res_collapse_m
 # 
 # 
 # 
+
+
+# res_cbs <- noNa_res2_CBS[,4:10]
+# res_rpc <- noNa_res2_RPC[,4:10]
+# res_cp <- noNa_res2_CP[,4:10]
+# res_rna_cibersort <- cbind(res_mRNA_cibersort[,1]+res_mRNA_cibersort[,2],
+#                            res_mRNA_cibersort[,11]+res_mRNA_cibersort[,12],
+#                            res_mRNA_cibersort[,5]+res_mRNA_cibersort[,6]+res_mRNA_cibersort[,7],
+#                            res_mRNA_cibersort[,4],
+#                            res_mRNA_cibersort[,13],
+#                            res_mRNA_cibersort[,22],
+#                            res_mRNA_cibersort[,21])
+# 
+# colnames(res_rna_cibersort) <- colnames(res_cbs)
+# 
+# res_collapse_cibersort <- cbind(res_collapse_average_all_cibersort[,1]+res_collapse_average_all_cibersort[,2],
+#                            res_collapse_average_all_cibersort[,11]+res_collapse_average_all_cibersort[,12],
+#                            res_collapse_average_all_cibersort[,5]+res_collapse_average_all_cibersort[,6]+res_collapse_average_all_cibersort[,7],
+#                            res_collapse_average_all_cibersort[,4],
+#                            res_collapse_average_all_cibersort[,13],
+#                            res_collapse_average_all_cibersort[,22],
+#                            res_collapse_average_all_cibersort[,21])
+# 
+# colnames(res_collapse_cibersort) <- colnames(res_cbs)
+# 
+# head(res_cbs)
+# head(res_rpc)
+# head(res_cp)
+# head(res_rna_cibersort)
+# head(res_collapse_cibersort)
+# 
+# res_cbs_normalized <- apply(res_cbs,1,function(x){return(x/sum(x))})
+# res_cbs_normalized <- t(res_cbs_normalized)
+# 
+# res_rpc_normalized <- apply(res_rpc,1,function(x){return(x/sum(x))})
+# res_rpc_normalized <- t(res_rpc_normalized)
+# 
+# res_cp_normalized <- apply(res_cp,1,function(x){return(x/sum(x))})
+# res_cp_normalized <- t(res_cp_normalized)
+# 
+# res_rna_cibersort_normalized <- apply(res_rna_cibersort,1,function(x){return(x/sum(x))})
+# res_rna_cibersort_normalized<- t(res_rna_cibersort_normalized)
+# 
+# res_collapse_cibersort_normalized <- apply(res_collapse_cibersort,1,function(x){return(x/sum(x))})
+# res_collapse_cibersort_normalized <- t(res_collapse_cibersort_normalized)
+# 
+# # within each cell type, across samples
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_cbs_normalized[,i], use="complete.obs", method = "spearman")
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_rpc_normalized[,i], use="complete.obs",method = "spearman")
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_cp_normalized[,i], use="complete.obs",method = "spearman")
+# }
+# 
+# 
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_cbs_normalized[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_rpc_normalized[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_cp_normalized[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# 
+# 
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_cp_normalized[,i],res_cbs_normalized[,i], use="complete.obs", method = 'spearman')
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rpc_normalized[,i],res_cbs_normalized[,i], use="complete.obs", method = 'spearman')
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_cp_normalized[,i],res_rpc_normalized[,i], use="complete.obs", method = 'spearman')
+# }
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# # within each cell type, across samples
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_CBS_IC$est[,i], use="complete.obs", method = "spearman")
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_RPC_IC$est[,i], use="complete.obs",method = "spearman")
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_rna_cibersort_normalized[,i],res_CP_IC$est[,i], use="complete.obs",method = "spearman")
+# }
+# 
+# 
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_CBS_IC$est[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_RPC_IC$est[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[,i],res_CP_IC$est[,i], use="complete.obs",method = "spearman")
+# }
+# corr
+# 
+# 
+# 
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_CP_IC$est[,i],res_CBS_IC$est[,i])
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_RPC_IC$est[,i],res_CBS_IC$est[,i])
+# }
+# 
+# corr <- rep(NA,7)
+# names(corr) <- colnames(res_cbs)
+# for (i in 1:7){
+#   corr[i] <- cor(res_CP_IC$est[,i],res_RPC_IC$est[,i])
+# }
+# 
+# 
+# # corr <- rep(NA,253)
+# # for (i in 1:253){
+# #   corr[i] <- cor(res_mRNA_cibersort[i,1:22],res_collapse_pca_TSS_cibersort[i,1:22], method = "spearman")
+# # }
+
+
+
+
+
+
+# corr <- rep(NA,253)
+# for (i in 1:253){
+#   corr[i] <- cor(res_rna_cibersort_normalized[i,],res_collapse_cibersort_normalized[i,])
+# }
+# 
+# 
+# corr <- rep(NA,253)
+# for (i in 1:253){
+#   corr[i] <- cor(res_rna_cibersort_normalized[i,],res_CBS_IC$est[i,])
+# }
+# mean(corr)
+# 
+# corr <- rep(NA,253)
+# for (i in 1:253){
+#   corr[i] <- cor(res_rna_cibersort_normalized[i,],res_CBS_IC$est[i,],method = "spearman")
+# }
+# mean(corr)
+# 
+# 
+# corr <- rep(NA,253)
+# for (i in 1:253){
+#   corr[i] <- cor(res_collapse_cibersort_normalized[i,],res_RPC_IC$est[i,],method = "spearman")
+# }
+# mean(corr)
+# 
+#
