@@ -33,7 +33,7 @@ res_collapse_maxvar_cibersort <- CIBERSORT(sig_matrix, BetaMatrix_maxvar_nona, a
 res_collapse_pca_cibersort <- CIBERSORT(sig_matrix, BetaMatrix_pca_nona, absolute = TRUE)
 
 
-save("res_collapse_average_cibersort", "res_collapse_maxvar_cibersort", "res_collapse_maxvar_cibersort",
+save("res_collapse_average_cibersort", "res_collapse_maxvar_cibersort", "res_collapse_pca_cibersort",
      file = "/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/KICH_res_collapse_cibersort_noreverse.RData")
 
 
