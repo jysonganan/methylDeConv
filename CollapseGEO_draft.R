@@ -43,6 +43,30 @@ res_collapse <- cbind(res_collapse_average_cibersort[,4],
                  res_collapse_average_cibersort[,13],
                  res_collapse_average_cibersort[,21]+res_collapse_average_cibersort[,22])
 
+
+
+res_collapse <- cbind(res_collapse_maxvar_cibersort[,4],
+                 res_collapse_maxvar_cibersort[,5]+res_collapse_maxvar_cibersort[,6]+res_collapse_maxvar_cibersort[,7],
+                 res_collapse_maxvar_cibersort[,11]+res_collapse_maxvar_cibersort[,12],
+                 res_collapse_maxvar_cibersort[,1]+res_collapse_maxvar_cibersort[,2],
+                 res_collapse_maxvar_cibersort[,13],
+                 res_collapse_maxvar_cibersort[,21]+res_collapse_maxvar_cibersort[,22])
+
+
+
+
+res_collapse <- cbind(res_collapse_pca_cibersort[,4],
+                 res_collapse_pca_cibersort[,5]+res_collapse_pca_cibersort[,6]+res_collapse_pca_cibersort[,7],
+                 res_collapse_pca_cibersort[,11]+res_collapse_pca_cibersort[,12],
+                 res_collapse_pca_cibersort[,1]+res_collapse_pca_cibersort[,2],
+                 res_collapse_pca_cibersort[,13],
+                 res_collapse_pca_cibersort[,21]+res_collapse_pca_cibersort[,22])
+
+
+
+
+
+
 res_collapse_normalized <- apply(res_collapse,1,function(x){return(x/sum(x))})
 res_collapse_normalized <- t(res_collapse_normalized)
 
