@@ -47,9 +47,13 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
       }
     }
     miss_id <- which(is.na(CpG_maxVar_list) == TRUE)
-    CpG_maxVar_list <- CpG_maxVar_list[-miss_id]
-    gene_list <- gene_list[-miss_id]
     
+    ###
+    if(length(miss_id > 0)){
+      CpG_maxVar_list <- CpG_maxVar_list[-miss_id]
+      gene_list <- gene_list[-miss_id]
+    }
+   
     genelevel_BetaMatrix <- BetaMatrix[CpG_maxVar_list,]
     rownames(genelevel_BetaMatrix) <- gene_list
     genelevel_BetaMatrix <- genelevel_BetaMatrix[complete.cases(genelevel_BetaMatrix),]
