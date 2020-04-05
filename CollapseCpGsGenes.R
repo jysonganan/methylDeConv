@@ -1,6 +1,5 @@
 # collapse CpGs into genes
 
-## correct version TCGA KICH
 CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
   manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
   #manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
@@ -17,6 +16,21 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
   if (include == "TSS200&TSS1500"){
     annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"] %in% c("TSS1500","TSS200"),]
   }
+  
+  if (include == "Island"){
+    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"]=="Island",]
+  }
+  
+  if (include == "Shore"){
+    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("N_Shore","S_Shore"),]
+  }
+  if (include == "Island&Shore"){
+    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("Island","N_Shore","S_Shore"),]
+  }
+  
+  
+  
+  
   annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", 
                                           "UCSC_RefGene_Name","UCSC_RefGene_Group")]
   annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
@@ -53,7 +67,7 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
       CpG_maxVar_list <- CpG_maxVar_list[-miss_id]
       gene_list <- gene_list[-miss_id]
     }
-   
+    
     genelevel_BetaMatrix <- BetaMatrix[CpG_maxVar_list,]
     rownames(genelevel_BetaMatrix) <- gene_list
     genelevel_BetaMatrix <- genelevel_BetaMatrix[complete.cases(genelevel_BetaMatrix),]
@@ -71,7 +85,7 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
     aggdata <- aggdata[,-1]
     aggdata <- aggdata[complete.cases(aggdata),]
     return(aggdata)
-    }
+  }
   
   if (method == "PCA"){
     BetaMatrix <- cbind(BetaMatrix, annot_df_oneGene[,"UCSC_RefGene_Name"])
@@ -82,7 +96,7 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
     # delete probes with all missing values
     BetaMatrix <- BetaMatrix[which(no_na < dim(BetaMatrix)[2]-1),]
     # impute the remaining missing values
-
+    
     BetaMatrix[,-dim(BetaMatrix)[2]] <- t(apply(BetaMatrix[,-dim(BetaMatrix)[2]],1,function(x){x[is.na(x)] <- median(x, na.rm = TRUE);return(x)}))
     BetaMatrix[,dim(BetaMatrix)[2]] <- as.character(BetaMatrix[,dim(BetaMatrix)[2]])
     pcaCollapse <- function(x){
@@ -104,7 +118,7 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
   }
 }
 
-  
+
   
 
   
