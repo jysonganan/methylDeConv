@@ -36,8 +36,8 @@ for (i in 1:length(shared_genes)){
 }
 
 
-corr <- rep(NA, 66)
-for (i in 1:66){
+corr <- rep(NA, dim(BetaMatrix)[2])
+for (i in 1:dim(BetaMatrix)[2]){
   corr[i] <- cor(RNAMatrix[shared_genes,i],BetaMatrix_average[shared_genes,i],method = "spearman")
 }
 
