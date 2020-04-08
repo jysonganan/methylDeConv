@@ -1,40 +1,56 @@
-# collapse CpGs into genes
-
-CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
-  manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
-  #manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
-  annot <- manifest[match(rownames(BetaMatrix),manifest[,1]),]
-  annot_df <- as.data.frame(annot)
-  
-  annot_df_oneGene <- annot_df
-  rownames(annot_df_oneGene) <- annot_df[,1]
-  annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
-  annot_df_oneGene[,"UCSC_RefGene_Group"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Group"])
-  if (include == "TSS200"){
-    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"]=="TSS200",]
+CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all", NearestToCpG = FALSE, NearestMethod = "Transcript"){
+  if (!NearestToCpG){
+    manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7) #486428     33
+    #manifest <- read.csv("HumanMethylation450_15017482_v1-2.csv", header = T, skip = 7)
+    annot <- manifest[match(rownames(BetaMatrix),manifest[,1]),]
+    annot_df <- as.data.frame(annot)
+    
+    annot_df_oneGene <- annot_df
+    rownames(annot_df_oneGene) <- annot_df[,1]
+    annot_df_oneGene[,"UCSC_RefGene_Name"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Name"])
+    annot_df_oneGene[,"UCSC_RefGene_Group"] <- gsub(";.*$","",annot_df[,"UCSC_RefGene_Group"])
+    if (include == "TSS200"){
+      annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"]=="TSS200",]
+    }
+    if (include == "TSS200&TSS1500"){
+      annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"] %in% c("TSS1500","TSS200"),]
+    }
+    
+    if (include == "Island"){
+      annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"]=="Island",]
+    }
+    
+    if (include == "Shore"){
+      annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("N_Shore","S_Shore"),]
+    }
+    if (include == "Island&Shore"){
+      annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("Island","N_Shore","S_Shore"),]
+    }
+    
+    
+    
+    annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", 
+                                            "UCSC_RefGene_Name","UCSC_RefGene_Group")]
+    annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
+    BetaMatrix <- BetaMatrix[match(rownames(annot_df_oneGene),rownames(BetaMatrix)),]
   }
-  if (include == "TSS200&TSS1500"){
-    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"UCSC_RefGene_Group"] %in% c("TSS1500","TSS200"),]
+  else{
+    ## not use manifest
+    library(FDb.InfiniumMethylation.hg19)
+    hm450 <- get450k()
+    probenames <- rownames(BetaMatrix)
+    probes <- hm450[probenames]
+    if (NearestMethod == "Transcript"){
+      annot_df_oneGene <- getNearestTranscript(probes) #485577, unique: 20408
+    }
+    else{
+      annot_df_oneGene <- getNearestTSS(probes) #485577, unique: 22760 #unique(tss[,"nearestGeneSymbol"]))
+    }
+    colnames(annot_df_oneGene)[4] <- "UCSC_RefGene_Name"
   }
   
-  if (include == "Island"){
-    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"]=="Island",]
-  }
-  
-  if (include == "Shore"){
-    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("N_Shore","S_Shore"),]
-  }
-  if (include == "Island&Shore"){
-    annot_df_oneGene <- annot_df_oneGene[annot_df_oneGene[,"Relation_to_UCSC_CpG_Island"] %in% c("Island","N_Shore","S_Shore"),]
-  }
   
   
-  
-  
-  annot_df_oneGene <- annot_df_oneGene[,c("CHR", "Infinium_Design_Type", "Relation_to_UCSC_CpG_Island", 
-                                          "UCSC_RefGene_Name","UCSC_RefGene_Group")]
-  annot_df_oneGene <- annot_df_oneGene[!(annot_df_oneGene[,"UCSC_RefGene_Name"]== ""),]
-  BetaMatrix <- BetaMatrix[match(rownames(annot_df_oneGene),rownames(BetaMatrix)),]
   
   if (method == "maxvar"){
     var_per_CpG <- apply(BetaMatrix,1,var)
@@ -118,28 +134,4 @@ CollapseCpGsGenes <- function(BetaMatrix, method = "average", include = "all"){
   }
 }
 
-
-  
-
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  
-    
 
