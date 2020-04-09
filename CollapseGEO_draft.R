@@ -86,7 +86,7 @@ res_collapse <- cbind(res_collapse_maxvar_nearest_cibersort[,4],
                  res_collapse_maxvar_nearest_cibersort[,13],
                  res_collapse_maxvar_nearest_cibersort[,21]+res_collapse_maxvar_nearest_cibersort[,22])
 
-res_collapse <- cbind(res_collapse_average_nearest_TSS_cibersort[,4],
+res_collapse <- cbind(res_collapse_maxvar_nearest_TSS_cibersort[,4],
                  res_collapse_maxvar_nearest_TSS_cibersort[,5]+res_collapse_maxvar_nearest_TSS_cibersort[,6]+res_collapse_maxvar_nearest_TSS_cibersort[,7],
                  res_collapse_maxvar_nearest_TSS_cibersort[,11]+res_collapse_maxvar_nearest_TSS_cibersort[,12],
                  res_collapse_maxvar_nearest_TSS_cibersort[,1]+res_collapse_maxvar_nearest_TSS_cibersort[,2],
