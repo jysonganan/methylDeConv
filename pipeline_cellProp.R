@@ -145,7 +145,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.JaffeModelPars), method = "RPC")
     }
     else{
-      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[cutom_probes,3:8]), method = "RPC")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[custom_probes,3:8]), method = "RPC")
     }
     res <- res$estF
     return(res)
@@ -157,7 +157,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.ModelPars), method = "RPC")
     }else{
-      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[cutom_probes,3:9]), method = "RPC")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[custom_probes,3:9]), method = "RPC")
     }
     res <- res$estF
     return(res)
@@ -171,7 +171,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.ModelPars), method = "RPC")
     }else{
       load("FlowSorted.DLPFC.450k.compTable.RData")
-      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]), method = "RPC")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[custom_probes,3:4]), method = "RPC")
     }
     res <- res$estF
     return(res)
@@ -214,7 +214,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.JaffeModelPars), method = "CBS")
     }
     else{
-      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[cutom_probes,3:8]), method = "CBS")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.450k.compTable[custom_probes,3:8]), method = "CBS")
     }
     res <- res$estF
     return(res)
@@ -226,7 +226,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
     if (is.null(custom_probes)){
       res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.ModelPars), method = "CBS")
     }else{
-      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[cutom_probes,3:9]), method = "CBS")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.CordBlood.450k.compTable[custom_probes,3:9]), method = "CBS")
     }
     res <- res$estF
     return(res)
@@ -240,7 +240,7 @@ MethylDeconv_normalized <- function(input_methyl, method = "Houseman", tissue = 
       res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.ModelPars), method = "CBS")
     }else{
       load("FlowSorted.DLPFC.450k.compTable.RData")
-      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[cutom_probes,3:4]), method = "CBS")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.DLPFC.450k.compTable[custom_probes,3:4]), method = "CBS")
     }
     res <- res$estF
     return(res)
@@ -334,7 +334,7 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
     else{
       #load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       load("FlowSorted.Blood.EPIC.compTable.RData")
-      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]), method = "RPC")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[custom_probes,3:8]), method = "RPC")
     }
     res <- res$estF
     return(res)
@@ -350,7 +350,7 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
     else{
       #load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       load("FlowSorted.Blood.EPIC.compTable.RData")
-      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[cutom_probes,3:8]), method = "CBS")
+      res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[custom_probes,3:8]), method = "CBS")
     }
     res <- res$estF
     return(res)

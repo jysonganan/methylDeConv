@@ -1,3 +1,5 @@
+library(genefilter)
+
 .isMatrixBacked <- function(object){
   stopifnot(is(object, "SummarizedExperiment"))
   all(vapply(assays(object), is.matrix, logical(1L)))
@@ -89,6 +91,7 @@ pickCompProbes <- function(mSet, cellTypes = NULL, numProbes = 50,
     #coefEsts = coefEsts,
     compTable = compTable,
     #sampleMeans = pMeans
-    trainingProbes = trainingProbes))
+    trainingProbes = trainingProbes,
+    tstatList = tstatList))
 }
 
