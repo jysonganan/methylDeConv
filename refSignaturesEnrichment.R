@@ -66,6 +66,12 @@ betaMat_77797 <- getBeta(grSet_77797)
 res1 <- MethylDeconv(betaMat_77797, method = "Houseman")
 res2 <- MethylDeconv(betaMat_77797, method = "RPC")
 res3 <- MethylDeconv(betaMat_77797, method = "CBS")
+### use top 100 * 2 *6
+#dat_450k <- pickCompProbes(preprocessQuantile(FlowSorted.Blood.450k), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"),
+                      probeSelect = "both",numProbes = 100)
+#res1 <- MethylDeconv(betaMat_77797, method = "Houseman",custom_probes = dat_450k[[2]])
+#res2 <- MethylDeconv(betaMat_77797, method = "RPC",custom_probes = dat_450k[[2]])
+#res3 <- MethylDeconv(betaMat_77797, method = "CBS",custom_probes = dat_450k[[2]])
 
 ### Use cibersort cpgs instead
 res1_cbs <- MethylDeconv(betaMat_77797, method = "Houseman",custom_probes = intersect(cibersort_sig_cpgs,dat_450k[[2]]))
