@@ -1,3 +1,5 @@
+### compare 450k, EPIC blood ref
+
 library(FlowSorted.Blood.450k)
 dat_450k <- pickCompProbes(preprocessQuantile(FlowSorted.Blood.450k), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"),
                       probeSelect = "both")
