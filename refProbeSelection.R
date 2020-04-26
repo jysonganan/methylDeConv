@@ -99,7 +99,6 @@ design.pairs <-
                      
                      
  
-### pairwise glmnet
 ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
   require(caret)
   require(glmnet)
@@ -109,6 +108,10 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   require(matrixStats)
   
   Features.CVparam<- trainControl(method = "boot632",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  if(nCores > 1){
+    registerDoParallel(makeCluster(nCores))
+    message( "Parallelisation schema set up")}
+  
   Pairs <- data.frame(t(combn(unique(ref_phenotype),2)), stringsAsFactors = F)
   ##Pairs <- filter(Pairs, !X1 == X2)
   
@@ -135,4 +138,3 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   select_probes <- rownames(ref_betamatrix) %in% Nonzeros$ID
   return(select_probes)
 }
-
