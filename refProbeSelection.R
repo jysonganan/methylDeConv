@@ -1,3 +1,13 @@
+if(!is.null(ncol(CellLines.matrix))){
+  Pheno1 <- c(rep("Cancer",ncol(CellLines.matrix)))
+  ref_phenotype <- c(as.character(Pheno1), as.character(ref_phenotype))}
+else{
+  ref_phenotype <- as.character(ref_phenotype)}
+
+ref_betamatrix <- cbind(CellLines.matrix, ref_betamatrix)
+
+
+
 # design.pairs is the function from MethylCIBERSORT
 ### pairwise limma (pairwise moderated t-test)
 ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR = 0.01, deltaBeta = 0.2, MaxDMRs = 100){
