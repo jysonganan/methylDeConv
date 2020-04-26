@@ -1,6 +1,6 @@
 # design.pairs is the function from MethylCIBERSORT
 ### pairwise limma (pairwise moderated t-test)
-ref_probe_selection_pairwiseLimma <- funtion(ref_betamatrix, ref_phenotype, FDR = 0.01, deltaBeta = 0.2, MaxDMRs = 100){
+ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR = 0.01, deltaBeta = 0.2, MaxDMRs = 100){
 
   ContrastMatrix <- design.pairs(levels(factor(ref_phenotype)))
   Des <- model.matrix(~0 + ref_phenotype)  #one-hot coding
