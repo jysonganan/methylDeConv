@@ -168,6 +168,7 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   Nonzeros <- lapply(Nonzeros, function(x) data.frame(ID = rownames(x), Coef = as.numeric(x[,1])))
   Nonzeros <- lapply(Nonzeros, function(x) filter(x, !Coef == 0))
   Nonzeros <- do.call(rbind, Nonzeros)
+  Nonzeros <- filter(Nonzeros, !duplicated(ID))
 
   select_probes <- rownames(ref_betamatrix) %in% Nonzeros$ID
   return(select_probes)
