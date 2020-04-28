@@ -248,4 +248,8 @@ length(intersect(rownames(tail(a1,100)),rownames(tail(b1,100))))
 
 
 ########### Enrichment Analysis of overlap signatures
-
+library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
+gst <- gometh(sig.cpg=sigCpGs, all.cpg=rownames(top), collection="GO")
+topGSA(gst)
+#change the array type, the array.type argument can be specified as either “450K” or “EPIC”. The default is “450K”.
+# GO or KEGG
