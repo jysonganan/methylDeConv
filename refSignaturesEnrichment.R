@@ -249,7 +249,12 @@ length(intersect(rownames(tail(a1,100)),rownames(tail(b1,100))))
 
 ########### Enrichment Analysis of overlap signatures
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
-gst <- gometh(sig.cpg=sigCpGs, all.cpg=rownames(top), collection="GO")
+library(missMethyl)
+gst <- gometh(sig.cpg=dat_450k[["trainingProbes"]], all.cpg=rownames(dat_450k[["compTable"]]), collection="GO")
+gst <- gometh(sig.cpg=dat_450k[["trainingProbes"]], all.cpg=rownames(dat_450k[["compTable"]]), collection="KEGG")
 topGSA(gst)
 #change the array type, the array.type argument can be specified as either “450K” or “EPIC”. The default is “450K”.
 # GO or KEGG
+gst <- gometh(sig.cpg=dat_EPIC[["trainingProbes"]], all.cpg=rownames(dat_EPIC[["compTable"]]), collection="GO", array.type = "EPIC")
+gst <- gometh(sig.cpg=dat_EPIC[["trainingProbes"]], all.cpg=rownames(dat_EPIC[["compTable"]]), collection="KEGG", array.type = "EPIC")
+topGSA(gst)
