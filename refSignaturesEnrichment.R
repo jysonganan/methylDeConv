@@ -244,10 +244,20 @@ length(intersect(rownames(tail(a1,100)),rownames(tail(b1,100))))
 
 
 
+########################## 450k vs EPIC Signatures
+# B cells versus all else
+a <- dat_450k[["tstatList"]][["Bcell"]][order(dat_450k[["tstatList"]][["Bcell"]]$statistic),]
+b <- dat_EPIC[["tstatList"]][["Bcell"]][order(dat_EPIC[["tstatList"]][["Bcell"]]$statistic),]
+
+### check the rank (in EPIC) of the signatures selected based on 450k data
+rank_EPIC <- rank(dat_EPIC[["tstatList"]][["Bcell"]][,1])
+names(rank_EPIC) <- rownames(dat_EPIC[["tstatList"]][["Bcell"]])
+#Check how the top (50/100 both up-/down-regulated) CpGs from 450k ref profiles ranked in EPIC profiles
+rank_EPIC[c(rownames(head(a,50)),rownames(tail(a,50)))]
+rank_EPIC[c(rownames(head(a,100)),rownames(tail(a,100)))]
 
 
-
-
+dat_EPIC[["tstatList"]][["Bcell"]][c(rownames(head(a,50)),rownames(tail(a,50))),]
 
 
 
