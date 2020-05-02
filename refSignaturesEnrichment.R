@@ -254,8 +254,17 @@ rank_EPIC <- rank(dat_EPIC[["tstatList"]][["Bcell"]][,1])
 names(rank_EPIC) <- rownames(dat_EPIC[["tstatList"]][["Bcell"]])
 #Check how the top (50/100 both up-/down-regulated) CpGs from 450k ref profiles ranked in EPIC profiles
 rank_EPIC[c(rownames(head(a,50)),rownames(tail(a,50)))]
-rank_EPIC[c(rownames(head(a,100)),rownames(tail(a,100)))]
+hist(rank_EPIC[rownames(head(a,50))])
+mean(rank_EPIC[rownames(head(a,50))],na.rm = TRUE)
+median(rank_EPIC[rownames(head(a,50))],na.rm = TRUE)
+mean(rank_EPIC[rownames(tail(a,50))],na.rm = TRUE)
+median(rank_EPIC[rownames(tail(a,50))],na.rm = TRUE)
 
+rank_EPIC[c(rownames(head(a,100)),rownames(tail(a,100)))]
+mean(rank_EPIC[rownames(head(a,100))],na.rm = TRUE)
+median(rank_EPIC[rownames(head(a,100))],na.rm = TRUE)
+mean(rank_EPIC[rownames(tail(a,100))],na.rm = TRUE)
+median(rank_EPIC[rownames(tail(a,100))],na.rm = TRUE)
 
 dat_EPIC[["tstatList"]][["Bcell"]][c(rownames(head(a,50)),rownames(tail(a,50))),]
 
