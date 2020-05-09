@@ -21,3 +21,5 @@ pD <- pD[sampleNames(rgSet),]
 pD <- as(pD, "DataFrame")
 pData(rgSet) <- pD
 
+
+
