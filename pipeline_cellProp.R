@@ -316,7 +316,7 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
       res <- projectCellType(input_methyl[use_probes,], 
                              as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars[use_probes,]))}
     else{
-      #load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      #load("/Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       load("FlowSorted.Blood.EPIC.compTable.RData")
       use_probes <- intersect(intersect(rownames(FlowSorted.Blood.EPIC.compTable), custom_probes),rownames(input_methyl))
       res <- projectCellType(input_methyl[use_probes,],as.matrix(FlowSorted.Blood.EPIC.compTable[use_probes,3:8]))
@@ -332,7 +332,7 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars), method = "RPC")
     }
     else{
-      #load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      #load("/Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       load("FlowSorted.Blood.EPIC.compTable.RData")
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[custom_probes,3:8]), method = "RPC")
     }
@@ -348,7 +348,7 @@ MethylDeconv_normalized_BloodEPIC <- function(input_methyl, method = "Houseman",
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.IDOLModelPars), method = "CBS")
     }
     else{
-      #load("Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
+      #load("/Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.compTable.RData")
       load("FlowSorted.Blood.EPIC.compTable.RData")
       res <- epidish(input_methyl, as.matrix(FlowSorted.Blood.EPIC.compTable[custom_probes,3:8]), method = "CBS")
     }
