@@ -391,6 +391,23 @@ for (i in 1:6){
   corr[i] <-cor(res3_EPIC[,i],as.numeric(as.character(facs_112618_prop[,i])),method = "spearman")
 }
 corr
+
+
+
+
+##### another benchmark data
+### GSE122126
+library(GEOquery)
+library(minfi)
+getGEOSuppFiles("GSE122126")
+untar("GSE122126/GSE122126_RAW.tar", exdir = "GSE122126/idat")
+head(list.files("GSE122126/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE122126/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+rgSet <- read.metharray.exp("GSE122126/idat", force = TRUE)
+
+
 ########### Enrichment Analysis of overlap signatures
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(missMethyl)
