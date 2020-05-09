@@ -67,8 +67,7 @@ res1 <- MethylDeconv(betaMat_77797, method = "Houseman")
 res2 <- MethylDeconv(betaMat_77797, method = "RPC")
 res3 <- MethylDeconv(betaMat_77797, method = "CBS")
 ### use top 100 * 2 *6
-#dat_450k <- pickCompProbes(preprocessQuantile(FlowSorted.Blood.450k), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"),
-                      probeSelect = "both",numProbes = 100)
+#dat_450k <- pickCompProbes(preprocessQuantile(FlowSorted.Blood.450k), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"), probeSelect = "both",numProbes = 100)
 #res1 <- MethylDeconv(betaMat_77797, method = "Houseman",custom_probes = dat_450k[[2]])
 #res2 <- MethylDeconv(betaMat_77797, method = "RPC",custom_probes = dat_450k[[2]])
 #res3 <- MethylDeconv(betaMat_77797, method = "CBS",custom_probes = dat_450k[[2]])
@@ -242,6 +241,14 @@ length(intersect(rownames(head(a1,100)),rownames(head(b1,100))))
 length(intersect(rownames(tail(a1,100)),rownames(tail(b1,100))))
 
 
+#### 
+
+
+
+
+
+
+
 
 
 ########################## 450k vs EPIC Signatures
@@ -269,9 +276,121 @@ median(rank_EPIC[rownames(tail(a,100))],na.rm = TRUE)
 dat_EPIC[["tstatList"]][["Bcell"]][c(rownames(head(a,50)),rownames(tail(a,50))),]
 
 
+### check the top 100 CpGs selected from 450k 
+### check the top 100 CpGs selected from EPIC
+
+## when they both applied as the selected CpGs on EPIC benchmark dataset with Flow.EPIC reference
+library(minfi)
+rgSet_112618 <- read.metharray.exp("GSE112618/idat")
+library(GEOquery)
+geoMat_112618 <- getGEO("GSE112618")
+pD.all <- pData(geoMat_112618[[1]])
+
+
+pD <- pD.all[, c("title", "geo_accession", "bcell proportion:ch1", "cd4t proportion:ch1", "cd8t proportion:ch1",
+                 "granulocytes proportion:ch1", "monocytes proportion:ch1", "neutrophils proportion:ch1", 
+                 "nk proportion:ch1","Sex:ch1")]
+
+sampleNames(rgSet_112618) <- substr(sampleNames(rgSet_112618), 1, 10)
+pD <- pD[sampleNames(rgSet_112618),]
+pD <- as(pD, "DataFrame")
+pData(rgSet_112618) <- pD
+grSet_112618 <- preprocessNoob(rgSet_112618, dyeMethod = "single")
+betaMat_112618 <- getBeta(grSet_112618)
 
 
 
+#### preprocessNoob dyeMethod = "single"
+
+library(FlowSorted.Blood.450k)
+dat_450k <- pickCompProbes(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"),
+                           probeSelect = "both")
+
+library(FlowSorted.Blood.EPIC)
+load("/Users/junesong/Desktop/causal inference/CellProportion/methylDeconv_EPICdata/FlowSorted.Blood.EPIC.RData")
+GRset_EPIC <- preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single")
+dat_EPIC<- pickCompProbes(GRset_EPIC, cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu"), probeSelect = "both")
+
+
+# # B cells versus all else
+# a <- dat_450k[["tstatList"]][["Bcell"]][order(dat_450k[["tstatList"]][["Bcell"]]$statistic),]
+# b <- dat_EPIC[["tstatList"]][["Bcell"]][order(dat_EPIC[["tstatList"]][["Bcell"]]$statistic),]
+# 
+# # ### check the rank (in EPIC) of the signatures selected based on 450k data
+# rank_EPIC <- rank(dat_EPIC[["tstatList"]][["Bcell"]][,1])
+# names(rank_EPIC) <- rownames(dat_EPIC[["tstatList"]][["Bcell"]])
+# #Check how the top (50/100 both up-/down-regulated) CpGs from 450k ref profiles ranked in EPIC profiles
+# rank_EPIC[c(rownames(head(a,50)),rownames(tail(a,50)))]
+# hist(rank_EPIC[rownames(head(a,50))])
+# mean(rank_EPIC[rownames(head(a,50))],na.rm = TRUE)
+# median(rank_EPIC[rownames(head(a,50))],na.rm = TRUE)
+# mean(rank_EPIC[rownames(tail(a,50))],na.rm = TRUE)
+# median(rank_EPIC[rownames(tail(a,50))],na.rm = TRUE)
+# 
+# rank_EPIC[c(rownames(head(a,100)),rownames(tail(a,100)))]
+# mean(rank_EPIC[rownames(head(a,100))],na.rm = TRUE)
+# median(rank_EPIC[rownames(head(a,100))],na.rm = TRUE)
+# mean(rank_EPIC[rownames(tail(a,100))],na.rm = TRUE)
+# median(rank_EPIC[rownames(tail(a,100))],na.rm = TRUE)
+# 
+# dat_EPIC[["tstatList"]][["Bcell"]][c(rownames(head(a,50)),rownames(tail(a,50))),]
+
+
+
+probes_450k <- dat_450k$trainingProbes
+probes_EPIC <- dat_EPIC$trainingProbes
+
+
+res1_450k <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "Houseman", custom_probes = probes_450k)
+res2_450k <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "RPC", custom_probes = probes_450k)
+res3_450k <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "CBS", custom_probes = probes_450k)
+
+res1_EPIC <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "Houseman",custom_probes = probes_EPIC)
+res2_EPIC <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "RPC",custom_probes = probes_EPIC)
+res3_EPIC <- MethylDeconv_normalized_BloodEPIC(betaMat_112618, method = "CBS", custom_probes = probes_EPIC)
+
+
+
+
+
+pD_112618 <-pD.all[, c("title", "geo_accession", "bcell proportion:ch1", "cd4t proportion:ch1", "cd8t proportion:ch1",
+                       "granulocytes proportion:ch1", "monocytes proportion:ch1", "neutrophils proportion:ch1", 
+                       "nk proportion:ch1","Sex:ch1")]
+pD_112618 <- pD_112618[sampleNames(rgSet_112618),]
+facs_112618 <- pD_112618[,3:9]
+colnames(facs_112618) <- c("Bcell", "CD4T", "CD8T","Gran","Mono","Neutro","NK")
+facs_112618_prop <- cbind(as.numeric(facs_112618[,"CD8T"]), as.numeric(facs_112618[,"CD4T"]), 
+                          as.numeric(facs_112618[,"NK"]),
+                          as.numeric(facs_112618[,"Bcell"]),as.numeric(facs_112618[,"Mono"]),
+                          as.numeric(facs_112618[,"Gran"])+as.numeric(facs_112618[,"Neutro"]))
+facs_112618_prop <- as.data.frame(facs_112618_prop)
+rownames(facs_112618_prop) = rownames(res1_450k)
+colnames(facs_112618_prop) = colnames(res1_450k)
+facs_112618_prop <- as.matrix(facs_112618_prop)
+### check correlation within each sample
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res1_EPIC[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+mean(corr)
+
+corr2 <- rep(NA,6)
+for (i in 1:6){
+  corr2[i] <-cor(res2_EPIC[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+mean(corr2)
+
+corr3 <- rep(NA,6)
+for (i in 1:6){
+  corr3[i] <-cor(res3_EPIC[i,],as.numeric(as.character(facs_112618_prop[i,])),method = "spearman")
+}
+mean(corr3)
+### within each cell type
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(res3_EPIC[,i],as.numeric(as.character(facs_112618_prop[,i])),method = "spearman")
+}
+corr
 ########### Enrichment Analysis of overlap signatures
 library(IlluminaHumanMethylation450kanno.ilmn12.hg19)
 library(missMethyl)
