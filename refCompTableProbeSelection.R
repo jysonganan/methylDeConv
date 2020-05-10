@@ -7,9 +7,36 @@ else{
 ref_betamatrix <- cbind(CellLines.matrix, ref_betamatrix)
 
 
+## tools functions
+splitit <- function(x) {split(seq_along(x), x)}
+
+#This function creates the pairs for the pairwise matrices
+design.pairs <-
+  function(levels) {
+    n <- length(levels)
+    design <- matrix(0,n,choose(n,2))
+    rownames(design) <- levels
+    colnames(design) <- 1:choose(n,2)
+    k <- 0
+    for (i in 1:(n-1))
+      for (j in (i+1):n) {
+        k <- k+1
+        design[i,k] <- 1
+        design[j,k] <- -1
+        colnames(design)[k] <- paste(levels[i],"-",levels[j],sep="")
+      }
+    design
+  }
+
+
+
+
+
+### make compTable
+
 ref_compTable <- function(ref_betamatrix, ref_phenotype){
   require(genefilter)
-  splitit <- function(x) {split(seq_along(x), x)}
+
   ref_phenotype <- as.factor(ref_phenotype)
   
   ffComp <- rowFtests(ref_betamatrix, ref_phenotype)
@@ -30,9 +57,9 @@ ref_compTable <- function(ref_betamatrix, ref_phenotype){
 ### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
 ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 1e-8, MaxDMRs = 100){
   require(genefilter)
-  splitit <- function(x) {split(seq_along(x), x)}
+
   ref_phenotype <- as.factor(ref_phenotype)
- 
+  
   tIndexes <- splitit(ref_phenotype)
   tstatList <- lapply(tIndexes, function(i) {
     x <- rep(0,ncol(ref_betamatrix))
@@ -83,7 +110,7 @@ ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR
   require(doParallel)
   require(matrixStats)
   require(limma)
-
+  
   ContrastMatrix <- design.pairs(levels(factor(ref_phenotype)))
   Des <- model.matrix(~0 + ref_phenotype)  #one-hot coding
   colnames(Des) <- rownames(ContrastMatrix)
@@ -138,30 +165,12 @@ ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR
 
 
 
-#This function creates the pairs for the pairwise matrices
-design.pairs <-
-  function(levels) {
-    n <- length(levels)
-    design <- matrix(0,n,choose(n,2))
-    rownames(design) <- levels
-    colnames(design) <- 1:choose(n,2)
-    k <- 0
-    for (i in 1:(n-1))
-      for (j in (i+1):n) {
-        k <- k+1
-        design[i,k] <- 1
-        design[j,k] <- -1
-        colnames(design)[k] <- paste(levels[i],"-",levels[j],sep="")
-      }
-    design
-  }
 
-                     
-                     
 
-                     
-                     
- 
+
+
+
+
 ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
   require(caret)
   require(glmnet)
@@ -202,14 +211,14 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   return(select_probes)
 }
 
-                     
-                     
-                     
-                     
-                     
-                     
-                     
-                     
+
+
+
+
+
+
+
+
 ### multiclass glmnet
 ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
   require(caret)
@@ -232,7 +241,7 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   Nonzeros <- lapply(Nonzeros, function(x) filter(x, !Coef == 0))
   Nonzeros <- do.call(rbind, Nonzeros)
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
-
+  
   select_probes <- rownames(ref_betamatrix) %in% Nonzeros$ID
   return(select_probes)
 }
