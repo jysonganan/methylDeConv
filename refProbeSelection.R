@@ -8,6 +8,72 @@ ref_betamatrix <- cbind(CellLines.matrix, ref_betamatrix)
 
 
 
+
+
+
+
+
+### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
+ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv =1e-8, MaxDMRs = 100){
+  require(genefilter)
+  splitit <- function(x) {split(seq_along(x), x)}
+  ref_phenotype <- as.factor(ref_phenotype)
+  
+  ffComp <- rowFtests(ref_betamatrix, ref_phenotype)
+  prof <- vapply(
+    X = splitit(ref_phenotype),
+    FUN = function(j) rowMeans2(ref_betamatrix, cols = j),
+    FUN.VALUE = numeric(nrow(ref_betamatrix)))
+  r <- rowRanges(ref_betamatrix)
+  
+  compTable <- cbind(ffComp, prof, r, abs(r[, 1] - r[, 2]))
+  names(compTable)[1] <- "Fstat"
+  names(compTable)[c(-2, -1, 0) + ncol(compTable)] <- c("low", "high", "range")
+  
+  tIndexes <- splitit(ref_phenotype)
+  tstatList <- lapply(tIndexes, function(i) {
+    x <- rep(0,ncol(ref_betamatrix))
+    x[i] <- 1
+    return(rowttests(ref_betamatrix, factor(x)))
+  })
+  
+  
+  if (probeSelect == "any") {
+    probeList <- lapply(tstatList, function(x) {
+      y <- x[x[, "p.value"] < pv, ]
+      yAny <- y[order(abs(y[, "dm"]), decreasing = TRUE), ]
+      c(rownames(yAny)[seq(MaxDMRs)])
+    })
+  } else {
+    probeList <- lapply(tstatList, function(x) {
+      y <- x[x[, "p.value"] < pv, ]
+      yUp <- y[order(y[, "dm"], decreasing = TRUE), ]
+      yDown <- y[order(y[, "dm"], decreasing = FALSE), ]
+      c(rownames(yUp)[seq_len(MaxDMRs/2)],
+        rownames(yDown)[seq_len(MaxDMRs/2)])
+    })
+  }
+  
+  trainingProbes <- unique(unlist(probeList))
+  ref_betamatrix <- ref_betamatrix[trainingProbes,]
+  
+  pMeans <- colMeans2(ref_betamatrix)
+  names(pMeans) <- ref_phenotype
+  
+  return(list(
+    #coefEsts = coefEsts,
+    compTable = compTable,
+    #sampleMeans = pMeans
+    trainingProbes = trainingProbes,
+    tstatList = tstatList))
+  
+}
+
+
+
+
+
+
 # design.pairs is the function from MethylCIBERSORT
 ### pairwise limma (pairwise moderated t-test)
 ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR = 0.01, deltaBeta = 0.2, MaxDMRs = 100){
