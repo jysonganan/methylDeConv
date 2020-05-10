@@ -7,14 +7,7 @@ else{
 ref_betamatrix <- cbind(CellLines.matrix, ref_betamatrix)
 
 
-
-
-
-
-
-
-### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
-ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv =1e-8, MaxDMRs = 100){
+ref_compTable <- function(ref_betamatrix, ref_phenotype){
   require(genefilter)
   splitit <- function(x) {split(seq_along(x), x)}
   ref_phenotype <- as.factor(ref_phenotype)
@@ -29,14 +22,23 @@ ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, pro
   compTable <- cbind(ffComp, prof, r, abs(r[, 1] - r[, 2]))
   names(compTable)[1] <- "Fstat"
   names(compTable)[c(-2, -1, 0) + ncol(compTable)] <- c("low", "high", "range")
-  
+  return(compTable)
+}
+
+
+
+### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
+ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 1e-8, MaxDMRs = 100){
+  require(genefilter)
+  splitit <- function(x) {split(seq_along(x), x)}
+  ref_phenotype <- as.factor(ref_phenotype)
+ 
   tIndexes <- splitit(ref_phenotype)
   tstatList <- lapply(tIndexes, function(i) {
     x <- rep(0,ncol(ref_betamatrix))
     x[i] <- 1
     return(rowttests(ref_betamatrix, factor(x)))
   })
-  
   
   if (probeSelect == "any") {
     probeList <- lapply(tstatList, function(x) {
@@ -55,18 +57,13 @@ ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, pro
   }
   
   trainingProbes <- unique(unlist(probeList))
-  ref_betamatrix <- ref_betamatrix[trainingProbes,]
-  
-  pMeans <- colMeans2(ref_betamatrix)
-  names(pMeans) <- ref_phenotype
-  
-  return(list(
-    #coefEsts = coefEsts,
-    compTable = compTable,
-    #sampleMeans = pMeans
-    trainingProbes = trainingProbes,
-    tstatList = tstatList))
-  
+  # return(list(
+  #   #coefEsts = coefEsts,
+  #   compTable = compTable,
+  #   #sampleMeans = pMeans
+  #   trainingProbes = trainingProbes,
+  #   tstatList = tstatList))
+  return(trainingProbes)
 }
 
 
