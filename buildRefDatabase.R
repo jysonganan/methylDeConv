@@ -1,4 +1,7 @@
 ### GSE122126
+
+#Purified pancreatic acinar cells, pancreatic duct cells, 
+# pancreatic beta cells, vascular endothelial cells and colon epithelial cells of 450k and EPIC data.
 library(GEOquery)
 library(minfi)
 getGEOSuppFiles("GSE122126")
