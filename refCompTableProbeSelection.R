@@ -282,6 +282,6 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   Nonzeros <- do.call(rbind, Nonzeros)
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
-  select_probes <- rownames(ref_betamatrix) %in% Nonzeros$ID
+  select_probes <- Nonzeros$ID
   return(select_probes)
 }
