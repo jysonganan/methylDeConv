@@ -55,7 +55,7 @@ ref_compTable <- function(ref_betamatrix, ref_phenotype){
 
 
 ### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
-ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 0.01, MaxDMRs = 100){
+ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 1e-8, MaxDMRs = 100){
   require(genefilter)
 
   ref_phenotype <- as.factor(ref_phenotype)
@@ -96,7 +96,7 @@ ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, pro
 
 
 
-ref_probe_selection_oneVsAllLimma <- function(ref_betamatrix, ref_phenotype, probeSelect, FDR = 0.01, MaxDMRs = 100){
+ref_probe_selection_oneVsAllLimma <- function(ref_betamatrix, ref_phenotype, probeSelect, FDR = 1e-8, MaxDMRs = 100){
   require(genefilter)
   require(MKmisc)
   tIndexes <- splitit(as.factor(ref_phenotype))
