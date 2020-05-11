@@ -98,7 +98,7 @@ ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, pro
 
 
 
-ref_probe_selection_oneVsAllLimma <- function(ref_betamatrix, ref_phenotype, probeSelect, FDR = 1e-8, MaxDMRs = 100){
+ref_probe_selection_oneVsAllLimma <- function(ref_betamatrix, ref_phenotype, probeSelect, FDR = 1e-6, MaxDMRs = 100){
   require(genefilter)
   require(MKmisc)
   tIndexes <- splitit(as.factor(ref_phenotype))
