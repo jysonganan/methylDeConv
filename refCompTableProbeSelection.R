@@ -55,7 +55,7 @@ ref_compTable <- function(ref_betamatrix, ref_phenotype){
 
 
 ### one versus all t-test: Pipeline default (minfi (estimateCellCounts), FlowSorted.Blood.450k)
-ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 1e-8, MaxDMRs = 100){
+ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 0.01, MaxDMRs = 100){
   require(genefilter)
 
   ref_phenotype <- as.factor(ref_phenotype)
@@ -93,6 +93,44 @@ ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, pro
   return(trainingProbes)
 }
 
+
+
+
+ref_probe_selection_oneVsAllLimma <- function(ref_betamatrix, ref_phenotype, probeSelect, FDR = 0.01, MaxDMRs = 100){
+  require(genefilter)
+  require(MKmisc)
+  tIndexes <- splitit(as.factor(ref_phenotype))
+  tstatList <- lapply(tIndexes, function(i) {
+    x <- rep(0,ncol(ref_betamatrix))
+    x[i] <- 1
+    return(mod.t.test(ref_betamatrix, group = factor(x)))
+  })
+  
+  if (probeSelect == "any") {
+    probeList <- lapply(tstatList, function(x) {
+      y <- x[x[, "adj.p.value"] < FDR, ]
+      yAny <- y[order(abs(y[, "difference in means"]), decreasing = TRUE), ]
+      c(rownames(yAny)[seq(MaxDMRs)])
+    })
+  } else {
+    probeList <- lapply(tstatList, function(x) {
+      y <- x[x[, "adj.p.value"] < FDR, ]
+      yUp <- y[order(y[, "difference in means"], decreasing = TRUE), ]
+      yDown <- y[order(y[, "difference in means"], decreasing = FALSE), ]
+      c(rownames(yUp)[seq_len(MaxDMRs/2)],
+        rownames(yDown)[seq_len(MaxDMRs/2)])
+    })
+  }
+  
+  trainingProbes <- unique(unlist(probeList))
+  # return(list(
+  #   #coefEsts = coefEsts,
+  #   compTable = compTable,
+  #   #sampleMeans = pMeans
+  #   trainingProbes = trainingProbes,
+  #   tstatList = tstatList))
+  return(trainingProbes)
+}
 
 
 
