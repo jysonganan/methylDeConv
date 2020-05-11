@@ -1,8 +1,10 @@
-if(!is.null(ncol(CellLines.matrix))){
+
+ref_phenotype <- {if(!is.null(ncol(CellLines.matrix))){
   Pheno1 <- c(rep("Cancer",ncol(CellLines.matrix)))
   ref_phenotype <- c(as.character(Pheno1), as.character(ref_phenotype))}
-else{
-  ref_phenotype <- as.character(ref_phenotype)}
+  else{
+    ref_phenotype <- as.character(ref_phenotype)}
+  return(ref_phenotype)}
 
 ref_betamatrix <- cbind(CellLines.matrix, ref_betamatrix)
 
