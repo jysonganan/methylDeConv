@@ -247,7 +247,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   Nonzeros <- do.call(rbind, FitList)
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
-  select_probes <- rownames(ref_betamatrix) %in% Nonzeros$ID
+  select_probes <- Nonzeros$ID
   return(select_probes)
 }
 
