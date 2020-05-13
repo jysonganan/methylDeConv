@@ -212,6 +212,7 @@ ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR
 
 
 ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
+  require(dplyr)
   require(caret)
   require(glmnet)
   require(foreach)
@@ -261,6 +262,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
 
 ### multiclass glmnet
 ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
+  require(dplyr)
   require(caret)
   require(glmnet)
   require(foreach)
