@@ -46,7 +46,11 @@ probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_ph
 probes_oneVsAllLimma <- ref_probe_selection_oneVsAllLimma(ref_betamatrix, ref_phenotype, probeSelect = "both")
 ## the above two methods: intersection 538/600 probes
 probes_pairwiseLimma <- ref_probe_selection_pairwiseLimma(ref_betamatrix, ref_phenotype)  #681 probes selected
+probes_pairwiseGlmnet <- ref_probe_selection_pairwiseGlmnet(ref_betamatrix, ref_phenotype)
 probes_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet(ref_betamatrix, ref_phenotype)
 
-# dat_450k <- pickCompProbes(preprocessQuantile(FlowSorted.Blood.450k), cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran"),
-#                            probeSelect = "both")
+## test stability of elastic net
+## randomly drop 20% of the probes
+keep_probes <- sample.int(485512, size = 380000, replace = FALSE)
+ref_betamatrix_sub <- ref_betamatrix[keep_probes,]
+probes_pairwiseGlmnet_sub <- ref_probe_selection_pairwiseGlmnet(ref_betamatrix_sub, ref_phenotype)
