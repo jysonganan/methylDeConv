@@ -146,7 +146,7 @@ ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR
   require(caret)
   require(glmnet)
   require(foreach)
-  require(NMF)
+  #require(NMF)
   require(doParallel)
   require(matrixStats)
   require(limma)
@@ -215,7 +215,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   require(caret)
   require(glmnet)
   require(foreach)
-  require(NMF)
+  #require(NMF)
   require(doParallel)
   require(matrixStats)
   
@@ -264,7 +264,7 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   require(caret)
   require(glmnet)
   require(foreach)
-  require(NMF)
+  #require(NMF)
   require(doParallel)
   require(matrixStats)
   
