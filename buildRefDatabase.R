@@ -54,3 +54,4 @@ probes_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet(ref_betamatrix, 
 keep_probes <- sample.int(485512, size = 380000, replace = FALSE)
 ref_betamatrix_sub <- ref_betamatrix[keep_probes,]
 probes_pairwiseGlmnet_sub <- ref_probe_selection_pairwiseGlmnet(ref_betamatrix_sub, ref_phenotype)
+probes_multiclassGlmnet_sub <- ref_probe_selection_multiclassGlmnet(ref_betamatrix_sub, ref_phenotype)
