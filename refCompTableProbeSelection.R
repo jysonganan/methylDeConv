@@ -261,6 +261,34 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
 
 
 ### multiclass glmnet
+ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10){
+  require(dplyr)
+  require(caret)
+  require(glmnet)
+  require(foreach)
+  #require(NMF)
+  require(doParallel)
+  require(matrixStats)
+  
+  Features.CVparam<- trainControl(method = "cv",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  if(nCores > 1){
+    registerDoParallel(makeCluster(nCores))
+    message( "Parallelisation schema set up")}
+  
+  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
+  
+  message("Retrieving Nonzero Coefficients")
+  Nonzeros <-  coef(Model$finalModel, s = Model$bestTune$lambda)
+  Nonzeros <- lapply(Nonzeros, function(x) data.frame(ID = rownames(x), Coef = as.numeric(x[,1])))
+  Nonzeros <- lapply(Nonzeros, function(x) filter(x, !Coef == 0))
+  Nonzeros <- do.call(rbind, Nonzeros)
+  Nonzeros <- filter(Nonzeros, !duplicated(ID))
+  
+  select_probes <- Nonzeros$ID
+  return(select_probes)
+}
+                     
+ 
 ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
   require(dplyr)
   require(caret)
@@ -285,5 +313,8 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
-  return(select_probes)
+  #prediction_p <- predict(Model, test, type = "prob")
+  return(list(select_probes, Model))
 }
+
+                 
