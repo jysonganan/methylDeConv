@@ -61,6 +61,27 @@ facs_77797_prop <- facs_77797_prop/100
 
 
 
+##
+load("/Users/junesong/Desktop/causal inference/Flow450kProbeMultiPred.RData")
+apply(probes_multiclassGlmnet[[2]]$pred[,4:9],1,sum)
+names(probes_multiclassGlmnet[[2]])
+class(probes_multiclassGlmnet[[2]]$finalModel)
+
+library(dplyr)
+multiGlmnet_predProb <- predict(probes_multiclassGlmnet[[2]], newdata = t(betaMat_77797), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(betaMat_77797)
+ 
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+corr
+
+
+
+
+
 
 library(EpiDISH)
 ## Houseman
@@ -85,7 +106,7 @@ CBS_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3
 
 corr <- rep(NA, 6)
 for (i in 1:6){
-  corr[i] <-cor(Houseman_res5[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+  corr[i] <-cor(Houseman_res1[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
 }
 corr
 
@@ -113,48 +134,4 @@ for (i in 1:18){
   corr[i] <-cor(res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
-
-
-
-
-
-####
-# http://rstudio-pubs-static.s3.amazonaws.com/251240_12a8ecea8e144fada41120ddcf52b116.html#tuning-glmnet-models
-
-# multinomial logistic regression r predicted probabilities
-
-ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
-  require(dplyr)
-  require(caret)
-  require(glmnet)
-  require(foreach)
-  #require(NMF)
-  require(doParallel)
-  require(matrixStats)
-  
-  Features.CVparam<- trainControl(method = "boot632",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
-  if(nCores > 1){
-    registerDoParallel(makeCluster(nCores))
-    message( "Parallelisation schema set up")}
-  
-  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
-  
-  message("Retrieving Nonzero Coefficients")
-  Nonzeros <-  coef(Model$finalModel, s = Model$bestTune$lambda)
-  Nonzeros <- lapply(Nonzeros, function(x) data.frame(ID = rownames(x), Coef = as.numeric(x[,1])))
-  Nonzeros <- lapply(Nonzeros, function(x) filter(x, !Coef == 0))
-  Nonzeros <- do.call(rbind, Nonzeros)
-  Nonzeros <- filter(Nonzeros, !duplicated(ID))
-  
-  select_probes <- Nonzeros$ID
-  #prediction_p <- predict(Model, test, type = "prob")
-  return(list(select_probes, Model))
-}
-
-
-
-
-
-
-
 
