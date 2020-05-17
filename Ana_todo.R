@@ -61,12 +61,17 @@ facs_77797_prop <- facs_77797_prop/100
 
 
 
-##
+## using the model fitted in  ref_probe_selection_multiclassGlmnet 
+## to obtain the class predicted probabilities of the mixture (e.g. benchmark data)
 load("/Users/junesong/Desktop/causal inference/Flow450kProbeMultiPred.RData")
 apply(probes_multiclassGlmnet[[2]]$pred[,4:9],1,sum)
 names(probes_multiclassGlmnet[[2]])
 class(probes_multiclassGlmnet[[2]]$finalModel)
 
+library(caret)
+ggplot(probes_multiclassGlmnet[[2]])
+print(probes_multiclassGlmnet[[2]])
+## coefficients #plot(model_glmnet$finalModel)
 library(dplyr)
 multiGlmnet_predProb <- predict(probes_multiclassGlmnet[[2]], newdata = t(betaMat_77797), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
@@ -79,6 +84,150 @@ for (i in 1:6){
 corr
 
 
+
+# estimate variable importance
+importance <- varImp(model, scale=FALSE) #For most classification models, 
+#each predictor will have a separate variable importance for each class 
+#(the exceptions are classification trees, bagged trees and boosted trees).
+# summarize importance
+print(importance)
+# plot importance
+plot(importance)
+
+modelFit <- train( V6~.,data=training, method="rf" ,importance = TRUE)
+varImp(modelFit)
+
+### stacking (bagging/boosting)
+# Example of Stacking algorithms
+# create submodels
+control <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+algorithmList <- c('lda', 'rpart', 'glm', 'knn', 'svmRadial')
+set.seed(seed)
+models <- caretList(Class~., data=dataset, trControl=control, methodList=algorithmList)
+results <- resamples(models)  ## Number of resamples: 30 
+summary(results)
+dotplot(results)
+## When we combine the predictions of different models using stacking, 
+## it is desirable that the predictions made by the sub-models have low correlation. 
+## If the predictions for the sub-models were highly corrected (>0.75) 
+## then they would be making the same or very similar predictions most of the time 
+## reducing the benefit of combining the predictions.
+
+# correlation between results
+modelCor(results)
+splom(results)
+
+# stack using glm
+stackControl <- trainControl(method="repeatedcv", number=10, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+set.seed(seed)
+stack.glm <- caretStack(models, method="glm", metric="Accuracy", trControl=stackControl)
+print(stack.glm)
+predict(stack.glm, newx, newy)
+### We can also use more sophisticated algorithms to combine predictions in an effort 
+## to tease out when best to use the different methods. 
+## In this case, we can use the random forest algorithm to combine the predictions
+
+# stack using random forest
+set.seed(seed)
+stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackControl)
+print(stack.rf)
+
+## caretList uses lm,rpart and glm to fit x1 and x2 to y (i.e., y~x1+x2)
+## This gives three predictions : plm, prpart, pglm
+## Then caretStack creates the model ensemble and provides a global prediction with rf such as y~plm+prpart+pglm
+
+
+grid.xgboost <- expand.grid(.nrounds = c(40, 50, 60),
+                            .eta = c(0.2, 0.3, 0.4),                
+                            .gamma = c(0, 1),
+                            .max_depth = c(2, 3, 4),
+                            .colsample_bytree = c(0.8),                
+                            .subsample = c(1), 
+                            .min_child_weight = c(1))
+
+grid.rf <- expand.grid(.mtry = 3:6)
+
+ctrl <- trainControl(method="cv",
+                     number=5,
+                     returnResamp = "final",
+                     savePredictions = "final",
+                     classProbs = TRUE,
+                     selectionFunction = "oneSE",
+                     verboseIter = TRUE,
+                     summaryFunction = twoClassSummary)
+
+
+model_list <- caretList(Class ~.,
+                        data = Sonar,
+                        trControl = ctrl,
+                        tuneList = list(
+                          xgbTree = caretModelSpec(method="xgbTree",
+                                                   tuneGrid = grid.xgboost),
+                          rf = caretModelSpec(method = "rf",
+                                              tuneGrid = grid.rf))
+)
+
+
+models_stack <- caretStack(
+  model_list,
+  tuneLength = 10,
+  method ="glmnet",
+  metric = "ROC",
+  trControl = ctrl
+)
+
+
+
+
+
+
+### automatic feature seletion: recursive feature elimination
+## A Random Forest algorithm is used on each iteration to evaluate the model. 
+# The algorithm is configured to explore all possible subsets of the attributes. 
+control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+# run the RFE algorithm
+results <- rfe(PimaIndiansDiabetes[,1:8], PimaIndiansDiabetes[,9], sizes=c(1:8), rfeControl=control)
+# summarize the results
+print(results)
+# list the chosen features
+predictors(results)
+# plot the results
+plot(results, type=c("g", "o"))
+
+
+
+
+
+
+## fit a KNN model on the reference data with the probes selected by oneVsAllttest/onevsAllLimma
+## obtain the class predicted probabilities of the mixture (e.g. benchmark data)
+
+library(caret)
+knnFit <- train(x = t(ref_betamatrix[probes_oneVsAllttest,]), y = as.factor(ref_phenotype),method = "knn", 
+                trControl = trainControl(method = "cv", classProbs = TRUE))
+knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes_oneVsAllttest,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+corr
+
+
+
+library(caret)
+probes <- probes_oneVsAllttest
+knnFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "glmnet",   ##glmnet
+                trControl = trainControl(method = "cv", classProbs = TRUE))
+knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
 
 
 
