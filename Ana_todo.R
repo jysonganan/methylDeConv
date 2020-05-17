@@ -97,6 +97,8 @@ plot(importance)
 modelFit <- train( V6~.,data=training, method="rf" ,importance = TRUE)
 varImp(modelFit)
 
+library("gbm")
+library(caretEnsemble)
 ### stacking (bagging/boosting)
 # Example of Stacking algorithms
 # create submodels
@@ -122,14 +124,14 @@ stackControl <- trainControl(method="repeatedcv", number=10, repeats=3, savePred
 set.seed(seed)
 stack.glm <- caretStack(models, method="glm", metric="Accuracy", trControl=stackControl)
 print(stack.glm)
-predict(stack.glm, newx, newy)
+predict(stack.glm, newx, newy, type = "prob")
 ### We can also use more sophisticated algorithms to combine predictions in an effort 
 ## to tease out when best to use the different methods. 
 ## In this case, we can use the random forest algorithm to combine the predictions
 
 # stack using random forest
 set.seed(seed)
-stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackControl)
+stack.rf <- caretStack(models, method="rf", metric="Accuracy", trControl=stackControl).  ## also method = "gbm"
 print(stack.rf)
 
 ## caretList uses lm,rpart and glm to fit x1 and x2 to y (i.e., y~x1+x2)
