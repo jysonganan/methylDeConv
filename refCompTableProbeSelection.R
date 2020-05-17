@@ -249,7 +249,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
-  return(select_probes)
+  return(as.character(select_probes))
 }
 
 
@@ -285,7 +285,7 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
-  return(select_probes)
+  return(as.character(select_probes))
 }
                      
  
@@ -313,6 +313,7 @@ ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, 
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
+  select_probes <- as.character(select_probes)
   #prediction_p <- predict(Model, test, type = "prob")
   return(list(select_probes, Model))
 }
