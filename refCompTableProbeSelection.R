@@ -250,7 +250,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   
   select_probes <- Nonzeros$ID
   select_probes <- as.character(select_probes)
-  return(list(select_probes, Model))
+  return(select_probes)
 }
 
 
@@ -297,7 +297,7 @@ ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype,
   
   select_probes <- Nonzeros$ID
   select_probes <- as.character(select_probes)
-  return(list(select_probes, Model))
+  return(select_probes)
 }
 
 
