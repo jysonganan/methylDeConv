@@ -112,6 +112,40 @@ corr
 #### conclusion: Same prediction performance in glmnet on whole data, even given different cross-validation methods.
 
 
+##### check with more grids
+load("/Users/junesong/Desktop/causal inference/Flow450kGlmnetAllprobesMoreGrid.RData")
+length(intersect(probes_multiclassGlmnet_cv_moregrid[[1]],probes_multiclassGlmnet[[1]]))
+### it selected more probes than the default, however it contains the previous probes in default (910 in 2495)
+multiGlmnet_predProb <- predict(probes_multiclassGlmnet_cv_moregrid[[2]], newdata = t(betaMat_77797), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(betaMat_77797)
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+corr
+
+#### also better deconvolution performance with better tuning grid
+ggplot(probes_multiclassGlmnet_cv_moregrid[[2]])
+
+
+
+
+
+### high var probes
+load("/Users/junesong/Desktop/causal inference/Flow450kProbesHighVar.RData")
+length(intersect(probes_HighVar_1_600, probes_oneVsAllttest))
+length(intersect(probes_HighVar_601_1200, probes_oneVsAllttest))
+length(intersect(probes_HighVar_1201_1800, probes_oneVsAllttest))
+
+
 
 
 # estimate variable importance
@@ -123,8 +157,6 @@ print(importance)
 # plot importance
 plot(importance)
 
-library(randomForest)
-modelFit <- train( V6~.,data=training, method="rf" ,importance = TRUE)
 varImp(modelFit)
 
 library("gbm")
@@ -213,18 +245,6 @@ models_stack <- caretStack(
 
 
 
-### automatic feature seletion: recursive feature elimination
-## A Random Forest algorithm is used on each iteration to evaluate the model. 
-# The algorithm is configured to explore all possible subsets of the attributes. 
-control <- rfeControl(functions=rfFuncs, method="cv", number=10)
-# run the RFE algorithm
-results <- rfe(PimaIndiansDiabetes[,1:8], PimaIndiansDiabetes[,9], sizes=c(1:8), rfeControl=control)
-# summarize the results
-print(results)
-# list the chosen features
-predictors(results)
-# plot the results
-plot(results, type=c("g", "o"))
 
 
 
@@ -285,18 +305,43 @@ CBS_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma_200,
 CBS_res4 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseGlmnet,3:8]), method = "CBS")$estF
 CBS_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3:8]), method = "CBS")$estF
 
+
+probes <- c(probes_HighVar_1_600,probes_HighVar_601_1200, probes_HighVar_1201_1800)
+probes <- probes_HighVar_1201_1800
+
+probes <- probes_multiclassGlmnet_cv_moregrid[[1]]
+Houseman_res <- projectCellType(betaMat_77797[probes,],as.matrix(compTable[probes,3:8]))
+RPC_res <- epidish(betaMat_77797, as.matrix(compTable[probes,3:8]), method = "RPC")$estF
+CBS_res <- epidish(betaMat_77797, as.matrix(compTable[probes,3:8]), method = "CBS")$estF
+
 corr <- rep(NA, 18)
 for (i in 1:18){
-  corr[i] <-cor(CBS_res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+    corr[i] <-cor(CBS_res[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
 
 corr <- rep(NA, 6)
 for (i in 1:6){
-  corr[i] <-cor(Houseman_res3[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+  corr[i] <-cor(Houseman_res[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
 }
 corr
 
+library(VennDiagram)
+grid.newpage()
+draw.pairwise.venn(area1 = 600, area2 = 600,  cross.area = 1, 
+                   category = c("oneVsAllttest", "HighVar:1st top"), 
+                   lty = "blank", fill = c("blue", "mediumorchid")) # area2 7916 area3 7099
+
+grid.newpage()
+draw.pairwise.venn(area1 = 600, area2 = 600,  cross.area = 4, 
+                   category = c("oneVsAllttest", "HighVar: 2nd top"), 
+                   lty = "blank", fill = c("blue", "mediumorchid")) # area2 7916 area3 7099
+
+
+grid.newpage()
+draw.pairwise.venn(area1 = 600, area2 = 600,  cross.area = 23, 
+                   category = c("oneVsAllttest", "HighVar: 3rd top"), 
+                   lty = "blank", fill = c("blue", "mediumorchid")) # area2 7916 area3 7099
 #### prediction score of multiple class elastic net:
 length(probes_oneVsAllttest)
 length(probes_oneVsAllLimma)
@@ -319,4 +364,5 @@ for (i in 1:18){
   corr[i] <-cor(res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
+
 
