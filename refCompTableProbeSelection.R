@@ -258,7 +258,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
                      
                      
                      
-ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10){
+ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10, reps.repeats = 3){
   require(dplyr)
   require(caret)
   require(glmnet)
@@ -267,7 +267,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   require(doParallel)
   require(matrixStats)
   
-  Features.CVparam<- trainControl(method = "cv",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  Features.CVparam<- trainControl(method="repeatedcv", repeats=reps.repeats, number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
   if(nCores > 1){
     registerDoParallel(makeCluster(nCores))
     message( "Parallelisation schema set up")}
@@ -307,7 +307,7 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
 
 
 ### multiclass glmnet
-ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10){
+ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10, reps.repeats = 3){
   require(dplyr)
   require(caret)
   require(glmnet)
@@ -316,7 +316,7 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
   require(doParallel)
   require(matrixStats)
   
-  Features.CVparam<- trainControl(method = "cv",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  Features.CVparam<- trainControl(method="repeatedcv", repeats=reps.repeats,number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
   if(nCores > 1){
     registerDoParallel(makeCluster(nCores))
     message( "Parallelisation schema set up")}
