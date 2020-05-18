@@ -249,10 +249,56 @@ ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nC
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
-  return(as.character(select_probes))
+  select_probes <- as.character(select_probes)
+  return(list(select_probes, Model))
 }
 
 
+
+                     
+                     
+                     
+ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10){
+  require(dplyr)
+  require(caret)
+  require(glmnet)
+  require(foreach)
+  #require(NMF)
+  require(doParallel)
+  require(matrixStats)
+  
+  Features.CVparam<- trainControl(method = "cv",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  if(nCores > 1){
+    registerDoParallel(makeCluster(nCores))
+    message( "Parallelisation schema set up")}
+  
+  Pairs <- data.frame(t(combn(unique(ref_phenotype),2)), stringsAsFactors = F)
+  ##Pairs <- filter(Pairs, !X1 == X2)
+  
+  FitList <- list()
+  
+  for(i in 1:nrow(Pairs)) {
+    I1 <- ref_phenotype == Pairs[i,]$X1 | ref_phenotype == Pairs[i,]$X2   
+    M1 <- ref_betamatrix[,I1]
+    P1 <- as.character(ref_phenotype[I1])
+    
+    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
+    
+    Nonzeros <- coef(Model$finalModel, s = Model$bestTune$lambda)
+    Nonzeros <- as.matrix(Nonzeros)
+    Nonzeros <- data.frame(ID = rownames(Nonzeros), Coef = as.numeric(Nonzeros[,1]))
+    Nonzeros <- filter(Nonzeros, !Coef == 0)
+    FitList[[i]] <- Nonzeros
+    message(paste0("pair",i," done of ", nrow(Pairs)))
+  }
+  
+  Nonzeros <- do.call(rbind, FitList)
+  Nonzeros <- filter(Nonzeros, !duplicated(ID))
+  
+  select_probes <- Nonzeros$ID
+  select_probes <- as.character(select_probes)
+  return(list(select_probes, Model))
+}
 
 
 
@@ -285,7 +331,8 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
   Nonzeros <- filter(Nonzeros, !duplicated(ID))
   
   select_probes <- Nonzeros$ID
-  return(as.character(select_probes))
+  select_probes <- as.character(select_probes)
+  return(list(select_probes, Model))
 }
                      
  
