@@ -94,6 +94,7 @@ print(importance)
 # plot importance
 plot(importance)
 
+library(randomForest)
 modelFit <- train( V6~.,data=training, method="rf" ,importance = TRUE)
 varImp(modelFit)
 
