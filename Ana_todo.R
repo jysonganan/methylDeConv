@@ -23,7 +23,7 @@ probes_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet(ref_betamatrix, 
 
 ### compare the deconvolution performance of probes
 load("/Users/junesong/Desktop/causal inference/Flow450kProbeCompTable.RData")
-
+load("/Users/junesong/Desktop/causal inference/Flow450kprobesChangeNoBothAny.RData")
 ## on 450k benchmark dataset 77797
 library(minfi)
 library(GEOquery)
@@ -61,27 +61,56 @@ facs_77797_prop <- facs_77797_prop/100
 
 
 
+
+
+
+
+
 ## using the model fitted in  ref_probe_selection_multiclassGlmnet 
 ## to obtain the class predicted probabilities of the mixture (e.g. benchmark data)
-load("/Users/junesong/Desktop/causal inference/Flow450kProbeMultiPred.RData")
-apply(probes_multiclassGlmnet[[2]]$pred[,4:9],1,sum)
-names(probes_multiclassGlmnet[[2]])
-class(probes_multiclassGlmnet[[2]]$finalModel)
-
+load("/Users/junesong/Desktop/causal inference/Flow450kProbeMultiPred.RData")  ## default multi glmnet
+load("/Users/junesong/Desktop/causal inference/Flow450kGlmnetAllprobesCV.RData") ## pairwise, multiclass glmnet (repeatedcv,5 fold, rep 3) 
+### conclusion: Same probes selected in glmnet on whole data, even given different cross-validation methods.
 library(caret)
 ggplot(probes_multiclassGlmnet[[2]])
-print(probes_multiclassGlmnet[[2]])
-## coefficients #plot(model_glmnet$finalModel)
+ggplot(probes_multiclassGlmnet_cv[[2]])
+ggplot(probes_pairwiseGlmnet_cv[[2]])
+## a little differences... almost all cross-validation accuracy == 1 even changing regularization parameters.
+
 library(dplyr)
 multiGlmnet_predProb <- predict(probes_multiclassGlmnet[[2]], newdata = t(betaMat_77797), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 rownames(multiGlmnet_predProb) <- colnames(betaMat_77797)
- 
+
+multiGlmnet_cv_predProb <- predict(probes_multiclassGlmnet_cv[[2]], newdata = t(betaMat_77797), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_cv_predProb) <- colnames(betaMat_77797)
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
+
 corr <- rep(NA, 6)
 for (i in 1:6){
   corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
 }
 corr
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(multiGlmnet_cv_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(multiGlmnet_cv_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+corr
+#### conclusion: Same prediction performance in glmnet on whole data, even given different cross-validation methods.
+
 
 
 
@@ -238,31 +267,35 @@ mean(corr)
 library(EpiDISH)
 ## Houseman
 source("projectCellType.R")
-Houseman_res1 <- projectCellType(betaMat_77797[probes_oneVsAllttest,],as.matrix(compTable[probes_oneVsAllttest,3:8]))
-Houseman_res2 <- projectCellType(betaMat_77797[probes_oneVsAllLimma,],as.matrix(compTable[probes_oneVsAllLimma,3:8]))
-Houseman_res3 <- projectCellType(betaMat_77797[probes_pairwiseLimma,],as.matrix(compTable[probes_pairwiseLimma,3:8]))
+Houseman_res1 <- projectCellType(betaMat_77797[probes_oneVsAllttest_150_any,],as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]))
+Houseman_res2 <- projectCellType(betaMat_77797[probes_oneVsAllLimma_200_any,],as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]))
+Houseman_res3 <- projectCellType(betaMat_77797[probes_pairwiseLimma_200,],as.matrix(compTable[probes_pairwiseLimma_200,3:8]))
 Houseman_res4 <- projectCellType(betaMat_77797[probes_pairwiseGlmnet,],as.matrix(compTable[probes_pairwiseGlmnet,3:8]))
 Houseman_res5 <- projectCellType(betaMat_77797[probes_multiclassGlmnet,],as.matrix(compTable[probes_multiclassGlmnet,3:8]))
 
-RPC_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest,3:8]), method = "RPC")$estF
-RPC_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma,3:8]), method = "RPC")$estF
-RPC_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma,3:8]), method = "RPC")$estF
+RPC_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]), method = "RPC")$estF
+RPC_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]), method = "RPC")$estF
+RPC_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma_200,3:8]), method = "RPC")$estF
 RPC_res4 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseGlmnet,3:8]), method = "RPC")$estF
 RPC_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3:8]), method = "RPC")$estF
 
-CBS_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest,3:8]), method = "CBS")$estF
-CBS_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma,3:8]), method = "CBS")$estF
-CBS_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma,3:8]), method = "CBS")$estF
+CBS_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]), method = "CBS")$estF
+CBS_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]), method = "CBS")$estF
+CBS_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma_200,3:8]), method = "CBS")$estF
 CBS_res4 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseGlmnet,3:8]), method = "CBS")$estF
 CBS_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3:8]), method = "CBS")$estF
 
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(CBS_res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
+
 corr <- rep(NA, 6)
 for (i in 1:6){
-  corr[i] <-cor(Houseman_res1[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+  corr[i] <-cor(Houseman_res3[,i],as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
 }
 corr
-
-
 
 #### prediction score of multiple class elastic net:
 length(probes_oneVsAllttest)
