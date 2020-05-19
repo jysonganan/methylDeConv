@@ -150,21 +150,57 @@ length(intersect(probes_HighVar_601_1200, probes_oneVsAllttest))
 length(intersect(probes_HighVar_1201_1800, probes_oneVsAllttest))
 
 
+### RFE recursive RF feature selection
+
+#load("/Users/junesong/Desktop/causal inference/RfeResults600.RData")
+load("/Users/junesong/Desktop/causal inference/RfeResult.RData")  ## best 485512
+probes <- results$optVariables[1:600]
 
 
-# estimate variable importance
-importance <- varImp(model, scale=FALSE) #For most classification models, 
+### estimate variable importance
+## task 2.2
+## RF on all probes ## tune_grid = c(300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000)
+# on server
+load("model_multiclassRF_cv_smallergrid.RData")
+
+library(dplyr)
+multiRF_predProb <- predict(model_multiclassRF_cv_4, newdata = t(betaMat_77797[rownames(importance_4$importance),]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiRF_predProb) <- colnames(betaMat_77797)
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(multiRF_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+mean(corr)
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(multiRF_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+corr
+
+importance <- varImp(model_multiclassRF_cv, scale=FALSE) 
+#For most classification models, 
 #each predictor will have a separate variable importance for each class 
 #(the exceptions are classification trees, bagged trees and boosted trees).
 # summarize importance
-print(importance)
-# plot importance
-plot(importance)
+probes <- rownames(importance$importance)[1:600]
 
-varImp(modelFit)
 
-library("gbm")
-library(caretEnsemble)
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### stacking (bagging/boosting)
 # Example of Stacking algorithms
 # create submodels
@@ -298,7 +334,7 @@ CBS_res <- epidish(betaMat_77797, as.matrix(compTable[probes,3:8]), method = "CB
 
 corr <- rep(NA, 18)
 for (i in 1:18){
-    corr[i] <-cor(CBS_res[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+    corr[i] <-cor(RPC_res[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
 
