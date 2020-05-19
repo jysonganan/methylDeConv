@@ -136,6 +136,10 @@ corr
 ggplot(probes_multiclassGlmnet_cv_moregrid[[2]])
 
 
+## pairwise glmnet with better tuning
+load("/Users/junesong/Desktop/causal inference/Flow450kGlmnetPairwiseMoreGrid.RData")
+length(intersect(probes_pairwiseGlmnet_cv_moregrid,as.character(probes_pairwiseGlmnet)))  ## 9047/17855
+
 
 
 
@@ -251,55 +255,25 @@ models_stack <- caretStack(
 
 
 
-## fit a KNN model on the reference data with the probes selected by oneVsAllttest/onevsAllLimma
-## obtain the class predicted probabilities of the mixture (e.g. benchmark data)
-
-library(caret)
-knnFit <- train(x = t(ref_betamatrix[probes_oneVsAllttest,]), y = as.factor(ref_phenotype),method = "knn", 
-                trControl = trainControl(method = "cv", classProbs = TRUE))
-knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes_oneVsAllttest,]), type = "prob") %>% 
-  mutate('class'=names(.)[apply(., 1, which.max)])
-
-corr <- rep(NA, 18)
-for (i in 1:18){
-  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
-}
-corr
-
-
-
-library(caret)
-probes <- probes_oneVsAllttest
-knnFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "glmnet",   ##glmnet
-                trControl = trainControl(method = "cv", classProbs = TRUE))
-knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
-  mutate('class'=names(.)[apply(., 1, which.max)])
-
-corr <- rep(NA, 18)
-for (i in 1:18){
-  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
-}
-mean(corr)
-
 
 
 
 library(EpiDISH)
 ## Houseman
 source("projectCellType.R")
-Houseman_res1 <- projectCellType(betaMat_77797[probes_oneVsAllttest_150_any,],as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]))
+Houseman_res1 <- projectCellType(betaMat_77797[probes_oneVsAllttest,],as.matrix(compTable[probes_oneVsAllttest,3:8]))
 Houseman_res2 <- projectCellType(betaMat_77797[probes_oneVsAllLimma_200_any,],as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]))
 Houseman_res3 <- projectCellType(betaMat_77797[probes_pairwiseLimma_200,],as.matrix(compTable[probes_pairwiseLimma_200,3:8]))
 Houseman_res4 <- projectCellType(betaMat_77797[probes_pairwiseGlmnet,],as.matrix(compTable[probes_pairwiseGlmnet,3:8]))
-Houseman_res5 <- projectCellType(betaMat_77797[probes_multiclassGlmnet,],as.matrix(compTable[probes_multiclassGlmnet,3:8]))
+Houseman_res5 <- projectCellType(betaMat_77797[probes_multiclassGlmnet[[1]],],as.matrix(compTable[probes_multiclassGlmnet[[1]],3:8]))
 
-RPC_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]), method = "RPC")$estF
+RPC_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest,3:8]), method = "RPC")$estF
 RPC_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]), method = "RPC")$estF
 RPC_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma_200,3:8]), method = "RPC")$estF
 RPC_res4 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseGlmnet,3:8]), method = "RPC")$estF
-RPC_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3:8]), method = "RPC")$estF
+RPC_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet[[1]],3:8]), method = "RPC")$estF
 
-CBS_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest_150_any,3:8]), method = "CBS")$estF
+CBS_res1 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllttest,3:8]), method = "CBS")$estF
 CBS_res2 <- epidish(betaMat_77797, as.matrix(compTable[probes_oneVsAllLimma_200_any,3:8]), method = "CBS")$estF
 CBS_res3 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseLimma_200,3:8]), method = "CBS")$estF
 CBS_res4 <- epidish(betaMat_77797, as.matrix(compTable[probes_pairwiseGlmnet,3:8]), method = "CBS")$estF
@@ -309,7 +283,15 @@ CBS_res5 <- epidish(betaMat_77797, as.matrix(compTable[probes_multiclassGlmnet,3
 probes <- c(probes_HighVar_1_600,probes_HighVar_601_1200, probes_HighVar_1201_1800)
 probes <- probes_HighVar_1201_1800
 
-probes <- probes_multiclassGlmnet_cv_moregrid[[1]]
+probes <- probes_multiclassGlmnet_cv_moregrid[[1]][-1]
+#probes <- as.character(probes_multiclassGlmnet[[1]])[-1]
+
+#probes <- as.character(probes_pairwiseGlmnet)[-1]
+probes <- probes_pairwiseGlmnet_cv_moregrid[-1]
+#load("/Users/junesong/Desktop/causal inference/RfeResults600.RData")
+load("/Users/junesong/Desktop/causal inference/RfeResult.RData")  ## best 485512
+probes <- results$optVariables[1:600]
+
 Houseman_res <- projectCellType(betaMat_77797[probes,],as.matrix(compTable[probes,3:8]))
 RPC_res <- epidish(betaMat_77797, as.matrix(compTable[probes,3:8]), method = "RPC")$estF
 CBS_res <- epidish(betaMat_77797, as.matrix(compTable[probes,3:8]), method = "CBS")$estF
@@ -319,6 +301,8 @@ for (i in 1:18){
     corr[i] <-cor(CBS_res[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
+
+
 
 corr <- rep(NA, 6)
 for (i in 1:6){
@@ -364,5 +348,7 @@ for (i in 1:18){
   corr[i] <-cor(res3[i,],as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
 mean(corr)
+
+
 
 
