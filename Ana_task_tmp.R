@@ -158,8 +158,10 @@ ref_probe_selection_multiclassRF_cv <- function(ref_betamatrix, ref_phenotype, n
   return(Model)
 }
 
-model_multiclassRF_cv <- ref_probe_selection_multiclassRF_cv(ref_betamatrix, ref_phenotype, reps.resamp = 5, tune_grid = 300:600)
-save("model_multiclassRF_cv", file = "model_multiclassRF_cv.RData")
+model_multiclassRF_cv <- ref_probe_selection_multiclassRF_cv(ref_betamatrix, ref_phenotype, reps.resamp = 5, 
+                                                             tune_grid = c(300,350,400,450,500,550,600,650,700,750,800,850,900,950,1000))
+save("model_multiclassRF_cv", file = "model_multiclassRF_cv_smallergrid.RData")
+
 
 
 
@@ -206,28 +208,93 @@ plot(results, type=c("g", "o"))
 ### start with pre-selected probes, not all probes e.g. probes_oneVsAllttest, RFE top600, probes_multiclassGlmnet
 
 
-### SVM, knn requires preprocessing (scale, center)
-### RF and other tree-based methods needn't.
+### 4.1 RF on top 600, 1200, 1800, 2400 (one vs all ttest probes)
 
-## 4.1 stacking
-require(dplyr)
-require(caret)
-require(glmnet)
-require(foreach)
-#require(NMF)
-require(doParallel)
-require(matrixStats)
+library(FlowSorted.Blood.450k)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
+## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
 
+
+source("refCompTableProbeSelection.R")
+probes_oneVsAllttest_100 <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 100)
+probes_oneVsAllttest_200 <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 200)
+probes_oneVsAllttest_300 <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+probes_oneVsAllttest_400 <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 400)
+
+
+ref_probe_selection_multiclassRF_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10, reps.repeats = 3, tune_grid = 1:30){
+  require(dplyr)
+  require(caret)
+  require(randomForest)
+  require(foreach)
+  require(doParallel)
+  require(matrixStats)
+  
+  Features.CVparam<- trainControl(method="repeatedcv", repeats=reps.repeats,number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+  if(nCores > 1){
+    registerDoParallel(makeCluster(nCores))
+    message( "Parallelisation schema set up")}
+  
+  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "rf" , tuneGrid = expand.grid(.mtry = tune_grid), metric = "Kappa", importance = TRUE)
+  
+  return(Model)
+}
+
+model_multiclassRF_cv_1 <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes_oneVsAllttest_100,], ref_phenotype, reps.resamp = 5, 
+                                                             tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
+model_multiclassRF_cv_2 <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes_oneVsAllttest_200,], ref_phenotype, reps.resamp = 5, 
+                                                               tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
+model_multiclassRF_cv_3 <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes_oneVsAllttest_300,], ref_phenotype, reps.resamp = 5, 
+                                                               tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
+model_multiclassRF_cv_4 <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes_oneVsAllttest_400,], ref_phenotype, reps.resamp = 5, 
+                                                               tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
+
+save("model_multiclassRF_cv_1","model_multiclassRF_cv_2", "model_multiclassRF_cv_3","model_multiclassRF_cv_4", file = "model_multiclassRF_cv_smallergrid_probePreselect.RData")
+
+
+
+
+
+
+### 4.2 ML (stacking) on top 1800 (one vs all ttest probes)
+library(dplyr)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(gbm)
+library(xgboost)
+library(caretEnsemble)
+library(doParallel)
+library(matrixStats)
+
+set.seed(5)
 nCores = 4
-probes <- probes_oneVsAllttest
+
+library(FlowSorted.Blood.450k)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
+## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+source("refCompTableProbeSelection.R")
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+
+algorithmList <- c('glmnet','rf','gbm', 'xgbTree')
+control <- trainControl(method="repeatedcv", number=5, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+grid.glmnet <- expand.grid(.alpha=seq(0.1,1, by=0.1),.lambda =seq(0,1,by=0.01))
+grid.rf <- expand.grid(.mtry = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
 
 
-if(nCores > 1){
-  registerDoParallel(makeCluster(nCores))
-  message( "Parallelisation schema set up")}
-
-
-grid.xgboost <- expand.grid(.nrounds = c(40, 50, 60),
+grid.xgboost <- expand.grid(.nrounds = c(50, 75, 100),
                             .eta = c(0.2, 0.3, 0.4),                
                             .gamma = c(0, 1),
                             .max_depth = c(2, 3, 4),
@@ -235,15 +302,52 @@ grid.xgboost <- expand.grid(.nrounds = c(40, 50, 60),
                             .subsample = c(1), 
                             .min_child_weight = c(1))
 
-grid.rf <- expand.grid(.mtry = 3:6)
+grid.gbm <- expand.grid(n.trees = c(100, 200, 250),
+                        interaction.depth = c(1, 4, 6),
+                        shrinkage = c(0.05,0.1),
+                        n.minobsinnode = 10)
 
-Features.CVparam<- trainControl(method = "boot632",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
+models <- caretList(x = t(ref_betamatrix[probes,]), y = factor(ref_phenotype), trControl=control, 
+                    methodList=algorithmList, tuneList = list(glmnet = caretModelSpec(method = "glmnet", tuneGrid = grid.glmnet),
+                                                              rf = caretModelSpec(method = "rf", tuneGrid = grid.rf),
+                                                              gbm = caretModelSpec(method = "gbm", tuneGrid = grid.gbm),
+                                                              xgbTree = caretModelSpec(method="xgbTree", tuneGrid = grid.xgboost)
+                                                              #nnet=caretModelSpec(method="nnet", trace=FALSE, tuneLength=1)
+                                                              ))
 
 
-Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
+# stack using glm
+stackControl <- trainControl(method="repeatedcv", number=5, repeats=3, savePredictions=TRUE, classProbs=TRUE)
+stack.glm <- caretStack(models, tuneLength = 10, method="glm", metric="Kappa", trControl=stackControl)
+### We can also use more sophisticated algorithms to combine predictions in an effort 
+## to tease out when best to use the different methods. 
+## In this case, we can use the random forest algorithm to combine the predictions
+
+# stack using random forest
+stack.rf <- caretStack(models, tuneLength = 10, method="rf", metric="Kappa", trControl=stackControl)  ## also method = "gbm"
+
+
+## caretList uses lm,rpart and glm to fit x1 and x2 to y (i.e., y~x1+x2)
+## This gives three predictions : plm, prpart, pglm
+## Then caretStack creates the model ensemble and provides a global prediction with rf such as y~plm+prpart+pglm
+save(stack.glm, stack.rf, file = "Flow450kStackingRes.RData")
+
+
+### SVM, knn requires preprocessing (scale, center)
+### RF and other tree-based methods needn't.
 
 
 
+
+
+
+
+
+
+
+
+
+## 4.1 stacking
 
 ## fit a KNN model on the reference data with the probes selected by oneVsAllttest/onevsAllLimma
 ## obtain the class predicted probabilities of the mixture (e.g. benchmark data)
