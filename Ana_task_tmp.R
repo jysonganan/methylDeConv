@@ -288,9 +288,9 @@ ref_phenotype <- ref_phenotype[keep]
 source("refCompTableProbeSelection.R")
 probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
 
-algorithmList <- c('glmnet','rf','gbm', 'xgbTree')
+algorithmList <- c('glmnet','rf') #'gbm', 'xgbTree'
 control <- trainControl(method="repeatedcv", number=5, repeats=3, savePredictions=TRUE, classProbs=TRUE)
-grid.glmnet <- expand.grid(.alpha=seq(0.1,1, by=0.1),.lambda =seq(0,1,by=0.01))
+grid.glmnet <- expand.grid(.alpha=seq(0.5,1),.lambda =seq(0,1,by=0.01))
 grid.rf <- expand.grid(.mtry = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
 
 
@@ -307,24 +307,26 @@ grid.gbm <- expand.grid(n.trees = c(100, 200, 250),
                         shrinkage = c(0.05,0.1),
                         n.minobsinnode = 10)
 
-models <- caretList(x = t(ref_betamatrix[probes,]), y = factor(ref_phenotype), trControl=control, 
+models <- caretList(x = t(ref_betamatrix[probes,]), y = factor(ref_phenotype), trControl=control, metric = "Kappa",
                     methodList=algorithmList, tuneList = list(glmnet = caretModelSpec(method = "glmnet", tuneGrid = grid.glmnet),
-                                                              rf = caretModelSpec(method = "rf", tuneGrid = grid.rf),
-                                                              gbm = caretModelSpec(method = "gbm", tuneGrid = grid.gbm),
-                                                              xgbTree = caretModelSpec(method="xgbTree", tuneGrid = grid.xgboost)
+                                                              rf = caretModelSpec(method = "rf", tuneGrid = grid.rf)
+                                                              #gbm = caretModelSpec(method = "gbm", tuneGrid = grid.gbm)
+                                                              #xgbTree = caretModelSpec(method="xgbTree", tuneGrid = grid.xgboost)
                                                               #nnet=caretModelSpec(method="nnet", trace=FALSE, tuneLength=1)
                                                               ))
 
+print("finish caretlist")
+# stack using glmnet
 
-# stack using glm
 stackControl <- trainControl(method="repeatedcv", number=5, repeats=3, savePredictions=TRUE, classProbs=TRUE)
-stack.glm <- caretStack(models, tuneLength = 10, method="glm", metric="Kappa", trControl=stackControl)
+
+stack.glm <- caretStack(models, tuneLength = 10, method="glm", metric="Accuracy", trControl=stackControl)
 ### We can also use more sophisticated algorithms to combine predictions in an effort 
 ## to tease out when best to use the different methods. 
 ## In this case, we can use the random forest algorithm to combine the predictions
 
 # stack using random forest
-stack.rf <- caretStack(models, tuneLength = 10, method="rf", metric="Kappa", trControl=stackControl)  ## also method = "gbm"
+stack.rf <- caretStack(models, tuneLength = 10, method="rf", metric="Acurracy", trControl=stackControl)  ## also method = "gbm"
 
 
 ## caretList uses lm,rpart and glm to fit x1 and x2 to y (i.e., y~x1+x2)
@@ -347,50 +349,122 @@ save(stack.glm, stack.rf, file = "Flow450kStackingRes.RData")
 
 
 
-## 4.1 stacking
+## 4.3  ML  on top 1800 (one vs all ttest probes)
+library(dplyr)
+library(caret)
+library(doParallel)
+library(matrixStats)
+library(plyr)
+library(recipes)
+library(adabag)
+
+set.seed(5)
+nCores = 4
+
+library(FlowSorted.Blood.450k)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
+## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+source("refCompTableProbeSelection.R")
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+load("tmp.RData")
+
+
+
 
 ## fit a KNN model on the reference data with the probes selected by oneVsAllttest/onevsAllLimma
 ## obtain the class predicted probabilities of the mixture (e.g. benchmark data)
+print('start knn!')
 
-library(caret)
-knnFit <- train(x = t(ref_betamatrix[probes_oneVsAllttest,]), y = as.factor(ref_phenotype),method = "knn", 
+knnFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "knn", 
                 preProc = c("center", "scale"), tuneGrid = expand.grid(k = c(2,3,4,5,6,7,8)),
                 trControl = trainControl(method = "cv", classProbs = TRUE))
-knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes_oneVsAllttest,]), type = "prob") %>% 
+knnpredProb <- predict(knnFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 
 corr <- rep(NA, 18)
 for (i in 1:18){
-  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+  corr[i] <-cor(as.numeric(knnpredProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
-mean(corr)
+print(mean(corr))
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(knnpredProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+print(corr)
+print('complete knn!')
 
 
 
-library(caret)
-svmFit <- train(x = t(ref_betamatrix[probes_oneVsAllttest,]), y = as.factor(ref_phenotype),method = "svmRadial", 
+
+print('start svmRBF!')
+
+svmFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "svmRadial", 
                 preProc = c("center", "scale"), tuneLength = 10,
                 trControl = trainControl(method = "cv", classProbs = TRUE))
-svm_predProb <- predict(svmFit, newdata = t(betaMat_77797[probes_oneVsAllttest,]), type = "prob") %>% 
+svm_predProb <- predict(svmFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 
 corr <- rep(NA, 18)
 for (i in 1:18){
   corr[i] <-cor(as.numeric(svm_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
-mean(corr)
+print(mean(corr))
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(svm_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+print(corr)
+print('complete svmRBF!')
 
 
-library(caret)
-probes <- probes_oneVsAllttest
-knnFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "rf",   ##glmnet
+
+print('start Bagged AdaBoost!')
+
+AdaBagFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "AdaBag", 
+                tuneLength = 10,
                 trControl = trainControl(method = "cv", classProbs = TRUE))
-knn_predProb <- predict(knnFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
+AdaBag_predProb <- predict(AdaBagFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 
 corr <- rep(NA, 18)
 for (i in 1:18){
-  corr[i] <-cor(as.numeric(knn_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+  corr[i] <-cor(as.numeric(AdaBag_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
 }
-mean(corr)
+print(mean(corr))
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(AdaBag_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+print(corr)
+print('complete  Bagged AdaBoost!')
+
+
+
+
+print('start bayesglm!')
+
+bayesglmFit <- train(x = t(ref_betamatrix[probes,]), y = as.factor(ref_phenotype),method = "bayesglm", 
+                   preProc = c("center", "scale"), tuneLength = 10,
+                   trControl = trainControl(method = "cv", classProbs = TRUE))
+bayesglm_predProb <- predict(bayesglmFit, newdata = t(betaMat_77797[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+
+corr <- rep(NA, 18)
+for (i in 1:18){
+  corr[i] <-cor(as.numeric(bayesglm_predProb[i,1:6]),as.numeric(as.character(facs_77797_prop[i,])),method = "spearman")
+}
+print(mean(corr))
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <-cor(as.numeric(bayesglm_predProb[,i]),as.numeric(as.character(facs_77797_prop[,i])),method = "spearman")
+}
+print(corr)
+print('complete  bayesglm!')
+
 
