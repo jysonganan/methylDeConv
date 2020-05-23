@@ -211,54 +211,12 @@ ref_probe_selection_pairwiseLimma <- function(ref_betamatrix, ref_phenotype, FDR
 
 
 
-ref_probe_selection_pairwiseGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
-  require(dplyr)
-  require(caret)
-  require(glmnet)
-  require(foreach)
-  #require(NMF)
-  require(doParallel)
-  require(matrixStats)
-  
-  Features.CVparam<- trainControl(method = "boot632",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
-  if(nCores > 1){
-    registerDoParallel(makeCluster(nCores))
-    message( "Parallelisation schema set up")}
-  
-  Pairs <- data.frame(t(combn(unique(ref_phenotype),2)), stringsAsFactors = F)
-  ##Pairs <- filter(Pairs, !X1 == X2)
-  
-  FitList <- list()
-  
-  for(i in 1:nrow(Pairs)) {
-    I1 <- ref_phenotype == Pairs[i,]$X1 | ref_phenotype == Pairs[i,]$X2   
-    M1 <- ref_betamatrix[,I1]
-    P1 <- as.character(ref_phenotype[I1])
-    
-    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
-    
-    Nonzeros <- coef(Model$finalModel, s = Model$bestTune$lambda)
-    Nonzeros <- as.matrix(Nonzeros)
-    Nonzeros <- data.frame(ID = rownames(Nonzeros), Coef = as.numeric(Nonzeros[,1]))
-    Nonzeros <- filter(Nonzeros, !Coef == 0)
-    FitList[[i]] <- Nonzeros
-    message(paste0("pair",i," done of ", nrow(Pairs)))
-  }
-  
-  Nonzeros <- do.call(rbind, FitList)
-  Nonzeros <- filter(Nonzeros, !duplicated(ID))
-  
-  select_probes <- Nonzeros$ID
-  select_probes <- as.character(select_probes)
-  return(select_probes)
-}
-
 
 
                      
                      
                      
-ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10, reps.repeats = 3){
+ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 5, reps.repeats = 3){
   require(dplyr)
   require(caret)
   require(glmnet)
@@ -282,7 +240,7 @@ ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype,
     M1 <- ref_betamatrix[,I1]
     P1 <- as.character(ref_phenotype[I1])
     
-    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
+    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha==seq(0.1,1, by=0.1),.lambda = seq(0,1,by=0.01)), metric = "Kappa")
     
     Nonzeros <- coef(Model$finalModel, s = Model$bestTune$lambda)
     Nonzeros <- as.matrix(Nonzeros)
@@ -307,7 +265,7 @@ ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype,
 
 
 ### multiclass glmnet
-ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 10, reps.repeats = 3){
+ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 5, reps.repeats = 3){
   require(dplyr)
   require(caret)
   require(glmnet)
@@ -321,7 +279,7 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
     registerDoParallel(makeCluster(nCores))
     message( "Parallelisation schema set up")}
   
-  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
+  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=seq(0.1,1, by=0.1),.lambda = seq(0,1,by=0.01)), metric = "Kappa")
   
   message("Retrieving Nonzero Coefficients")
   Nonzeros <-  coef(Model$finalModel, s = Model$bestTune$lambda)
@@ -336,33 +294,5 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
 }
                      
  
-ref_probe_selection_multiclassGlmnet <- function(ref_betamatrix, ref_phenotype, nCores = 4, reps.resamp = 20){
-  require(dplyr)
-  require(caret)
-  require(glmnet)
-  require(foreach)
-  #require(NMF)
-  require(doParallel)
-  require(matrixStats)
-  
-  Features.CVparam<- trainControl(method = "boot632",number = reps.resamp,verboseIter=TRUE,returnData=FALSE,classProbs = TRUE,savePredictions=TRUE)
-  if(nCores > 1){
-    registerDoParallel(makeCluster(nCores))
-    message( "Parallelisation schema set up")}
-  
-  Model <- train(x = t(ref_betamatrix), y = factor(ref_phenotype), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01)), metric = "Kappa")
-  
-  message("Retrieving Nonzero Coefficients")
-  Nonzeros <-  coef(Model$finalModel, s = Model$bestTune$lambda)
-  Nonzeros <- lapply(Nonzeros, function(x) data.frame(ID = rownames(x), Coef = as.numeric(x[,1])))
-  Nonzeros <- lapply(Nonzeros, function(x) filter(x, !Coef == 0))
-  Nonzeros <- do.call(rbind, Nonzeros)
-  Nonzeros <- filter(Nonzeros, !duplicated(ID))
-  
-  select_probes <- Nonzeros$ID
-  select_probes <- as.character(select_probes)
-  #prediction_p <- predict(Model, test, type = "prob")
-  return(list(select_probes, Model))
-}
 
                  
