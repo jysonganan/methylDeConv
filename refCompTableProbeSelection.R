@@ -295,4 +295,7 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
                      
  
 
-                 
+               
+                     
+ ## Before, tuning:
+ ## .alpha=c(0.5,1),.lambda = seq(0,0.05,by=0.01))
