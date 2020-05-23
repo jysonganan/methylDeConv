@@ -295,6 +295,47 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
                      
  
 
+                     
+                     
+                     
+##compTable[probes,3:8] here reference_compTable only have columns of cell types of interest
+probeSelect_deconv_benchmark_corr <- function(probes_select, benchmark_betaMat, reference_compTable, benchmark_trueProp){
+  library(EpiDISH)
+  source("projectCellType.R")
+  Houseman_res <- projectCellType(benchmark_betaMat[probes_select,],as.matrix(reference_compTable))
+  RPC_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "RPC")$estF
+  CBS_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "CBS")$estF
+  
+  corr <- rep(NA, ncol(benchmark_betaMat))
+  for (i in 1:ncol(benchmark_betaMat)){
+    corr[i] <-cor(Houseman_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+  }
+  print('Houseman, within each sample, correlation with true proportions (average)', mean(corr))
+  
+  corr <- rep(NA, ncol(benchmark_betaMat))
+  for (i in 1:ncol(benchmark_betaMat)){
+    corr[i] <-cor(RPC_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+  }
+  print('RPC, within each sample, correlation with true proportions (average)', mean(corr))
+  
+  corr <- rep(NA, ncol(benchmark_betaMat))
+  for (i in 1:ncol(benchmark_betaMat)){
+    corr[i] <-cor(CBS_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+  }
+  print('CBS, within each sample, correlation with true proportions (average)', mean(corr))
+  
+  corr <- rep(NA, ncol(reference_compTable))
+  for (i in 1:ncol(reference_compTable)){
+    corr[i] <-cor(Houseman_res[,i],as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
+  }
+  print('Houseman, within each cell type, correlation with true proportions', corr)
+  
+}
+
+                     
+                     
+                     
+                     
                
                      
  ## Before, tuning:
