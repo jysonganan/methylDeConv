@@ -306,29 +306,33 @@ probeSelect_deconv_benchmark_corr <- function(probes_select, benchmark_betaMat, 
   RPC_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "RPC")$estF
   CBS_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "CBS")$estF
   
-  corr <- rep(NA, ncol(benchmark_betaMat))
+  corr1 <- rep(NA, ncol(benchmark_betaMat))
   for (i in 1:ncol(benchmark_betaMat)){
-    corr[i] <-cor(Houseman_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+    corr1[i] <-cor(Houseman_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
   }
-  print('Houseman, within each sample, correlation with true proportions (average)', mean(corr))
+  print('Houseman, within each sample, correlation with true proportions (average)')
+  print(mean(corr1))
   
-  corr <- rep(NA, ncol(benchmark_betaMat))
+  corr2 <- rep(NA, ncol(benchmark_betaMat))
   for (i in 1:ncol(benchmark_betaMat)){
-    corr[i] <-cor(RPC_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+    corr2[i] <-cor(RPC_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
   }
-  print('RPC, within each sample, correlation with true proportions (average)', mean(corr))
+  print('RPC, within each sample, correlation with true proportions (average)')
+  print(mean(corr2))
   
-  corr <- rep(NA, ncol(benchmark_betaMat))
+  corr3 <- rep(NA, ncol(benchmark_betaMat))
   for (i in 1:ncol(benchmark_betaMat)){
-    corr[i] <-cor(CBS_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+    corr3[i] <-cor(CBS_res[i,],as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
   }
-  print('CBS, within each sample, correlation with true proportions (average)', mean(corr))
+  print('CBS, within each sample, correlation with true proportions (average)')
+  print(mean(corr3))
   
-  corr <- rep(NA, ncol(reference_compTable))
+  corr4 <- rep(NA, ncol(reference_compTable))
   for (i in 1:ncol(reference_compTable)){
-    corr[i] <-cor(Houseman_res[,i],as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
+    corr4[i] <-cor(Houseman_res[,i],as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
   }
-  print('Houseman, within each cell type, correlation with true proportions', corr)
+  print('Houseman, within each cell type, correlation with true proportions')
+  print(corr4)
   
 }
 
