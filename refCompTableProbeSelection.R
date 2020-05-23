@@ -302,7 +302,7 @@ ref_probe_selection_multiclassGlmnet_cv <- function(ref_betamatrix, ref_phenotyp
 probeSelect_deconv_benchmark_corr <- function(probes_select, benchmark_betaMat, reference_compTable, benchmark_trueProp){
   library(EpiDISH)
   source("projectCellType.R")
-  Houseman_res <- projectCellType(benchmark_betaMat[probes_select,],as.matrix(reference_compTable))
+  Houseman_res <- projectCellType(benchmark_betaMat[probes_select,],as.matrix(reference_compTable[probes_select,]))
   RPC_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "RPC")$estF
   CBS_res <- epidish(benchmark_betaMat, as.matrix(reference_compTable[probes_select,]), method = "CBS")$estF
   
