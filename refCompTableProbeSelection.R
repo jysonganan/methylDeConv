@@ -240,7 +240,7 @@ ref_probe_selection_pairwiseGlmnet_cv <- function(ref_betamatrix, ref_phenotype,
     M1 <- ref_betamatrix[,I1]
     P1 <- as.character(ref_phenotype[I1])
     
-    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha==seq(0.1,1, by=0.1),.lambda = seq(0,1,by=0.01)), metric = "Kappa")
+    Model <- train(x = t(M1), y = factor(P1), trControl = Features.CVparam, method = "glmnet" , tuneGrid = expand.grid(.alpha=seq(0.1,1, by=0.1),.lambda = seq(0,1,by=0.01)), metric = "Kappa")
     
     Nonzeros <- coef(Model$finalModel, s = Model$bestTune$lambda)
     Nonzeros <- as.matrix(Nonzeros)
