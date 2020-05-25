@@ -275,28 +275,80 @@ save("ProbePreselect_multiclassGlmnet", file = paste0(data_type, "ProbePreselect
 
 
 
+
+
+
 #### analysis on results
 source("refCompTableProbeSelection.R")
 compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 probeSelect_deconv_benchmark_corr(probes_oneVsAllttest,benchmark_betaMat,compTable[,3:8],benchmark_trueProp)
 
 
+probes <- results$optVariables[1:600]
 
 
 
 
+### multiglmnet on preselected 1800 onevsall ttest
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+library(dplyr)
+multiGlmnet_predProb <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(benchmark_betaMat[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(benchmark_betaMat)
+
+corr <- rep(NA, ncol(benchmark_betaMat))
+for (i in 1:ncol(benchmark_betaMat)){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[i,1:ncol(benchmark_trueProp)]),as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+}
+print(mean(corr))
+corr <- rep(NA, ncol(benchmark_trueProp))
+for (i in 1:ncol(benchmark_trueProp)){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
+}
+print(corr)
 
 
 
+#### the deconv + Glmnet on preselected 1800 probes -> select ~922 probes in glmnet
+
+probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
+probeSelect_deconv_benchmark_corr(probes,benchmark_betaMat,compTable[,3:8],benchmark_trueProp)
 
 
 
+## RF
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 100)
+
+library(dplyr)
+rf_predProb <- predict(model_multiclassRF_cv_1, newdata = t(benchmark_betaMat[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(rf_predProb) <- colnames(benchmark_betaMat)
+
+
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 200)
+rf_predProb <- predict(model_multiclassRF_cv_2, newdata = t(benchmark_betaMat[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(rf_predProb) <- colnames(benchmark_betaMat)
 
 
 
+probes<- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+rf_predProb <- predict(model_multiclassRF_cv_3, newdata = t(benchmark_betaMat[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(rf_predProb) <- colnames(benchmark_betaMat)
 
 
 
+corr <- rep(NA, ncol(benchmark_betaMat))
+for (i in 1:ncol(benchmark_betaMat)){
+  corr[i] <-cor(as.numeric(rf_predProb[i,1:ncol(benchmark_trueProp)]),as.numeric(as.character(benchmark_trueProp[i,])),method = "spearman")
+}
+print(mean(corr))
+corr <- rep(NA, ncol(benchmark_trueProp))
+for (i in 1:ncol(benchmark_trueProp)){
+  corr[i] <-cor(as.numeric(rf_predProb[,i]),as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
+}
+print(corr)
 
 
 
@@ -524,5 +576,37 @@ for (i in 1:6){
 }
 print(corr)
 print('complete  bayesglm!')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
