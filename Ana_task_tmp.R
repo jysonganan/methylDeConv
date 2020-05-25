@@ -103,6 +103,7 @@ save("probes_HighVar_1_600", "probes_HighVar_601_1200", "probes_HighVar_1201_180
 ### 4.  automatic feature seletion: recursive feature elimination  --- Better version of RF varImp
 ## A Random Forest algorithm is used on each iteration to evaluate the model. 
 # The algorithm is configured to explore all possible subsets of the attributes. 
+library(caret)
 set.seed(5)
 control <- rfeControl(functions=rfFuncs, method="cv", number=5)
 # run the RFE algorithm
