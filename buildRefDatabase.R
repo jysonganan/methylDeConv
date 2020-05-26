@@ -97,6 +97,48 @@ save("betaMat_71955","phenotype_71955", file = "ref_71955_450kBlood.RData")
 
 
 
+# 4 GSE59250    308 samples            CD14+ Monocytes 55                 CD19+ B-Cells 104
+#          CD4+ T-cells 149
+
+
+## there are NAs and may not preprocessNoob
+geoMat <- getGEO("GSE59250")
+pD.all <- pData(geoMat[[1]])
+pD.all[,"cell type:ch1"]
+
+getGEOSuppFiles("GSE59250")
+untar("GSE59250/GSE59250_RAW.tar", exdir = "GSE59250/idat")
+#head(list.files("GSE59250/idat", pattern = "idat"))
+
+betaMat <- read.table("GSE59250/GSE59250_average_betas.txt", header = T, sep = "\t")
+rownames(betaMat) <- betaMat[,1]
+betaMat <- betaMat[,-1]
+betaMat <- betaMat[rownames(ref_betamatrix),]
+betaMat <- betaMat[,seq(1,867,2)]
+colnames(betaMat) <- rownames(pD.all)
+
+pD.all <- pD.all[pD.all[,"cell type:ch1"]%in%c("CD14+ Monocytes","CD19+ B-Cells","CD4+ T-cells"),]
+betaMat_59250 <- betaMat[,rownames(pD.all)]
+
+phenotype_59250 <- pD.all[,"cell type:ch1"]
+for (i in 1:length(phenotype_59250)){
+  if (phenotype_59250[i] == "CD4+ T-cells"){
+    phenotype_59250[i] <- "CD4T"
+  }
+  
+  if (phenotype_59250[i] == "CD19+ B-Cells"){
+    phenotype_59250[i] <- "Bcell"
+  }
+  
+  if (phenotype_59250[i] == "CD14+ Monocytes"){
+    phenotype_59250[i] <- "Mono"
+  }
+}
+save("betaMat_59250","phenotype_59250", file = "ref_59250_450kBlood.RData")
+
+
+
+
 
 # GSE71244 # 20 samples 4 Bcell, 6 cd4t, 5 cd8t, 5 mono     ## normalized, may not be noob preprocessed. there are NAs!
 getGEOSuppFiles("GSE71244")
