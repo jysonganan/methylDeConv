@@ -299,8 +299,8 @@ ref_phenotype <- ref_phenotype[keep]
 
 
 
-
-
+#### EPIC benchmark with true proportions
+####################################
 
 ###!!! 12 mixture with known proportions can be used as benchmark
 load("FlowSorted.Blood.EPIC.RData")
@@ -315,16 +315,24 @@ benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu",
 ### GSE112618 6 samples of known proportions  ## maybe problematic as the sum wasn't 1.
 geoMat <- getGEO("GSE112618")
 pD.all <- pData(geoMat[[1]])
-sub <- pD.all[,c("bcell proportion:ch1", "cd4t proportion:ch1","cd8t proportion:ch1","monocytes proportion:ch1",
-                 "neutrophils proportion:ch1","nk proportion:ch1" )]
+pD <- cbind(as.numeric(pD.all[,"bcell proportion:ch1"]), as.numeric(pD.all[,"cd4t proportion:ch1"]), 
+                          as.numeric(pD.all[,"cd8t proportion:ch1"]), as.numeric(pD.all[,"monocytes proportion:ch1"]),
+                          as.numeric(pD.all[,"neutrophils proportion:ch1"]),as.numeric(pD.all[,"nk proportion:ch1"]))
+pD <- as.data.frame(pD)
+colnames(pD) <- c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")
+rownames(pD) <- rownames(pD.all)
 
+getGEOSuppFiles("GSE112618")
+untar("GSE112618/GSE112618_RAW.tar", exdir = "GSE112618/idat")
+head(list.files("GSE112618/idat", pattern = "idat"))
 
+idatFiles <- list.files("GSE112618/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
 
+rgSet_112618 <- read.metharray.exp("GSE112618/idat",force = TRUE)
 
-
-
-
-
+benchmark_betamatrix <- getBeta(preprocessNoob(rgSet_112618, dyeMethod = "single"))
+benchmark_trueprop <- pD
 
 
 
