@@ -255,7 +255,7 @@ betaMat_122126 <- betaMat[,rownames(pD.all)]
 
 phenotype_122126 <- pD.all[,"sample type:ch1"]
 
-save("betaMat_122126","phenotype_122126", file = "ref_122126_450kBlood.RData")
+save("betaMat_122126","phenotype_122126", file = "ref_122126_450kEpithelial.RData")
 
 
 
@@ -274,6 +274,49 @@ save("betaMat_122126","phenotype_122126", file = "ref_122126_450kBlood.RData")
 ####################################
 
 
+#################################### 
+###### EPIC blood
+####################################
+## make FlowSorted.Blood.EPIC.RData
+# library(ExperimentHub)  
+# hub <- ExperimentHub()  
+# query(hub, "FlowSorted.Blood.EPIC")  
+# FlowSorted.Blood.EPIC <- hub[["EH1136"]]  
+# FlowSorted.Blood.EPIC  
+
+#Bcell  CD4T  CD8T  Mono   Neu    NK 
+#6     7     6     6     6     6 
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+#450 CpGs of six immune cell subtypes: neutrophils, B cells, monocytes, NK cells, CD4+ T cells, and CD 8+ T cells
+# Consists of 37 magnetic sorted blood cell references and 12 artificial mixture samples.
+
+
+
+
+
+
+###!!! 12 mixture with known proportions can be used as benchmark
+load("FlowSorted.Blood.EPIC.RData")
+annot <- as.data.frame(colData(FlowSorted.Blood.EPIC))
+benchmark <- which(annot$CellType == "MIX")
+tmp <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+benchmark_betamatrix <- tmp[,rownames(annot)[benchmark]]
+benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")]
+
+
+
+### GSE112618 6 samples of known proportions  ## maybe problematic as the sum wasn't 1.
+geoMat <- getGEO("GSE112618")
+pD.all <- pData(geoMat[[1]])
+sub <- pD.all[,c("bcell proportion:ch1", "cd4t proportion:ch1","cd8t proportion:ch1","monocytes proportion:ch1",
+                 "neutrophils proportion:ch1","nk proportion:ch1" )]
 
 
 
@@ -286,11 +329,28 @@ save("betaMat_122126","phenotype_122126", file = "ref_122126_450kBlood.RData")
 
 
 
+#################################### 
+###### EPIC epithelial
+####################################
 
-### GSE122126 EPIC
+### 2. GSE122126 EPIC
 
 #Purified pancreatic acinar cells, pancreatic duct cells, 
 # pancreatic beta cells, vascular endothelial cells and colon epithelial cells of 450k and EPIC data.
+# 
+# cfDNA         cfDNA In vitro mix 
+# 58                          5 
+# Colon epithelial cells           Cortical neurons 
+# 3                          2 
+# Hepatocytes               In vitro mix 
+# 2                          9 
+# Leukocytes      Lung epithelial cells 
+# 1                          3 
+# Pancreatic acinar cells      Pancreatic beta cells 
+# 2                          1 
+# Pancreatic duct cells Vascular endothelial cells 
+# 2                          2 
+
 library(GEOquery)
 library(minfi)
 getGEOSuppFiles("GSE122126")
@@ -306,41 +366,27 @@ betaMat <- getBeta(grSet)
 
 geoMat <- getGEO("GSE122126")
 pD.all <- pData(geoMat[[2]])
-pD <- pD.all[, c("title", "geo_accession", "age:ch1", "disease state:ch1", "gender:ch1", "sample type:ch1")]
-# add phenotype data
-sampleNames(rgSet) <- substr(sampleNames(rgSet), 1, 10)
-pD <- pD[sampleNames(rgSet),]
-pD <- as(pD, "DataFrame")
-pData(rgSet) <- pD
+
+
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+betaMat_122126 <- betaMat[,rownames(pD.all)]
+
+phenotype_122126 <- pD.all[,"sample type:ch1"]
+
+save("betaMat_122126","phenotype_122126", file = "ref_122126_EPICEpithelial.RData")
 
 
 
 
-### 
-## Reformat FlowSorted.450k; with preprocessNoob
 
-library(FlowSorted.Blood.450k)
-CellLines.matrix = NULL
-cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
-## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
-ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
-ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
-keep <- which(ref_phenotype %in% cellTypes)
-ref_betamatrix <- ref_betamatrix[,keep]
-ref_phenotype <- ref_phenotype[keep]
 
-source("refCompTableProbeSelection.R")
-compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
-probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = 100)
-probes_oneVsAllLimma <- ref_probe_selection_oneVsAllLimma(ref_betamatrix, ref_phenotype, probeSelect = "both")
-## the above two methods: intersection 538/600 probes
-probes_pairwiseLimma <- ref_probe_selection_pairwiseLimma(ref_betamatrix, ref_phenotype)  #681 probes selected
-probes_pairwiseGlmnet <- ref_probe_selection_pairwiseGlmnet(ref_betamatrix, ref_phenotype)
-probes_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet(ref_betamatrix, ref_phenotype)
 
-## test stability of elastic net
-## randomly drop 20% of the probes
-keep_probes <- sample.int(485512, size = 380000, replace = FALSE)
-ref_betamatrix_sub <- ref_betamatrix[keep_probes,]
-probes_pairwiseGlmnet_sub <- ref_probe_selection_pairwiseGlmnet(ref_betamatrix_sub, ref_phenotype)
-probes_multiclassGlmnet_sub <- ref_probe_selection_multiclassGlmnet(ref_betamatrix_sub, ref_phenotype)
+
+
+
+
+
+
+
+
+
