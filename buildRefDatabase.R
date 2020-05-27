@@ -1,4 +1,5 @@
 
+
 ### 450k blood immune cells   
 
 ### FlowSorted.Blood.450k,  (Reinius 2012), GSE35069
@@ -348,15 +349,15 @@ benchmark_trueprop <- pD
 # 
 # cfDNA         cfDNA In vitro mix 
 # 58                          5 
-# Colon epithelial cells           Cortical neurons 
+# **Colon epithelial cells           Cortical neurons 
 # 3                          2 
 # Hepatocytes               In vitro mix 
 # 2                          9 
-# Leukocytes      Lung epithelial cells 
+# Leukocytes      **Lung epithelial cells 
 # 1                          3 
-# Pancreatic acinar cells      Pancreatic beta cells 
+# **Pancreatic acinar cells      Pancreatic beta cells 
 # 2                          1 
-# Pancreatic duct cells Vascular endothelial cells 
+# ** Pancreatic duct cells Vascular endothelial cells 
 # 2                          2 
 
 library(GEOquery)
