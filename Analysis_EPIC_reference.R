@@ -24,6 +24,48 @@ ref_phenotype <- ref_phenotype[keep]
 #450 CpGs of six immune cell subtypes: neutrophils, B cells, monocytes, NK cells, CD4+ T cells, and CD 8+ T cells
 # Consists of 37 magnetic sorted blood cell references and 12 artificial mixture samples.
 
+#################################### 
+###### EPIC Epithelial
+####################################
+#save("betaMat_122126","phenotype_122126", file = "ref_122126_EPICEpithelial.RData")
+data_type = "FlowEPIC_Epithelial"
+library(GEOquery)
+library(minfi)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+load("ref_122126_EPICEpithelial.RData")
+
+# cfDNA         cfDNA In vitro mix 
+# 58                          5 
+# **Colon epithelial cells           Cortical neurons 
+# 3                          2 
+# Hepatocytes               In vitro mix 
+# 2                          9 
+# Leukocytes      **Lung epithelial cells 
+# 1                          3 
+# **Pancreatic acinar cells      Pancreatic beta cells 
+# 2                          1 
+# ** Pancreatic duct cells Vascular endothelial cells 
+# 2                          2 
+set.seed(3)
+betaMat_122126_sub <- cbind(betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                 "Pancreatic acinar cells","Pancreatic duct cells")],
+                            betaMat_122126[,sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)])
+phenotype_122126_sub <- c(rep("Epithelial",10), rep("cfDNA", 10))
+
+ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
+ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
+
+
+
+
 
 
 ##### 1. five default probe selection
@@ -327,3 +369,61 @@ for (i in 1:ncol(benchmark_trueprop)){
   corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(benchmark_trueprop[,i])),method = "spearman")
 }
 print(corr)
+
+
+
+
+
+
+
+### multiglmnet on all probes
+library(dplyr)
+multiGlmnet_predProb <- predict(probes_multiclassGlmnet[[2]], newdata = t(benchmark_betamatrix), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(benchmark_betamatrix)
+
+corr <- rep(NA, ncol(benchmark_betamatrix))
+for (i in 1:ncol(benchmark_betamatrix)){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[i,1:ncol(benchmark_trueprop)]),as.numeric(as.character(benchmark_trueprop[i,])),method = "spearman")
+}
+print(mean(corr))
+corr <- rep(NA, ncol(benchmark_trueprop))
+for (i in 1:ncol(benchmark_trueprop)){
+  corr[i] <-cor(as.numeric(multiGlmnet_predProb[,i]),as.numeric(as.character(benchmark_trueprop[,i])),method = "spearman")
+}
+print(corr)
+
+
+
+
+### high var, combine T cells
+benchmark_trueprop_merge <- cbind(benchmark_trueprop[,1], benchmark_trueprop[,2]+benchmark_trueprop[,3],
+                                  benchmark_trueprop[,4], benchmark_trueprop[,5], benchmark_trueprop[,6])
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+probes <- probes_HighVar_1_600
+library(EpiDISH)
+Houseman_res <- projectCellType(benchmark_betamatrix[probes,],as.matrix(compTable[probes,3:8]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:8]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:8]), method = "CBS")$estF
+
+Houseman_res_merge <- cbind(Houseman_res[,1], Houseman_res[,2]+Houseman_res[,3],
+                            Houseman_res[,4],Houseman_res[,5],Houseman_res[,6])
+RPC_res_merge <- cbind(RPC_res[,1], RPC_res[,2]+RPC_res[,3],
+                       RPC_res[,4], RPC_res[,5], RPC_res[,6])
+
+CBS_res_merge <- cbind(CBS_res[,1], CBS_res[,2]+CBS_res[,3],
+                            CBS_res[,4], CBS_res[,5], CBS_res[,6])
+
+corr <- rep(NA, ncol(benchmark_betamatrix))
+for (i in 1:ncol(benchmark_betamatrix)){
+  corr[i] <-cor(Houseman_res_merge[i,],as.numeric(as.character(benchmark_trueprop_merge[i,])),method = "spearman")
+}
+print(mean(corr))
+
+corr <- rep(NA, 5)
+for (i in 1:5){
+  corr[i] <-cor(Houseman_res_merge[,i],as.numeric(as.character(benchmark_trueprop_merge[,i])),method = "spearman")
+}
+print(corr)
+
+
