@@ -278,6 +278,22 @@ save("ProbePreselect_multiclassGlmnet", file = paste0(data_type, "ProbePreselect
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #### analysis on results
 source("refCompTableProbeSelection.R")
 compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
@@ -317,12 +333,22 @@ probeSelect_deconv_benchmark_corr(probes,benchmark_betaMat,compTable[,3:8],bench
 
 
 ## RF
+## all probes
+library(dplyr)
+rf_predProb <- predict(model_multiclassRF_cv, newdata = t(benchmark_betaMat), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(rf_predProb) <- colnames(benchmark_betaMat)
+
+
+
+
 probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 100)
 
 library(dplyr)
 rf_predProb <- predict(model_multiclassRF_cv_1, newdata = t(benchmark_betaMat[probes,]), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 rownames(rf_predProb) <- colnames(benchmark_betaMat)
+
 
 
 probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 200)
@@ -349,6 +375,47 @@ for (i in 1:ncol(benchmark_trueProp)){
   corr[i] <-cor(as.numeric(rf_predProb[,i]),as.numeric(as.character(benchmark_trueProp[,i])),method = "spearman")
 }
 print(corr)
+
+
+
+
+
+##  add DHS
+manifest <- read.csv("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/HumanMethylation450_15017482_v1-2.csv", header = T,  skip = 7)
+probes_DHS <- manifest[which(manifest[,"DHS"]==TRUE),1]
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+probes_oneVsAllLimma
+ProbePreselect_multiclassGlmnet 
+
+probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
+
+probes <- intersect(probes_oneVsAllttest,probes_DHS)
+
+probes <- intersect(ProbePreselect_multiclassGlmnet[[1]][-1], probes_DHS)
+
+probes <- intersect(probes_pairwiseGlmnet, probes_DHS)
+probeSelect_deconv_benchmark_corr(probes,benchmark_betaMat,compTable[,3:8],benchmark_trueProp)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -576,37 +643,4 @@ for (i in 1:6){
 }
 print(corr)
 print('complete  bayesglm!')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
