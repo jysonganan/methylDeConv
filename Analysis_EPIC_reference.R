@@ -528,11 +528,41 @@ table(apply(CBS_res,1,which.max))
 
 
 
+write.csv(RNAMatrix[rownames(BetaMatrix_average),], "/Users/junesong/Downloads/RNAMatrix_average.csv")
+write.csv(dat_Quantile, "/Users/junesong/Desktop/methyl_Kuan/dat_Quantile.csv")
+write.csv(resdata1, file = "DESeq2-results-with-normalized_A1vsD1.csv")
+write.csv(resdata1, file = "DESeq2-results-with-normalized_A1vsC1.csv")
+write.csv(RNAMatrix[rownames(BetaMatrix_average),], "/Users/junesong/Downloads/RNAMatrix_average.csv")
+write.csv(BetaMatrix_average,"/Users/junesong/Downloads/BetaMatrix_average.csv")
 
 
 
 
 
 
-###### low dim visualization of reference profiles (with reference phenotypes (class labels))
+###### EPIC EWAS
 
+## EPIC data of 150 normal saliva samples (24 female + 126 male) 
+#168 samples, 24 from females and 144 from males
+library(GEOquery)
+library(minfi)
+getGEOSuppFiles("GSE111631")
+untar("GSE111631/GSE111631_RAW.tar", exdir = "GSE111631/idat")
+head(list.files("GSE111631/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE111631/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
+
+
+## GSE116298  GBM
+
+# 3-4 samples per tumor from 12 adult glioblastoma patients (38 samples), 
+# and from 3 adult meningioma patients (9 samples) as a homogeneous reference giving a total of 47 samples.
+library(GEOquery)
+library(minfi)
+getGEOSuppFiles("GSE116298")
+untar("GSE116298/GSE116298_RAW.tar", exdir = "GSE116298/idat")
+head(list.files("GSE116298/idat", pattern = "idat"))
+
+idatFiles <- list.files("GSE116298/idat", pattern = "idat.gz$", full = TRUE)
+sapply(idatFiles, gunzip, overwrite = TRUE)
