@@ -1,5 +1,6 @@
 
 
+
 ### 450k blood immune cells   
 
 ### FlowSorted.Blood.450k,  (Reinius 2012), GSE35069
@@ -273,6 +274,26 @@ save("betaMat_122126","phenotype_122126", file = "ref_122126_450kEpithelial.RDat
 #################################### 
 ###### 450k Neuron
 ####################################
+library(FlowSorted.DLPFC.450k)
+#library(minfi)
+GRset_frontCortex <-  preprocessNoob(FlowSorted.DLPFC.450k, dyeMethod = "single")
+CellLines.matrix = NULL
+cellTypes = c("NeuN_neg","NeuN_pos")
+ref_betamatrix <- getBeta(GRset_frontCortex)
+ref_phenotype <- as.data.frame(colData(FlowSorted.DLPFC.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+
+
+
+
+
+
+
+
+
 
 
 #################################### 
