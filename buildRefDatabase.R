@@ -286,6 +286,32 @@ ref_betamatrix <- ref_betamatrix[,keep]
 ref_phenotype <- ref_phenotype[keep]
 
 
+#################################### 
+###### EPIC Neuron
+####################################
+data_type = "BrainEPIC"
+library(GEOquery)
+library(minfi)
+geoMat <- getGEO("GSE111165")
+
+pD.all <- pData(geoMat[[2]])
+pD_ref <- pD.all[pD.all[,"tissue:ch1"]%in%c("brain_neg","brain_pos"),]
+
+rgSet<- read.metharray.exp("GSE111165/idat",force = TRUE)
+grSet <- preprocessNoob(rgSet, dyeMethod = "single")
+betaMat <- getBeta(grSet)
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+ref_betamatrix <- betaMat[,rownames(pD_ref)]
+ref_phenotype <- c(rep("NeuN_neg",12),rep("NeuN_pos",5))
+
+
+
+
+
+
+
+
+
 
 
 
