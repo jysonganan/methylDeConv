@@ -427,3 +427,112 @@ for (i in 1:5){
 print(corr)
 
 
+
+#### EPIC epithelial reference performance analysis
+probes <- probes_HighVar_1201_1800
+
+library(caret)
+library(randomForest)
+importance <- varImp(model_multiclassRF_cv_3, scale=FALSE) 
+probes <- rownames(importance$importance)[1:600]
+
+probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
+# probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+# library(dplyr)
+# pred_prop <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(benchmark_betamatrix[probes,]), type = "prob") %>%
+#   mutate('class'=names(.)[apply(., 1, which.max)])
+# rownames(pred_prop) <- colnames(benchmark_betamatrix)
+
+
+
+library(EpiDISH)
+Houseman_res <- projectCellType(benchmark_betamatrix[probes,],as.matrix(compTable[probes,3:10]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:10]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:10]), method = "CBS")$estF
+
+pred_prop <-CBS_res
+
+
+corr <- rep(NA, ncol(benchmark_betamatrix))
+for (i in 1:ncol(benchmark_betamatrix)){
+  corr[i] <-cor(as.numeric(pred_prop[i,c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")]),
+                as.numeric(as.character(benchmark_trueprop[i,])),method = "spearman")
+}
+print(mean(corr))
+
+
+corr <- rep(NA, ncol(benchmark_trueprop))
+for (i in 1:ncol(benchmark_trueprop)){
+  corr[i] <-cor(as.numeric(pred_prop[,c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")][,i]),
+                as.numeric(as.character(benchmark_trueprop[,i])),method = "spearman")
+}
+print(corr)
+
+
+
+
+
+
+
+
+#### in addition, EPIC epithelial reference have another reference data: (from other cfDNAs)
+### check whether the highest predicted cell type are cfDNAs.
+
+load("ref_122126_EPICEpithelial.RData")
+
+# cfDNA         cfDNA In vitro mix 
+# 58                          5 
+# **Colon epithelial cells           Cortical neurons 
+# 3                          2 
+# Hepatocytes               In vitro mix 
+# 2                          9 
+# Leukocytes      **Lung epithelial cells 
+# 1                          3 
+# **Pancreatic acinar cells      Pancreatic beta cells 
+# 2                          1 
+# ** Pancreatic duct cells Vascular endothelial cells 
+# 2                          2 
+set.seed(3)
+betaMat_122126_cfDNA <- betaMat_122126[,which(phenotype_122126 == "cfDNA")]
+forref <- colnames(betaMat_122126)[sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)]
+benchmark_betamatrix <- betaMat_122126_cfDNA[,!colnames(betaMat_122126_cfDNA)%in%forref]
+### 48 samples of cfDNA
+
+
+
+probes <- probes_HighVar_1_600
+
+library(caret)
+library(randomForest)
+importance <- varImp(model_multiclassRF_cv_3, scale=FALSE) 
+probes <- rownames(importance$importance)[1:600]
+
+probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
+# probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+# library(dplyr)
+# pred_prop <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(benchmark_betamatrix[probes,]), type = "prob") %>%
+#   mutate('class'=names(.)[apply(., 1, which.max)])
+# rownames(pred_prop) <- colnames(benchmark_betamatrix)
+
+
+
+library(EpiDISH)
+Houseman_res <- projectCellType(benchmark_betamatrix[probes,],as.matrix(compTable[probes,3:10]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:10]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes,3:10]), method = "CBS")$estF
+
+table(apply(Houseman_res,1,which.max))
+table(apply(RPC_res,1,which.max))
+table(apply(CBS_res,1,which.max))
+
+
+
+
+
+
+
+
+
+
+###### low dim visualization of reference profiles (with reference phenotypes (class labels))
+
