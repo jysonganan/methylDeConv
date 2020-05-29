@@ -1,7 +1,7 @@
-#################################### 
-###### 450k Neuron
-####################################
-data_type = "FlowBrain450k"
+########################################################################  
+###### 450k brain  new ref (29+31 NeuN+ (Neuron) vs 29+31 NeuN-(Glia))
+######################################################################## 
+data_type = "Brain450k"
 library(FlowSorted.DLPFC.450k)
 #library(minfi)
 GRset_frontCortex <-  preprocessNoob(FlowSorted.DLPFC.450k, dyeMethod = "single")
@@ -12,7 +12,38 @@ ref_phenotype <- as.data.frame(colData(FlowSorted.DLPFC.450k))$CellType
 keep <- which(ref_phenotype %in% cellTypes)
 ref_betamatrix <- ref_betamatrix[,keep]
 ref_phenotype <- ref_phenotype[keep]
+#### GSE66351
+library(GEOquery)
+library(minfi)
+# getGEOSuppFiles("GSE66351")
+# untar("GSE66351/GSE66351_RAW.tar", exdir = "GSE66351/idat")
+# head(list.files("GSE66351/idat", pattern = "idat"))
+# 
+# idatFiles <- list.files("GSE66351/idat", pattern = "idat.gz$", full = TRUE)
+# sapply(idatFiles, gunzip, overwrite = TRUE)
 
+rgSet <- read.metharray.exp("GSE66351/idat",force = TRUE)
+betaMat <- getBeta(preprocessNoob(rgSet,dyeMethod = "single"))
+geoMat <- getGEO("GSE66351")
+pD <- pData(geoMat[[1]])
+
+keep_samples <- rownames(pD[pD[,"cell type:ch1"]%in%c("Glia","Neuron"),])
+phenotype <- pD[keep_samples, "cell type:ch1"]
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+betamatrix <- betaMat[,keep_samples]
+
+ref_betamatrix <- cbind(ref_betamatrix, betamatrix)
+ref_phenotype <- c(ref_phenotype, phenotype)
+
+## combine neuron&NeuN+   glia&NeuN-
+for (i in 1:length(ref_phenotype)){
+  if (ref_phenotype[i] == "Glia"){
+    ref_phenotype[i] <- "NeuN_neg"
+  }
+  if (ref_phenotype[i] == "Neuron"){
+    ref_phenotype[i] <- "NeuN_pos"
+  }
+}
 
 ##### 1. five default probe selection
 set.seed(2)
@@ -46,11 +77,33 @@ save("ProbePreselect_multiclassGlmnet", file = paste0(data_type, "ProbePreselect
 
 
 
+#################################### 
+###### The new 450k brain performance on the prediction of purified neurons 
+
+
+#GSE98203. 88 samples
+#Genomic DNA was isolated from FACS-sorted human brain neuronal nuclei.
+####################################
+
+library(GEOquery)
+library(minfi)
+# getGEOSuppFiles("GSE98203")
+# untar("GSE98203/GSE98203_RAW.tar", exdir = "GSE98203/idat")
+# head(list.files("GSE98203/idat", pattern = "idat"))
+# 
+# idatFiles <- list.files("GSE98203/idat", pattern = "idat.gz$", full = TRUE)
+# sapply(idatFiles, gunzip, overwrite = TRUE)
+
+rgSet <- read.metharray.exp("GSE98203/idat",force = TRUE)
+betaMat <- getBeta(preprocessNoob(rgSet,dyeMethod = "single"))
+geoMat <- getGEO("GSE98203")
+pD <- pData(geoMat[[1]])
+
 
 
 
 #################################### 
-###### EPIC Neuron
+###### EPIC Brain
 ####################################
 data_type = "BrainEPIC"
 library(GEOquery)
