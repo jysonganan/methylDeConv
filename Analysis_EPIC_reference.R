@@ -528,14 +528,6 @@ table(apply(CBS_res,1,which.max))
 
 
 
-write.csv(RNAMatrix[rownames(BetaMatrix_average),], "/Users/junesong/Downloads/RNAMatrix_average.csv")
-write.csv(dat_Quantile, "/Users/junesong/Desktop/methyl_Kuan/dat_Quantile.csv")
-write.csv(resdata1, file = "DESeq2-results-with-normalized_A1vsD1.csv")
-write.csv(resdata1, file = "DESeq2-results-with-normalized_A1vsC1.csv")
-write.csv(RNAMatrix[rownames(BetaMatrix_average),], "/Users/junesong/Downloads/RNAMatrix_average.csv")
-write.csv(BetaMatrix_average,"/Users/junesong/Downloads/BetaMatrix_average.csv")
-
-
 
 
 
@@ -546,12 +538,179 @@ write.csv(BetaMatrix_average,"/Users/junesong/Downloads/BetaMatrix_average.csv")
 #168 samples, 24 from females and 144 from males
 library(GEOquery)
 library(minfi)
-getGEOSuppFiles("GSE111631")
-untar("GSE111631/GSE111631_RAW.tar", exdir = "GSE111631/idat")
-head(list.files("GSE111631/idat", pattern = "idat"))
+# getGEOSuppFiles("GSE111631")
+# untar("GSE111631/GSE111631_RAW.tar", exdir = "GSE111631/idat")
+# head(list.files("GSE111631/idat", pattern = "idat"))
+# 
+# idatFiles <- list.files("GSE111631/idat", pattern = "idat.gz$", full = TRUE)
+# sapply(idatFiles, gunzip, overwrite = TRUE)
+rgSet_saliva <- read.metharray.exp("GSE111631/idat",force = TRUE)
+betaMat_saliva <- getBeta(preprocessNoob(rgSet_saliva,dyeMethod = "single"))
+geoMat <- getGEO("GSE111631")
+pD <- pData(geoMat[[1]])
 
-idatFiles <- list.files("GSE111631/idat", pattern = "idat.gz$", full = TRUE)
-sapply(idatFiles, gunzip, overwrite = TRUE)
+
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+load("ref_122126_EPICEpithelial.RData")
+set.seed(3)
+betaMat_122126_sub <- cbind(betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                  "Pancreatic acinar cells","Pancreatic duct cells")],
+                            betaMat_122126[,sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)])
+phenotype_122126_sub <- c(rep("Epithelial",10), rep("cfDNA", 10))
+ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
+ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+
+
+load("FlowEPIC_EpithelialProbesdefault.RData")
+load("FlowEPIC_EpithelialProbePreselect_multiclassGlmnet.RData")
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_epicEpithelial <- projectCellType(betaMat_saliva[probes_select,],as.matrix(compTable[probes_select,3:10]))
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat_saliva[probes_select,],as.matrix(compTable[probes_select,3:10]))
+
+
+gender_dat_blood <- matrix(NA, 168, 9)
+samples <- rownames(Houseman_res_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_epicEpithelial
+gender_dat_blood[,9] <- pD[,"gender:ch1"]
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"gender")
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot1.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE111631-Houseman-onevsAllttest")
+dev.off()
+
+gender_dat_blood <- matrix(NA, 168, 9)
+samples <- rownames(Houseman_res_glmnetpreselect_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_glmnetpreselect_epicEpithelial
+gender_dat_blood[,9] <- pD[,"gender:ch1"]
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_glmnetpreselect_epicEpithelial),"gender")
+
+pdf(file = "Plot2.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE111631-Houseman-glmnetPreselect")
+dev.off()
+
+## compare males vs females
+
+
+
+
+
+
+
+
+
+
+
+#### compare the above normal samples with those from patients in GSE111165
+geoMat <- getGEO("GSE111165")
+pD.EPIC <- pData(geoMat[[2]])
+rgSet<- read.metharray.exp("GSE111165/idat",force = TRUE)
+grSet <- preprocessNoob(rgSet, dyeMethod = "single")
+betaMat <- getBeta(grSet)
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+betaMat <- betaMat[,rownames(pD.EPIC[pD.EPIC[,"tissue:ch1"]=="saliva",])]
+
+
+betaMat_saliva <- cbind(betaMat_saliva[intersect(rownames(betaMat),rownames(betaMat_saliva)),], betaMat[intersect(rownames(betaMat),rownames(betaMat_saliva)),])
+group <- c(rep("Normal", 168),rep("Patient",21))
+
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_epicEpithelial <- projectCellType(betaMat_saliva[probes_select,],as.matrix(compTable[probes_select,3:10]))
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat_saliva[probes_select,],as.matrix(compTable[probes_select,3:10]))
+
+
+gender_dat_blood <- matrix(NA, 189, 9)
+samples <- rownames(Houseman_res_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_epicEpithelial
+gender_dat_blood[,9] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"group")
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot3.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE111631+GSE111165-Houseman-onevsAllttest")
+dev.off()
+
+gender_dat_blood <- matrix(NA, 189, 9)
+samples <- rownames(Houseman_res_glmnetpreselect_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_glmnetpreselect_epicEpithelial
+gender_dat_blood[,9] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_glmnetpreselect_epicEpithelial),"group")
+
+pdf(file = "Plot4.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE111631+GSE111165-Houseman-glmnetPreselect")
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+           
 
 
 ## GSE116298  GBM
