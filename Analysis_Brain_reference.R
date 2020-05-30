@@ -45,6 +45,11 @@ for (i in 1:length(ref_phenotype)){
   }
 }
 
+
+
+
+
+
 ##### 1. five default probe selection
 set.seed(2)
 source("refCompTableProbeSelection.R")
@@ -84,6 +89,8 @@ save("ProbePreselect_multiclassGlmnet", file = paste0(data_type, "ProbePreselect
 #GSE98203. 88 samples
 #Genomic DNA was isolated from FACS-sorted human brain neuronal nuclei.
 ####################################
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
 library(GEOquery)
 library(minfi)
@@ -99,6 +106,19 @@ betaMat <- getBeta(preprocessNoob(rgSet,dyeMethod = "single"))
 geoMat <- getGEO("GSE98203")
 pD <- pData(geoMat[[1]])
 
+set.seed(2)
+source("refCompTableProbeSelection.R")
+probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both")
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = 300)
+probes_preselectGlmnet <- ref_probe_selection_pairwiseGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
+
+library(EpiDISH)
+source("projectCellType.R")
+probes_select <- probes_oneVsAllttest
+probes_select <- probes_preselectGlmnet[-1]
+Houseman_res <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:4]))
+RPC_res <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "RPC")$estF
+CBS_res <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "CBS")$estF
 
 
 
