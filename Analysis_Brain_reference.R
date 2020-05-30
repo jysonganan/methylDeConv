@@ -139,3 +139,88 @@ betaMat <- getBeta(grSet)
 colnames(betaMat) <- substr(colnames(betaMat),1,10)
 ref_betamatrix <- betaMat[,rownames(pD_ref)]
 ref_phenotype <- c(rep("NeuN_neg",12),rep("NeuN_pos",5))
+CellLines.matrix = NULL
+cellTypes = c("NeuN_neg","NeuN_pos")
+
+
+
+
+
+
+
+
+
+
+#################################### #################################### 
+#################################### ####################################  
+#### matched 6 samples of whole brain (deconv on 450k vs deconv on EPIC)
+#################################### 
+## check Analysis_matched450kEPIC.R
+#################################### 
+## 1. 450k using "Brain450k" reference
+### ... omitted here
+rgSet<- read.metharray.exp("GSE111165/idat/450k",force = TRUE)
+grSet <- preprocessNoob(rgSet, dyeMethod = "single")
+betaMat <- getBeta(grSet)
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+betaMat <- betaMat[,matched_samples_450k]
+
+
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+set.seed(2)
+source("refCompTableProbeSelection.R")
+probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both")
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = 300)
+probes_preselectGlmnet <- ref_probe_selection_pairwiseGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
+library(EpiDISH)
+source("projectCellType.R")
+probes_select <- probes_oneVsAllttest
+Houseman_res_Brain450k <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:4]))
+RPC_res_Brain450k <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "RPC")$estF
+CBS_res_Brain450k <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "CBS")$estF
+
+probes_select <- probes_preselectGlmnet[-1]
+Houseman_res_glmnetpreselect_Brain450k <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:4]))
+RPC_res_glmnetpreselect_Brain450k <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "RPC")$estF
+CBS_res_glmnetpreselect_Brain450k <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "CBS")$estF
+save("Houseman_res_Brain450k","RPC_res_Brain450k","CBS_res_Brain450k","Houseman_res_glmnetpreselect_Brain450k",
+     "RPC_res_glmnetpreselect_Brain450k","CBS_res_glmnetpreselect_Brain450k", file = paste0(tissue, "MatchBrain450kRes.RData"))
+
+
+#################################### 
+## 2. EPIC data using "BrainEPIC" reference
+#################################### 
+### ... omitted here
+rgSet<- read.metharray.exp("GSE111165/idat",force = TRUE)
+grSet <- preprocessNoob(rgSet, dyeMethod = "single")
+betaMat <- getBeta(grSet)
+colnames(betaMat) <- substr(colnames(betaMat),1,10)
+betaMat <- betaMat[,matched_samples_EPIC]
+
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+
+set.seed(2)
+source("refCompTableProbeSelection.R")
+probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both")
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = 300)
+probes_preselectGlmnet <- ref_probe_selection_pairwiseGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
+library(EpiDISH)
+source("projectCellType.R")
+probes_select <- probes_oneVsAllttest
+Houseman_res_BrainEPIC <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:4]))
+RPC_res_BrainEPIC <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "RPC")$estF
+CBS_res_BrainEPIC <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "CBS")$estF
+
+probes_select <- probes_preselectGlmnet[-1]
+Houseman_res_glmnetpreselect_BrainEPIC <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:4]))
+RPC_res_glmnetpreselect_BrainEPIC <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "RPC")$estF
+CBS_res_glmnetpreselect_BrainEPIC <- epidish(betaMat, as.matrix(compTable[probes_select,3:4]), method = "CBS")$estF
+save("Houseman_res_BrainEPIC","RPC_res_BrainEPIC","CBS_res_BrainEPIC","Houseman_res_glmnetpreselect_BrainEPIC",
+     "RPC_res_glmnetpreselect_BrainEPIC","CBS_res_glmnetpreselect_BrainEPIC", file = paste0(tissue, "MatchBrainEPICRes.RData"))
+
+
+#### check whether different brain regions have differences
