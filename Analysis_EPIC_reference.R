@@ -903,3 +903,205 @@ ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   ylab('proportions') +
   ggtitle("GSE116298-GBM_Houseman-glmnetPreselect (EPICEpithelial)")
 dev.off()
+
+
+
+########################################################################
+## GSE133395 Melanoma 
+########################################################################
+
+library(GEOquery)
+library(minfi)
+# getGEOSuppFiles("GSE133395")
+# untar("GSE133395/GSE133395_RAW.tar", exdir = "GSE133395/idat")
+# head(list.files("GSE133395/idat", pattern = "idat"))
+# 
+# idatFiles <- list.files("GSE133395/idat", pattern = "idat.gz$", full = TRUE)
+# sapply(idatFiles, gunzip, overwrite = TRUE)
+
+geoMat <- getGEO("GSE133395")
+pD <- pData(geoMat[[1]])
+rgSet<- read.metharray.exp("GSE133395/idat",force = TRUE)
+betaMat <- getBeta(preprocessNoob(rgSet, dyeMethod = "single"))
+
+
+
+########################################################################
+## GSE133395 Melanoma 
+## using EPIC reference
+########################################################################
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+
+load("FlowEPICProbesdefault.RData")
+load("FlowEPICProbePreselect_multiclassGlmnet.RData")
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_epic <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:8]))
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect_epic <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:8]))
+
+group <- pD[,"cancer type:ch1"]
+gender_dat_blood <- matrix(NA, 53, 7)
+samples <- rownames(Houseman_res_epic)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:6] <- Houseman_res_epic
+gender_dat_blood[,7] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:6] <- apply(gender_dat_blood[1:6], 2, as.numeric)
+gender_dat_blood[,7] <- as.character(gender_dat_blood[,7])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_epic),"group")
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot1.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE133395-Melanoma_Houseman-onevsAllttest")
+dev.off()
+
+
+
+
+
+group <- pD[,"cancer type:ch1"]
+gender_dat_blood <- matrix(NA, 53, 7)
+samples <- rownames(Houseman_res_glmnetpreselect_epic)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:6] <- Houseman_res_glmnetpreselect_epic
+gender_dat_blood[,7] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:6] <- apply(gender_dat_blood[1:6], 2, as.numeric)
+gender_dat_blood[,7] <- as.character(gender_dat_blood[,7])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_glmnetpreselect_epic),"group")
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot2.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE133395-Melanoma_Houseman-glmnetpreselect")
+dev.off()
+
+
+
+
+
+
+########################################################################
+## GSE116298  GBM
+## using EPIC+Epithelic reference
+########################################################################
+
+data_type = "FlowEPIC_Epithelial"
+library(GEOquery)
+library(minfi)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+load("ref_122126_EPICEpithelial.RData")
+
+# cfDNA         cfDNA In vitro mix 
+# 58                          5 
+# **Colon epithelial cells           Cortical neurons 
+# 3                          2 
+# Hepatocytes               In vitro mix 
+# 2                          9 
+# Leukocytes      **Lung epithelial cells 
+# 1                          3 
+# **Pancreatic acinar cells      Pancreatic beta cells 
+# 2                          1 
+# ** Pancreatic duct cells Vascular endothelial cells 
+# 2                          2 
+set.seed(3)
+betaMat_122126_sub <- cbind(betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                  "Pancreatic acinar cells","Pancreatic duct cells")],
+                            betaMat_122126[,sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)])
+phenotype_122126_sub <- c(rep("Epithelial",10), rep("cfDNA", 10))
+
+ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
+ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+
+load("FlowEPIC_EpithelialProbesdefault.RData")
+load("FlowEPIC_EpithelialProbePreselect_multiclassGlmnet.RData")
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]))
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]))
+
+
+
+group <- pD[,"cancer type:ch1"]
+gender_dat_blood <- matrix(NA, 53, 9)
+samples <- rownames(Houseman_res_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_epicEpithelial
+gender_dat_blood[,9] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"group")
+
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot3.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE133395-Melanoma_Houseman-onevsAllttest (EPICEpithelial)")
+dev.off()
+
+
+group <- pD[,"cancer type:ch1"]
+gender_dat_blood <- matrix(NA,53,9)
+samples <- rownames(Houseman_res_glmnetpreselect_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- Houseman_res_glmnetpreselect_epicEpithelial
+gender_dat_blood[,9] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_glmnetpreselect_epicEpithelial),"group")
+
+pdf(file = "Plot4.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE133395-Melanoma_Houseman-glmnetPreselect (EPICEpithelial)")
+dev.off()
