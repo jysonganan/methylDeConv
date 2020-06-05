@@ -470,8 +470,9 @@ for (i in 1:ncol(benchmark_trueprop)){
 print(corr)
 
 ##################################################
+#analysis on EPIC benchmark data
 #### for EPIC reference, how about using the probes derived from 450k?
-### analysis on benchmark data, compTable is based on FlowEPIC reference, probes are derived from Flow450k
+### analysis on EPIC benchmark data, compTable is based on FlowEPIC reference, probes are derived from Flow450k
 load("Flow450kProbesdefault.RData")
 probes_select <- probes_oneVsAllttest
 probes_select <- intersect(probes_select, rownames(compTable))  ## 569
@@ -491,6 +492,41 @@ CBS_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[pro
 
 
 
+
+##################################################
+#analysis on EPIC benchmark data
+### how about using the model trained on Flow450k
+ProbePreselect_multiclassGlmnet[[2]]
+
+#probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300) #from Flow450k
+probes <- intersect(probes, rownames(benchmark_betamatrix)) ### shared probes between the Flow450k preselected top 1800 and EPIC data probes
+## 1689 probes 
+ProbePreselect_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix[probes,], ref_phenotype) ## trained based on Flow450K reference profiles
+library(dplyr)
+multiGlmnet_predProb <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(benchmark_betamatrix[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(benchmark_betamatrix)
+### note here predicted as Flow450k classes, (since the model was trained on Flow450k Reference)
+### when analysis with true props, change the order:
+#multiGlmnet_predProb <- multiGlmnet_predProb[,c(1,2,3,5,4,6)]
+
+
+#similarly, we can take FlowEPIC reference as a benchmark dataset to check the performance of prediction modling of glmnet
+library(GEOquery)
+library(minfi)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+multiGlmnet_predProb <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(ref_betamatrix [probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb) <- colnames(ref_betamatrix)
+multiGlmnet_predProb <- multiGlmnet_predProb[,c(1,2,3,5,4,6)]
+apply(multiGlmnet_predProb, 1, max)
 
 
 
