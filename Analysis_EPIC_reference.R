@@ -469,6 +469,27 @@ for (i in 1:ncol(benchmark_trueprop)){
 }
 print(corr)
 
+##################################################
+#### for EPIC reference, how about using the probes derived from 450k?
+### analysis on benchmark data, compTable is based on FlowEPIC reference, probes are derived from Flow450k
+load("Flow450kProbesdefault.RData")
+probes_select <- probes_oneVsAllttest
+probes_select <- intersect(probes_select, rownames(compTable))  ## 569
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:8]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "CBS")$estF
+
+load("Flow450kProbePreselect_multiclassGlmnet.RData")
+#### the deconv + Glmnet on preselected 1800 probes -> select ~922 probes in glmnet
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+probes_select <- intersect(probes_select, rownames(compTable))  ## 866
+Houseman_res_glmnetpreselect <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:8]))
+RPC_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "RPC")$estF
+CBS_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "CBS")$estF
+
+
 
 
 
