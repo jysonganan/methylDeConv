@@ -49,11 +49,54 @@ benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu",
 source("adpat-MCP-counter.R")
 probes <- up_probes_oneVsAllttest_celltype(ref_betamatrix, ref_phenotype, pv = 1e-8, MaxDMRs = 100)
 
-scores_Bcells <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["Bcells"]])
-scores_CD4T <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["CD4T"]])
-scores_CD8T <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["CD8T"]])
-scores_Mono <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["Mono"]])
-scores_Neu <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["Neu"]])
-scores_NK <- MCP-counter_score_within_celltype(benchmark_betamatrix, probes[["NK"]])
+scores_Bcell <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["Bcell"]])
+scores_CD4T <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["CD4T"]])
+scores_CD8T <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["CD8T"]])
+scores_Mono <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["Mono"]])
+scores_Neu <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["Neu"]])
+scores_NK <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["NK"]])
+
+cor(scores_Bcell, benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(scores_CD4T, benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(scores_CD8T, benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(scores_Mono, benchmark_trueprop[,"Mono"], method = "spearman")
+cor(scores_Neu, benchmark_trueprop[,"Neu"], method = "spearman")
+cor(scores_NK, benchmark_trueprop[,"NK"], method = "spearman")
+
+
+
+
+
+
+##############################################
+## MCP-counter scores, within each cell type, compared across samples (probes selected based on 450k data)
+##############################################
+library(FlowSorted.Blood.450k)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
+## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+
+source("adpat-MCP-counter.R")
+probes <- up_probes_oneVsAllttest_celltype(ref_betamatrix, ref_phenotype, pv = 1e-8, MaxDMRs = 100)
+
+scores_Bcell <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["Bcell"]]))
+scores_CD4T <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["CD4T"]]))
+scores_CD8T <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["CD8T"]]))
+scores_Mono <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["Mono"]]))
+scores_Neu <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["Gran"]]))
+scores_NK <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["NK"]]))
+
+cor(scores_Bcell, benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(scores_CD4T, benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(scores_CD8T, benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(scores_Mono, benchmark_trueprop[,"Mono"], method = "spearman")
+cor(scores_Neu, benchmark_trueprop[,"Neu"], method = "spearman")
+cor(scores_NK, benchmark_trueprop[,"NK"], method = "spearman")
 
 
