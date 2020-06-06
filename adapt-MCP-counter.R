@@ -20,7 +20,7 @@ up_probes_oneVsAllttest_celltype <- function(ref_betamatrix, ref_phenotype, pv =
   return(probeList)
 }
 
-MCP-counter_score_within_celltype <- function(betamatrix, probes_celltype){
+MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
   mat <- betamatrix[probes_celltype,]
   scores <- apply(mat, 2, function(x){return(geoMean(x,na.rm = TRUE))})
   return(scores)
