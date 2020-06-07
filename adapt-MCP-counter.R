@@ -49,6 +49,15 @@ load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
 signatures = xCell.data$signatures
 genes = xCell.data$genes
 
+geneIds(signatures[[1]])
+
+## build geneset
+geneIds <- geneIds(signatures[[1]]) # any character vector would do
+gs_new <- GeneSet(geneIds)
+setNames(gs_new) <- setName(signatures[[1]])
+
+# build genesetCollection
+gsc <- GeneSetCollection(gs_new, signatures[[4]])
 
 
 
@@ -66,4 +75,5 @@ cell_types <- cell_types[seq(1, length(cell_types), 3)]
 agg <- aggregate(scores ~ cell_types, FUN = mean)
 rownames(agg) <- agg[, 1]
 scores <- agg[, -1]
+
 
