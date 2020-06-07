@@ -26,3 +26,44 @@ MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
   scores <- apply(mat, 2, function(x){return(geometric.mean(x,na.rm = TRUE))})
   return(scores)
 }
+
+
+
+#### we can map the signatures of expression data as CpGs (xCell 489 signatures sets for 64 cell types)
+#### use the mapped CpGs as signatures and then perform  MCP_counter directly on methylation data??
+
+
+
+
+#### instead of collasping methylation data into gene expression data:
+#### we can map the signatures of expression data as CpGs 
+#### use the mapped CpGs as signatures and then perform ssGSEA directly on methylation data)
+
+#### or use oneVsAllttest/preselectGlmnet selected CpGs and perform ssGSEA directly on methylation data
+
+
+### ? how to extract signatures from xCell.data
+
+
+load("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/xCell.data.rda")
+signatures = xCell.data$signatures
+genes = xCell.data$genes
+
+
+
+
+library(GSVA)
+library(GSEABase)
+# Run ssGSEA analysis for the ranked gene expression dataset
+scores <- gsva(expr, signatures, method = "ssgsea",
+               ssgsea.norm = FALSE,parallel.sz = 4, parallel.type = 'SOCK')
+
+
+scores = scores - apply(scores,1,min)
+# Combine signatures for same cell types  ### if for each cell types, there are multiple signature sets
+cell_types <- unlist(strsplit(rownames(scores), "%"))
+cell_types <- cell_types[seq(1, length(cell_types), 3)]
+agg <- aggregate(scores ~ cell_types, FUN = mean)
+rownames(agg) <- agg[, 1]
+scores <- agg[, -1]
+
