@@ -46,7 +46,7 @@ benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu",
 ##############################################
 ## MCP-counter scores, within each cell type, compared across samples
 ##############################################
-source("adpat-MCP-counter.R")
+source("Adpat_MCP_counter_ssGSEA.R")
 probes <- up_probes_oneVsAllttest_celltype(ref_betamatrix, ref_phenotype, pv = 1e-8, MaxDMRs = 100)
 
 scores_Bcell <- MCP_counter_score_within_celltype(benchmark_betamatrix, probes[["Bcell"]])
@@ -62,6 +62,19 @@ cor(scores_CD8T, benchmark_trueprop[,"CD8T"], method = "spearman")
 cor(scores_Mono, benchmark_trueprop[,"Mono"], method = "spearman")
 cor(scores_Neu, benchmark_trueprop[,"Neu"], method = "spearman")
 cor(scores_NK, benchmark_trueprop[,"NK"], method = "spearman")
+
+
+
+scores1 <- ssGSEA_score_within_celltype(benchmark_betamatrix, probes)
+# benchmark_betamatrix_rank <- apply(benchmark_betamatrix,2,rank)   ## rank or not rank . same
+# scores1 <- ssGSEA_score_within_celltype(benchmark_betamatrix_rank, probes)
+
+cor(scores1[1,], benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(scores1[2,], benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(scores1[3,], benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(scores1[4,], benchmark_trueprop[,"Mono"], method = "spearman")
+cor(scores1[5,], benchmark_trueprop[,"Neu"], method = "spearman")
+cor(scores1[6,], benchmark_trueprop[,"NK"], method = "spearman")
 
 
 
@@ -82,7 +95,7 @@ ref_betamatrix <- ref_betamatrix[,keep]
 ref_phenotype <- ref_phenotype[keep]
 
 
-source("adpat-MCP-counter.R")
+source("Adpat_MCP_counter_ssGSEA.R")
 probes <- up_probes_oneVsAllttest_celltype(ref_betamatrix, ref_phenotype, pv = 1e-8, MaxDMRs = 100)
 
 scores_Bcell <- MCP_counter_score_within_celltype(benchmark_betamatrix, intersect(rownames(benchmark_betamatrix),probes[["Bcell"]]))
@@ -99,4 +112,17 @@ cor(scores_Mono, benchmark_trueprop[,"Mono"], method = "spearman")
 cor(scores_Neu, benchmark_trueprop[,"Neu"], method = "spearman")
 cor(scores_NK, benchmark_trueprop[,"NK"], method = "spearman")
 
+
+
+
+scores1 <- ssGSEA_score_within_celltype(benchmark_betamatrix, probes)
+# benchmark_betamatrix_rank <- apply(benchmark_betamatrix,2,rank)   ## rank or not rank . same
+# scores1 <- ssGSEA_score_within_celltype(benchmark_betamatrix_rank, probes)
+
+cor(scores1[1,], benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(scores1[2,], benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(scores1[3,], benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(scores1[5,], benchmark_trueprop[,"Mono"], method = "spearman")
+cor(scores1[4,], benchmark_trueprop[,"Neu"], method = "spearman")
+cor(scores1[6,], benchmark_trueprop[,"NK"], method = "spearman")
 
