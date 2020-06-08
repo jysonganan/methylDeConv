@@ -145,6 +145,3 @@ ssGSEAESTIMATE_score_within_celltype <- function(betamatrix, probeList){
 # # build genesetCollection
 # gsc <- GeneSetCollection(gs_new, signatures[[4]])
 
-
-
-
