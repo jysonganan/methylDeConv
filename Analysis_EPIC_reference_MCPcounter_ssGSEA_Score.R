@@ -77,8 +77,17 @@ cor(scores1[5,], benchmark_trueprop[,"Neu"], method = "spearman")
 cor(scores1[6,], benchmark_trueprop[,"NK"], method = "spearman")
 
 
+scores2 <- ssGSEAESTIMATE_score_within_celltype(benchmark_betamatrix, probes)
+scores2
+cor(as.numeric(scores2[1,]), benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(as.numeric(scores2[2,]), benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(as.numeric(scores2[3,]), benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(as.numeric(scores2[4,]), benchmark_trueprop[,"Mono"], method = "spearman")
+cor(as.numeric(scores2[5,]), benchmark_trueprop[,"Neu"], method = "spearman")
+cor(as.numeric(scores2[6,]), benchmark_trueprop[,"NK"], method = "spearman")
 
-
+##### scores1, scores2 produce the same performance (scores1: call ssGSEA in GSVA pacakge (xCell did this way); 
+#scores2: implement ssGSEA as ESTIMATE)
 
 
 ##############################################
@@ -125,4 +134,16 @@ cor(scores1[3,], benchmark_trueprop[,"CD8T"], method = "spearman")
 cor(scores1[5,], benchmark_trueprop[,"Mono"], method = "spearman")
 cor(scores1[4,], benchmark_trueprop[,"Neu"], method = "spearman")
 cor(scores1[6,], benchmark_trueprop[,"NK"], method = "spearman")
+
+
+
+scores2 <- ssGSEAESTIMATE_score_within_celltype(benchmark_betamatrix, probes)
+scores2
+cor(as.numeric(scores2[1,]), benchmark_trueprop[,"Bcell"], method = "spearman")
+cor(as.numeric(scores2[2,]), benchmark_trueprop[,"CD4T"], method = "spearman")
+cor(as.numeric(scores2[3,]), benchmark_trueprop[,"CD8T"], method = "spearman")
+cor(as.numeric(scores2[5,]), benchmark_trueprop[,"Mono"], method = "spearman")
+cor(as.numeric(scores2[4,]), benchmark_trueprop[,"Neu"], method = "spearman")
+cor(as.numeric(scores2[6,]), benchmark_trueprop[,"NK"], method = "spearman")
+
 
