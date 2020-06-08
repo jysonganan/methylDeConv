@@ -34,12 +34,85 @@ MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
 ssGSEA_score_within_celltype <- function(betamatrix, probeList){
   require(GSVA)
   require(GSEABase)
-  scores <- gsva(betamatrix, probeList, method = "ssgsea", ssgsea.norm = FALSE,parallel.sz = 4, parallel.type = 'SOCK')
+  scores <- gsva(betamatrix, probeList,mx.diff=TRUE, method = "ssgsea", ssgsea.norm = FALSE,parallel.sz = 4, parallel.type = 'SOCK')
   scores = scores - apply(scores,1,min)
   return(scores)
 }
 
 
+### implement ssGSEA (in ESTIMATE), instead of using the package GSVA
+
+ssGSEAESTIMATE_score_within_celltype <- function(betamatrix, probeList){
+  m <- betamatrix
+  cpg.names <- rownames(betamatrix)
+  sample.names <- colnames(betamatrix)
+  Ns <- length(m[1, ]) # Number of sample
+  Ng <- length(m[, 1]) # Number of cpgs
+  
+  ## Sample rank normalization
+  for (j in 1:Ns) {
+    m[, j] <- rank(m[, j], ties.method="average")
+  }
+  m <- 10000*m/Ng   
+  
+  score.matrix <- matrix(0, nrow = length(probeList), ncol= Ns)
+  
+  for (i in 1:length(probeList)){
+    signature.set <- probeList[[i]]
+    cpg.overlap <- intersect(signature.set, cpg.names)
+    if (length(cpg.overlap) == 0) { 
+      score.matrix[i, ] <- rep(NA, Ns)
+      next
+    } else {
+      ES.vector <- vector(length=Ns)
+      ### enrichment score computation
+      for (j in 1:Ns){
+        cpg.list <- order(m[, j], decreasing=TRUE)            
+        cpg.set2 <- match(cpg.overlap, cpg.names)
+        correl.vector <- m[cpg.list, j]
+        
+        TAG <- sign(match(cpg.list, cpg.set2, nomatch=0))    # 1 (TAG) & 0 (no.TAG)
+        no.TAG <- 1 - TAG 
+        N <- length(cpg.list) 
+        Nh <- length(cpg.set2) 
+        Nm <-  N - Nh 
+        correl.vector <- abs(correl.vector)^0.25
+        sum.correl  <- sum(correl.vector[TAG == 1])
+        P0 <- no.TAG / Nm
+        F0 <- cumsum(P0)
+        Pn <- TAG * correl.vector / sum.correl
+        Fn <- cumsum(Pn)
+        RES <- Fn - F0
+        max.ES <- max(RES)
+        min.ES <- min(RES)
+        
+        if (max.ES > - min.ES) {
+          arg.ES <- which.max(RES)
+        } else {
+          arg.ES <- which.min(RES)
+        }
+        ES <- sum(RES)
+        EnrichmentScore <- list(ES=ES,
+                                arg.ES=arg.ES,
+                                RES=RES,
+                                indicator=TAG)
+        ES.vector[j] <- EnrichmentScore$ES
+      }
+      
+      score.matrix[i, ] <- ES.vector
+      
+      }
+      
+    
+  }
+
+  score.data <- data.frame(score.matrix)
+  names(score.data) <- sample.names
+  row.names(score.data) <- names(probeList)
+  return(score.data)
+  
+  }
+  
 
 
 
