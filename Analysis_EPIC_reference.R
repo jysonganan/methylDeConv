@@ -64,6 +64,44 @@ ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
 ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
 
 
+#################################### 
+###### EPIC Epithelial (no cfDNA)
+####################################
+#save("betaMat_122126","phenotype_122126", file = "ref_122126_EPICEpithelial.RData")
+data_type = "FlowEPIC_Epithelial_nocfDNA"
+library(GEOquery)
+library(minfi)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu")
+load("FlowSorted.Blood.EPIC.RData")
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+load("ref_122126_EPICEpithelial.RData")
+
+# cfDNA         cfDNA In vitro mix 
+# 58                          5 
+# **Colon epithelial cells           Cortical neurons 
+# 3                          2 
+# Hepatocytes               In vitro mix 
+# 2                          9 
+# Leukocytes      **Lung epithelial cells 
+# 1                          3 
+# **Pancreatic acinar cells      Pancreatic beta cells 
+# 2                          1 
+# ** Pancreatic duct cells Vascular endothelial cells 
+# 2                          2 
+
+betaMat_122126_sub <- betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                  "Pancreatic acinar cells","Pancreatic duct cells")]
+phenotype_122126_sub <- rep("Epithelial",10)
+
+ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
+ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
+
 
 
 
