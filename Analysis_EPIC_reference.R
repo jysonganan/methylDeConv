@@ -533,6 +533,35 @@ CBS_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[pro
 
 ##################################################
 #analysis on EPIC benchmark data
+####  how about totally relying on Flow450k??
+### analysis on EPIC benchmark data, compTable is also based on Flow450k reference, probes are derived from Flow450k
+
+
+load("Flow450kProbesdefault.RData")
+probes_select <- probes_oneVsAllttest
+probes_select <- intersect(probes_select, rownames(benchmark_betamatrix))  ## 569
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:8]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "CBS")$estF
+
+load("Flow450kProbePreselect_multiclassGlmnet.RData")
+#### the deconv + Glmnet on preselected 1800 probes -> select ~922 probes in glmnet
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+probes_select <- intersect(probes_select, rownames(benchmark_betamatrix))  ## 866
+Houseman_res_glmnetpreselect <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:8]))
+RPC_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "RPC")$estF
+CBS_res_glmnetpreselect <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "CBS")$estF
+
+
+
+
+
+
+
+##################################################
+#analysis on EPIC benchmark data
 ### how about using the model trained on Flow450k
 ProbePreselect_multiclassGlmnet[[2]]
 
@@ -560,7 +589,7 @@ ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.EPIC))$CellType
 keep <- which(ref_phenotype %in% cellTypes)
 ref_betamatrix <- ref_betamatrix[,keep]
 ref_phenotype <- ref_phenotype[keep]
-multiGlmnet_predProb <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(ref_betamatrix [probes,]), type = "prob") %>% 
+multiGlmnet_predProb <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(ref_betamatrix[probes,]), type = "prob") %>% 
   mutate('class'=names(.)[apply(., 1, which.max)])
 rownames(multiGlmnet_predProb) <- colnames(ref_betamatrix)
 multiGlmnet_predProb <- multiGlmnet_predProb[,c(1,2,3,5,4,6)]
