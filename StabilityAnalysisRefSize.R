@@ -29,7 +29,7 @@ ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
 
 
 
-stabilityAnalysis <- function(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix = NULL, benchmark_trueprop = NULL){
+stabilityAnalysis <- function(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix = NULL, benchmark_trueprop = NULL, returnCompTable = FALSE){
   newID <- c(sample(which(ref_phenotype == "Bcell"),ref_sample_size,replace = FALSE),
              sample(which(ref_phenotype == "CD4T"),ref_sample_size,replace = FALSE),
              sample(which(ref_phenotype == "CD8T"),ref_sample_size,replace = FALSE),
@@ -144,8 +144,13 @@ stabilityAnalysis <- function(ref_phenotype, ref_betamatrix, ref_sample_size = 5
     
   }
     
-    
-  return(list(probes_oneVsAllttest, probes_select))
+  if (returnCompTable == TRUE){
+    return(list(probes_oneVsAllttest, probes_select, compTable))
+  }
+  else{
+    return(list(probes_oneVsAllttest, probes_select))
+  }
+  
 }
 
 
@@ -166,3 +171,73 @@ b = probes[[1]][[2]]
 for (i in 1:19){
   b <- intersect(b, probes[[i+1]][[2]])
 }
+
+
+
+
+
+
+
+
+
+### stability on EWAS data
+set.seed(2)
+library(EpiDISH)
+source("projectCellType.R")
+library(ggplot2)
+library(tidyr)
+#### input betaMat of EWAS
+pdf(file ="plots_qsub.pdf",  
+    width = 10,
+    height = 8) 
+
+for (i in 1:10){
+  probes <- stabilityAnalysis(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix = NULL, benchmark_trueprop = NULL, returnCompTable = TRUE)
+  compTable <- probes[[3]]
+  probes_select <- probes[[1]]
+  Houseman_res_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:9]))
+  probes_select <- probes[[2]]
+  Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:9]))
+  
+  
+  group <- pD[,"condition:ch1"]
+  gender_dat_blood <- matrix(NA, 30, 8)
+  samples <- rownames(Houseman_res_epicEpithelial)
+  rownames(gender_dat_blood) <- samples
+  gender_dat_blood[,1:7] <- Houseman_res_epicEpithelial
+  gender_dat_blood[,8] <- group
+  gender_dat_blood <- as.data.frame(gender_dat_blood)
+  gender_dat_blood[1:7] <- apply(gender_dat_blood[1:7], 2, as.numeric)
+  gender_dat_blood[,8] <- as.character(gender_dat_blood[,8])
+  colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"group")
+
+
+  df <- gather(gender_dat_blood, series,value,-group)
+  ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+    xlab('cell types')+
+    ylab('proportions') +
+    ggtitle("GSE112308-Melanoma_Houseman-onevsAllttest (EPICEpithelial)")
+
+  
+  
+  group <- pD[,"condition:ch1"]
+  gender_dat_blood <- matrix(NA,30,8)
+  samples <- rownames(Houseman_res_glmnetpreselect_epicEpithelial)
+  rownames(gender_dat_blood) <- samples
+  gender_dat_blood[,1:7] <- Houseman_res_glmnetpreselect_epicEpithelial
+  gender_dat_blood[,8] <- group
+  gender_dat_blood <- as.data.frame(gender_dat_blood)
+  gender_dat_blood[1:7] <- apply(gender_dat_blood[1:7], 2, as.numeric)
+  gender_dat_blood[,8] <- as.character(gender_dat_blood[,8])
+  colnames(gender_dat_blood) <- c(colnames(Houseman_res_glmnetpreselect_epicEpithelial),"group")
+  
+
+  df <- gather(gender_dat_blood, series,value,-group)
+  ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+    xlab('cell types')+
+    ylab('proportions') +
+    ggtitle("GSE112308-Melanoma_Houseman-glmnetPreselect (EPICEpithelial)")
+}
+dev.off()
+
+
