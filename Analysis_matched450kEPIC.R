@@ -175,13 +175,29 @@ rownames(multiGlmnet_predProb_epicEpithelial) <- colnames(betaMat)
 save("Houseman_res_epicEpithelial","RPC_res_epicEpithelial","CBS_res_epicEpithelial","Houseman_res_glmnetpreselect_epicEpithelial","RPC_res_glmnetpreselect_epicEpithelial",
      "CBS_res_glmnetpreselect_epicEpithelial", "multiGlmnet_predProb_epicEpithelial", file = paste0(tissue, "MatchEPICEpithelialRes.RData"))
 
+##############################################
+## or without cfDNA
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:9]))
+RPC_res_epicEpithelial <- epidish(betaMat, as.matrix(compTable[probes_select,3:9]), method = "RPC")$estF
+CBS_res_epicEpithelial <- epidish(betaMat, as.matrix(compTable[probes_select,3:9]), method = "CBS")$estF
 
+#### the deconv + Glmnet on preselected 1800 probes -> select ~922 probes in glmnet
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:9]))
+RPC_res_glmnetpreselect_epicEpithelial <- epidish(betaMat, as.matrix(compTable[probes_select,3:9]), method = "RPC")$estF
+CBS_res_glmnetpreselect_epicEpithelial <- epidish(betaMat, as.matrix(compTable[probes_select,3:9]), method = "CBS")$estF
 
+probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+library(dplyr)
+multiGlmnet_predProb_epicEpithelial <- predict(ProbePreselect_multiclassGlmnet[[2]], newdata = t(betaMat[probes,]), type = "prob") %>% 
+  mutate('class'=names(.)[apply(., 1, which.max)])
+rownames(multiGlmnet_predProb_epicEpithelial) <- colnames(betaMat)
 
-
-
-
-
+save("Houseman_res_epicEpithelial","RPC_res_epicEpithelial","CBS_res_epicEpithelial","Houseman_res_glmnetpreselect_epicEpithelial","RPC_res_glmnetpreselect_epicEpithelial",
+     "CBS_res_glmnetpreselect_epicEpithelial", "multiGlmnet_predProb_epicEpithelial", file = paste0(tissue, "MatchEPICEpithelial_nocfDNA_Res.RData"))
 
 
 
