@@ -51,7 +51,7 @@ stabilityAnalysis <- function(ref_phenotype, ref_betamatrix, ref_sample_size = 5
   ProbePreselect_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix_sub[probes,], ref_phenotype_sub)
   probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
   
-  if (benchmark_betamatrix != NULL){
+  if (!(is.null(benchmark_betamatrix))){
     library(EpiDISH)
     source("projectCellType.R")
     ## onevsall
