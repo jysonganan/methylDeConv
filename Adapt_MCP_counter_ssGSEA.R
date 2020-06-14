@@ -24,7 +24,7 @@ MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
   require(psych)
   mat <- betamatrix[probes_celltype,]
   scores <- apply(mat, 2, function(x){return(geometric.mean(x,na.rm = TRUE))})
-  return(scores)
+  return(log(scores))
 }
 
 
