@@ -159,7 +159,11 @@ stabilityAnalysis <- function(ref_phenotype, ref_betamatrix, ref_sample_size = 5
 set.seed(2)
 probes = list()
 for (i in 1:20){
-  probes[i] <- stabilityAnalysis(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix, benchmark_trueprop)
+  probes[[i]] = list()
+  res <- stabilityAnalysis(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix, benchmark_trueprop)
+  probes[[i]][[1]] <- res[[1]]
+  probes[[i]][[2]] <- res[[2]]
+
 }
 ### check consensus probes selected
 a = probes[[1]][[1]]
