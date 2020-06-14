@@ -187,11 +187,10 @@ source("projectCellType.R")
 library(ggplot2)
 library(tidyr)
 #### input betaMat of EWAS
-pdf(file ="plots_qsub.pdf",  
-    width = 10,
-    height = 8) 
 
+p <- list()
 for (i in 1:10){
+  p[[i]] = list()
   probes <- stabilityAnalysis(ref_phenotype, ref_betamatrix, ref_sample_size = 5, benchmark_betamatrix = NULL, benchmark_trueprop = NULL, returnCompTable = TRUE)
   compTable <- probes[[3]]
   probes_select <- probes[[1]]
@@ -213,7 +212,7 @@ for (i in 1:10){
 
 
   df <- gather(gender_dat_blood, series,value,-group)
-  ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  p[[i]][[1]]<- ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
     xlab('cell types')+
     ylab('proportions') +
     ggtitle("GSE112308-Melanoma_Houseman-onevsAllttest (EPICEpithelial)")
@@ -233,11 +232,20 @@ for (i in 1:10){
   
 
   df <- gather(gender_dat_blood, series,value,-group)
-  ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  p[[i]][[2]]<- ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
     xlab('cell types')+
     ylab('proportions') +
     ggtitle("GSE112308-Melanoma_Houseman-glmnetPreselect (EPICEpithelial)")
 }
+
+
+library(gridExtra)
+
+pdf("plots_qsub.pdf", onefile = TRUE, width = 10, height = 8)
+for (i in seq(length(p))) {
+  do.call("grid.arrange", p[[i]])  
+}
 dev.off()
+
 
 
