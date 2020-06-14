@@ -90,6 +90,7 @@ finalDeconv <- function(step1Deconv, step2Deconv){
   CD8Tres <- step1Deconv[,"Tcell"] * step2Deconv[,"CD8T"]
   res <- cbind(step1Deconv[,"Bcell"], CD4Tres, CD8Tres, step1Deconv[,"Epithelial"], 
                step1Deconv[,"Mono"], step1Deconv[,"Neu"], step1Deconv[,"NK"])
+  colnames(res) <- c("Bcell", "CD4T", "CD8T", "Epithelial", "Mono", "Neu", "NK")
  
   
   corr <- rep(NA, ncol(benchmark_betamatrix))
@@ -109,3 +110,10 @@ finalDeconv <- function(step1Deconv, step2Deconv){
   
   }
 
+finalDeconv(Houseman_res, Houseman_res_sub)
+finalDeconv(RPC_res, RPC_res_sub)
+finalDeconv(CBS_res, CBS_res_sub)
+
+finalDeconv(Houseman_res_glmnet, Houseman_res_glmnet_sub)
+finalDeconv(RPC_res_glmnet, RPC_res_glmnet_sub)
+finalDeconv(CBS_res_glmnet, CBS_res_glmnet_sub)
