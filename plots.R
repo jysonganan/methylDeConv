@@ -1,3 +1,25 @@
+## barplots of deconvolution performance (average corr with true proportions) using different feature selection + Houseman/RPC/CBS
+library(tidyr)
+library(ggplot2)
+Houseman <- c(0.978, 0.969, 0.950, 0.966, 0.947, 0.947, 0.831, 0.866)
+RPC <- c(0.978, 0.978, 0.828, 0.983, 0.952, 0.938, 0.800, 0.886)
+CBS <- c(0.956, 0.962, 0.839, 0.952, 0.942, 0.940, 0.850, 0.877)
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                       "glmnetpreselect", "RFpreselect", "OptVariables"), Houseman = Houseman, RPC = RPC, CBS = CBS)
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection), 
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                  "glmnetpreselect", "RFpreselect", "OptVariables")), y = Spearman_Correlation, fill = Deconvolution)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")
+
+
+
+
+
 # venn plot of the shared probes of different reference profiles for blood
 
 load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
