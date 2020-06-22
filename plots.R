@@ -20,6 +20,48 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelect
 
 
 
+
+### matched 450k, EPIC samples of blood and saliva. Facet: EPIC / EPIC + Epithelial library
+Houseman <- c(0.895, 0.838, 0.819, 0.829)
+RPC <- c(0.819, 0.838, 0.752, 0.885)
+CBS <- c(0.810, 0.848, 0.638, 0.867)
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
+                  facet = c("EPIC reference library", "EPIC reference library", "EPIC + Epithelial reference library", "EPIC + Epithelial reference library"), 
+                  Houseman = Houseman, RPC = RPC, CBS = CBS)
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSelection,facet)), 
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")
+
+
+
+Houseman <- c(0.619, 0.931, 0.410, 0.668)
+RPC <- c(0.855, 0.962, 0.329, 0.683)
+CBS <- c(0.827, 0.911, 0.372, 0.614)
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
+                  facet = c("EPIC reference library", "EPIC reference library", "EPIC + Epithelial reference library", "EPIC + Epithelial reference library"), 
+                  Houseman = Houseman, RPC = RPC, CBS = CBS)
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSelection,facet)), 
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")
+
+
+
+
+
+
+
 # venn plot of the shared probes of different reference profiles for blood
 
 load("FlowSorted.Blood.EPIC.IDOLModelPars.RData")
