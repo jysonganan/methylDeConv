@@ -20,10 +20,18 @@ up_probes_oneVsAllttest_celltype <- function(ref_betamatrix, ref_phenotype, pv =
   return(probeList)
 }
 
+#MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
+#  require(psych)
+#  mat <- betamatrix[probes_celltype,]
+#  scores <- apply(mat, 2, function(x){return(geometric.mean(x,na.rm = TRUE))})
+#  return(log(scores))
+#}
+
+
 MCP_counter_score_within_celltype <- function(betamatrix, probes_celltype){
   require(psych)
   mat <- betamatrix[probes_celltype,]
-  scores <- apply(mat, 2, function(x){return(geometric.mean(x,na.rm = TRUE))})
+  scores <- apply(mat, 2, function(x){return(mean(x,na.rm = TRUE))})
   return(log(scores))
 }
 
