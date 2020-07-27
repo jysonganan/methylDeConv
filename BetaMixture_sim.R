@@ -209,18 +209,18 @@ source("projectCellType.R")
 Houseman_res <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:9]))
 RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:9]), method = "RPC")$estF
 CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:9]), method = "CBS")$estF
-
-corr <- rep(NA, 600)
-for (i in 1:600){
-  corr[i] <- cor(true_proportions_sim_highEpithelial[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")], CBS_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")], method = "spearman")
-}
-
-
-corr <- rep(NA, 6)
-for (i in 1:6){
-  corr[i] <- cor(true_proportions_sim_highEpithelial[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], RPC_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], method = "spearman")
-}
-
+# 
+# corr <- rep(NA, 600)
+# for (i in 1:600){
+#   corr[i] <- cor(true_proportions_sim_highEpithelial[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")], CBS_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")], method = "spearman")
+# }
+# 
+# 
+# corr <- rep(NA, 6)
+# for (i in 1:6){
+#   corr[i] <- cor(true_proportions_sim_highEpithelial[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], RPC_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], method = "spearman")
+# }
+# 
 
 
 
@@ -237,4 +237,97 @@ for (i in 1:7){
 
 
 
+
+
+############################################################
 ### 3 two-stage deconvolution for high epithelial situation
+
+
+benchmark_betamatrix <- mixture_sim_mat_highEpithelial
+
+
+
+# step 1 
+## estimate epithelial proportions and immune cell proportions
+ref_phenotype_step1 <- ref_phenotype
+ref_phenotype_step1[ref_phenotype_step1 %in% c("Bcell", "CD4T","CD8T","Mono","Neu","NK")] <- "Immune"
+compTable_step1 <- ref_compTable(ref_betamatrix, ref_phenotype_step1)
+
+set.seed(2)
+nCores = 4
+probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype_step1, probeSelect = "both", MaxDMRs = 600)
+#length 600
+
+probes_select <- intersect(probes_oneVsAllttest, rownames(benchmark_betamatrix))  ## 600
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res_step1 <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable_step1[probes_select,3:4]))
+RPC_res_step1 <- epidish(benchmark_betamatrix, as.matrix(compTable_step1[probes_select,3:4]), method = "RPC")$estF
+CBS_res_step1 <- epidish(benchmark_betamatrix, as.matrix(compTable_step1[probes_select,3:4]), method = "CBS")$estF
+
+
+corr1 <- cor(true_proportions_sim_highEpithelial[,"Epithelial"], Houseman_res_step1[,"Epithelial"], method = "spearman")
+corr2 <- cor(true_proportions_sim_highEpithelial[,"Epithelial"], RPC_res_step1[,"Epithelial"], method = "spearman")
+corr3 <- cor(true_proportions_sim_highEpithelial[,"Epithelial"], CBS_res_step1[,"Epithelial"], method = "spearman")
+
+# step 1
+### still use EPIC + epithelial
+load("FlowEPIC_Epithelial_nocfDNAProbesdefault.RData")
+load("FlowEPIC_Epithelial_nocfDNAProbePreselect_multiclassGlmnet.RData")
+
+probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
+
+probes_select <- intersect(probes, rownames(benchmark_betamatrix))  ## 600
+library(EpiDISH)
+source("projectCellType.R")
+Houseman_res <- projectCellType(benchmark_betamatrix[probes_select,],as.matrix(compTable[probes_select,3:9]))
+RPC_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:9]), method = "RPC")$estF
+CBS_res <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:9]), method = "CBS")$estF
+
+## step 2: substract the methylation contributed by epithelial cells 
+## = estimated epithelial proportions * epithelial average methylation in reference profile
+epithelial_methyl <- as.matrix(compTable[, "Epithelial"]) %*% t(as.matrix(RPC_res[,"Epithelial"]))
+benchmark_betamatrix_immune <- benchmark_betamatrix - epithelial_methyl
+benchmark_betamatrix_immune[benchmark_betamatrix_immune<0] <- 0
+
+# then use EPIC reference profile for the estimation of the immune cells
+load("FlowEPICProbesdefault.RData")
+load("FlowEPICProbePreselect_multiclassGlmnet.RData")
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+probes <- probes_oneVsAllttest
+probes_select <- intersect(probes, rownames(benchmark_betamatrix_immune))  ## 600
+#Houseman_res_step2 <- projectCellType(benchmark_betamatrix_immune[probes_select,],as.matrix(compTable[probes_select,3:8]))
+RPC_res_step2 <- epidish(benchmark_betamatrix_immune, as.matrix(compTable[probes_select,3:8]), method = "RPC")$estF
+#CBS_res_step2 <- epidish(benchmark_betamatrix, as.matrix(compTable[probes_select,3:8]), method = "CBS")$estF
+
+immune_reestimate <- RPC_res_step2 * (1-RPC_res[,"Epithelial"])
+
+reestimate <- cbind(immune_reestimate, RPC_res[,"Epithelial"])
+reestimate <- reestimate[,c(1,2,3,7,4,5,6)]
+
+
+corr <- rep(NA, 600)
+for (i in 1:600){
+  corr[i] <- cor(true_proportions_sim_highEpithelial[i,c("Bcell", "CD4T","CD8T","Epithelial","Mono","Neu","NK")], reestimate[i,], method = "spearman")
+}
+
+
+corr <- rep(NA, 7)
+for (i in 1:7){
+  corr[i] <- cor(true_proportions_sim_highEpithelial[,c("Bcell", "CD4T","CD8T","Epithelial","Mono","Neu","NK")][,i], reestimate[,i], method = "spearman")
+}
+
+
+
+## only check immune cell estimation
+corr <- rep(NA, 600)
+for (i in 1:600){
+  corr[i] <- cor(true_proportions_sim_highEpithelial[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")], RPC_res_step2[i,], method = "spearman")
+}
+
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <- cor(true_proportions_sim_highEpithelial[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], RPC_res_step2[,i], method = "spearman")
+}
