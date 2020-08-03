@@ -174,13 +174,24 @@ for (i in 1:6){
 
 corr <- rep(NA, 600)
 for (i in 1:600){
-  corr[i] <- cor(true_proportions_sim_highEpithelial[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK","Epithelial")], CBS_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")], method = "spearman")
+  corr[i] <- cor(proportions_sim[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK","Epithelial")], Houseman_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")], method = "spearman")
+}
+
+corr <- rep(NA, 600)
+for (i in 1:600){
+  corr[i] <- cor(proportions_sim[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK","Epithelial")], RPC_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")], method = "spearman")
+}
+
+
+corr <- rep(NA, 600)
+for (i in 1:600){
+  corr[i] <- cor(proportions_sim[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK","Epithelial")], CBS_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")], method = "spearman")
 }
 
 
 corr <- rep(NA, 7)
 for (i in 1:7){
-  corr[i] <- cor(true_proportions_sim_highEpithelial[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], RPC_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], method = "spearman")
+  corr[i] <- cor(proportions_sim[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], Houseman_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], method = "spearman")
 }
 
 
