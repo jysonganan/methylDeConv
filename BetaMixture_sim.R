@@ -380,8 +380,8 @@ source("refCompTableProbeSelection.R")
 compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
 probes <- probes_oneVsAllttest
-benchmark_betamatrix <- mixture_sim_mat_1
-true_proportions <- true_proportions_sim_1
+benchmark_betamatrix <- mixture_sim_mat_5
+true_proportions <- true_proportions_sim_5
 
 probes_select <- intersect(probes, rownames(benchmark_betamatrix))  ## 600
 library(EpiDISH)
@@ -420,6 +420,13 @@ for (i in 1:6){
 }
 corr
 
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <- cor(true_proportions[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], CBS_res[,i], method = "spearman")
+}
+corr
+
+
 #2 use EPIC + Epithelial reference
 load("FlowEPIC_Epithelial_nocfDNAProbesdefault.RData")
 load("FlowEPIC_Epithelial_nocfDNAProbePreselect_multiclassGlmnet.RData")
@@ -428,8 +435,8 @@ compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
 #probes <- ProbePreselect_multiclassGlmnet[[1]][-1]
 probes <- probes_oneVsAllttest
-benchmark_betamatrix <- mixture_sim_mat_4
-true_proportions <- true_proportions_sim_4
+benchmark_betamatrix <- mixture_sim_mat_5
+true_proportions <- true_proportions_sim_5
 
 
 probes_select <- intersect(probes, rownames(benchmark_betamatrix))  ## 600
@@ -466,16 +473,21 @@ for (i in 1:6){
   corr[i] <- cor(true_proportions[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], 
                  Houseman_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], method = "spearman")
 }
-
+corr
 
 corr <- rep(NA, 6)
 for (i in 1:6){
   corr[i] <- cor(true_proportions[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], 
                  RPC_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], method = "spearman")
 }
+corr
 
-
-
+corr <- rep(NA, 6)
+for (i in 1:6){
+  corr[i] <- cor(true_proportions[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], 
+                 CBS_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")][,i], method = "spearman")
+}
+corr
 
 
 
@@ -522,6 +534,13 @@ for (i in 1:7){
 corr
 
 
+corr <- rep(NA, 7)
+for (i in 1:7){
+  corr[i] <- cor(true_proportions[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], 
+                 CBS_res[,c("Bcell", "CD4T","CD8T","Mono","Neu","NK", "Epithelial")][,i], method = "spearman")
+}
+
+corr
 
 
 
