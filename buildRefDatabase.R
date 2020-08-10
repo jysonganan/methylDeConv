@@ -1,3 +1,39 @@
+## 450k
+library(FlowSorted.Blood.450k)
+CellLines.matrix = NULL
+cellTypes = c("CD8T", "CD4T", "NK", "Bcell", "Mono", "Gran")
+## otherwise all cell types: Bcell, CD4T, CD8T, Eos, Gran, Mono, Neu, NK, WBC, PBMC
+ref_betamatrix <- getBeta(preprocessNoob(FlowSorted.Blood.450k, dyeMethod = "single"))
+ref_phenotype <- as.data.frame(colData(FlowSorted.Blood.450k))$CellType
+keep <- which(ref_phenotype %in% cellTypes)
+ref_betamatrix <- ref_betamatrix[,keep]
+ref_phenotype <- ref_phenotype[keep]
+
+
+
+######### add epithelial 
+#save("betaMat_122126","phenotype_122126", file = "ref_122126_450kEpithelial.RData")
+
+# epithelial cell lines HRPTEC, HREC and HRCEC
+library(GEOquery)
+library(minfi)
+geoMat <- getGEO("GSE31848")
+pD.all <- pData(geoMat[[1]])
+rownames(pD.all)[which(pD.all[,"cell line:ch1"] %in% c("HRPTEpiC257","HRCEpiC255","HREpiC256"))]
+#setwd("/sonas-hs/krasnitz/hpc/data/pfproj/")
+# getGEOSuppFiles("GSE31848")
+# untar("GSE31848/GSE31848_RAW.tar", exdir = "GSE31848/idat")
+# head(list.files("GSE31848/idat", pattern = "idat"))
+
+##  GSE31848_raw.txt but may not preprocessNoob... ranges: 0~5000, they are not beta values
+
+betamat <- read.table("/sonas-hs/krasnitz/hpc/data/pfproj/GSE31848/GSE31848_raw.txt")
+
+
+
+
+
+
 
 
 
