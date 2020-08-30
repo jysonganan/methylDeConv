@@ -59,6 +59,29 @@ save("probes_oneVsAllttest", "ProbePreselect_multiclassGlmnet", file = "Flow450k
 
 
 
+#### TCGA SKCM analysis
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
+
+disease <- "SKCM"
+methyl_path <- paste0("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_methyl/", disease, "_methyl.RData")
+load(methyl_path)
+dim(BetaMatrix) ## 485577 475
+BetaMatrix_noNA <- na.omit(BetaMatrix) ## 373814    475
+
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/projectCellType.R")
+Houseman_res <- projectCellType(BetaMatrix_noNA[intersect(rownames(BetaMatrix_noNA),probes_select),],
+                                as.matrix(compTable[intersect(rownames(BetaMatrix_noNA),probes_select),3:10]))
+probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+Houseman_res_glmnetpreselect <- projectCellType(BetaMatrix_noNA[intersect(rownames(BetaMatrix_noNA),probes_select),],
+                                                as.matrix(compTable[intersect(rownames(BetaMatrix_noNA),probes_select),3:10]))
+
+
+
+
 ######### add epithelial 
 #save("betaMat_122126","phenotype_122126", file = "ref_122126_450kEpithelial.RData")
 
