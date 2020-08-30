@@ -9,6 +9,30 @@ keep <- which(ref_phenotype %in% cellTypes)
 ref_betamatrix <- ref_betamatrix[,keep]
 ref_phenotype <- ref_phenotype[keep]
 
+###### add epithelial
+# library(GEOquery)
+# library(minfi)
+# rgSet <- read.metharray.exp("GSE40699/idat")
+# ref_betamatrix_1 <- getBeta(preprocessNoob(rgSet, dyeMethod = "single"))
+# 
+# geoMat <- getGEO("GSE40699")
+# pD.all <- pData(geoMat[[1]])
+# 
+# ref_betamatrix_EpiFib <- cbind(ref_betamatrix_1[,match(rownames(pD.all)[c(2,12,27,21,28,35,44,46,50,51,56)],substr(colnames(rgSet),1,9))],
+#                                ref_betamatrix_1[,match(rownames(pD.all)[c(6,8,10,11,14,16,60)],substr(colnames(rgSet),1,9))])
+# ref_phenotype_EpiFib <- c(rep("Epithelial", 11), rep("Fibroblast", 7))
+# save("ref_betamatrix_EpiFib", "ref_phenotype_EpiFib", file = "ref_GSE40699_EpiFib.RData")
+
+
+load("ref_GSE40699_EpiFib.RData")
+ref_betamatrix <- cbind(ref_betamatrix, ref_betamatrix_EpiFib)
+ref_phenotype <- c(ref_phenotype, ref_phenotype_EpiFib)
+
+
+
+
+
+
 
 
 ######### add epithelial 
