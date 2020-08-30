@@ -31,6 +31,30 @@ ref_phenotype <- c(ref_phenotype, ref_phenotype_EpiFib)
 
 
 
+# ##### 1. oneVsAllttest
+# set.seed(2)
+# source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
+# probes_oneVsAllttest <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both")
+# 
+# ##### 2. glmnetpreselect
+# library(dplyr)
+# library(caret)
+# library(doParallel)
+# library(matrixStats)
+# library(plyr)
+# library(recipes)
+# library(adabag)
+# 
+# set.seed(2)
+# nCores = 4
+# 
+# source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
+# probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,probeSelect = "both", MaxDMRs = 300)
+# ProbePreselect_multiclassGlmnet <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
+
+save("probes_oneVsAllttest", "ProbePreselect_multiclassGlmnet", file = "Flow450k_EpiFib_Probes.RData")
+########################################
+## 800 and 774 probes (310 intersection)
 
 
 
@@ -490,19 +514,6 @@ betaMat_122126 <- betaMat[,rownames(pD.all)]
 phenotype_122126 <- pD.all[,"sample type:ch1"]
 
 save("betaMat_122126","phenotype_122126", file = "ref_122126_EPICEpithelial.RData")
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
