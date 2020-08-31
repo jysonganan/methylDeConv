@@ -78,8 +78,314 @@ Houseman_res <- projectCellType(BetaMatrix_noNA[intersect(rownames(BetaMatrix_no
 probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
 Houseman_res_glmnetpreselect <- projectCellType(BetaMatrix_noNA[intersect(rownames(BetaMatrix_noNA),probes_select),],
                                                 as.matrix(compTable[intersect(rownames(BetaMatrix_noNA),probes_select),3:10]))
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot1.pdf",  width = 10, height = 8) 
+boxplot(Houseman_res, main = "Flow450k_EpiFib, Houseman, oneVsAllttest")
+dev.off()
 
 
+clinicalTab <- read.table("/sonas-hs/krasnitz/hpc/data/pfproj/tcga_data/tcga_clinical/gdac.broadinstitute.org_SKCM.Merge_Clinical.Level_1.2016012800.0.0/SKCM.clin.merged.txt",
+                          header = F, sep = "\t", fill = T, quote = "")
+rownames(clinicalTab) <- as.character(clinicalTab[,1])
+clinicalTab <- clinicalTab[,-1]
+colnames(clinicalTab) <- NULL
+colnames(clinicalTab) <- as.character(as.matrix(clinicalTab[12,]))
+colnames(clinicalTab) <- toupper(colnames(clinicalTab))
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[931, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"tumor_tissue_site")
+
+pdf(file = "Plot1.pdf",  width = 16, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-tumor_tissue_site)
+ggplot(df) + geom_boxplot(aes(series ,value,color=tumor_tissue_site)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[1780, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"malignancy_type")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-malignancy_type)
+ggplot(df) + geom_boxplot(aes(series ,value,color=malignancy_type)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+table(as.character(as.matrix(clinicalTab[1780,])))
+#prior malignancy synchronous malignancy 
+#20                      6 
+
+
+
+table(as.character(as.matrix(clinicalTab[931,])))  ## tissue source site
+#distant metastasis 
+#68 
+#primary tumor 
+#103 
+#regional cutaneous or subcutaneous tissue (includes satellite and in-transit metastasis) 
+#74 
+#regional lymph node 
+#222
+
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[906, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"patient.sites_of_primary_melanomas.site.tumor_tissue_site")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-patient.sites_of_primary_melanomas.site.tumor_tissue_site)
+ggplot(df) + geom_boxplot(aes(series ,value,color=patient.sites_of_primary_melanomas.site.tumor_tissue_site)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+table(as.character(as.matrix(clinicalTab[917,]))) #patient.stage_event.pathologic_stage
+
+#i/ii nos    stage 0    stage i   stage ia   stage ib   stage ii  stage iia 
+#14          7         30         18         29         30         18 
+#stage iib  stage iic  stage iii stage iiia stage iiib stage iiic   stage iv 
+#28         64         41         16         46         68         23 
+
+
+
+table(as.character(as.matrix(clinicalTab[906,])))
+
+#extremities  head and neck other  specify          trunk 
+#196             37             13            172 
+
+
+
+table(as.character(as.matrix(clinicalTab[772,]))) #radiation therapy
+#no yes 
+#438  23 
+
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[767, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"patient.person_neoplasm_cancer_status")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-patient.person_neoplasm_cancer_status)
+ggplot(df) + geom_boxplot(aes(series ,value,color=patient.person_neoplasm_cancer_status)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+table(as.character(as.matrix(clinicalTab[771,])))   ### race
+#asian black or african american                     white 
+#12                         1                       447 
+
+
+table(as.character(as.matrix(clinicalTab[767,]))) ### patient.person_neoplasm_cancer_status
+#tumor free with tumor 
+#222        220 
+
+table(as.character(as.matrix(clinicalTab[756,]))) ## patient.new_tumor_events.new_tumor_event.new_neoplasm_event_type
+
+#distant metastasis locoregional recurrence    new primary melanoma 
+#91                      46                      19 
+#regional lymph node 
+#44 
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[756, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"new_tumor_event.new_neoplasm_event_type")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-new_tumor_event.new_neoplasm_event_type)
+ggplot(df) + geom_boxplot(aes(series ,value,color=new_tumor_event.new_neoplasm_event_type)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+
+table(as.character(as.matrix(clinicalTab[436,]))) #patient.melanoma_ulceration_indicator
+
+#no yes 
+#146 167 
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[434, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"melanoma_clark_level_value")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-melanoma_clark_level_value)
+ggplot(df) + geom_boxplot(aes(series ,value,color=melanoma_clark_level_value)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+
+table(as.character(as.matrix(clinicalTab[434,]))) #patient.melanoma_clark_level_value
+
+#i  ii iii  iv   v 
+#6  18  77 168  52 
+
+
+table(as.character(as.matrix(clinicalTab[426,]))) #patient.history_of_neoadjuvant_treatment
+
+#no yes 
+#445  25 
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[426, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"history_of_neoadjuvant_treatment")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-history_of_neoadjuvant_treatment)
+ggplot(df) + geom_boxplot(aes(series ,value,color=history_of_neoadjuvant_treatment)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+table(as.character(as.matrix(clinicalTab[418,]))) #patient.follow_ups.follow_up.person_neoplasm_cancer_status
+
+#tumor free with tumor 
+#182        105 
+
+
+gender_dat_epithelial <- matrix(NA, 475, 9)
+samples <- substr(rownames(Houseman_res),1,12)
+rownames(gender_dat_epithelial) <- samples
+gender_dat_epithelial[,1:8] <- Houseman_res
+gender_dat_epithelial[,9] <- as.character(as.matrix(clinicalTab[424, match(samples,colnames(clinicalTab))]))
+gender_dat_epithelial <- as.data.frame(gender_dat_epithelial)
+gender_dat_epithelial[1:8] <- apply(gender_dat_epithelial[1:8], 2, as.numeric)
+colnames(gender_dat_epithelial) <- c(colnames(Houseman_res),"gender")
+
+pdf(file = "Plot1.pdf",  width = 12, height = 8) 
+df <- gather(gender_dat_epithelial, series,value,-gender)
+ggplot(df) + geom_boxplot(aes(series ,value,color=gender)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("SKCM, Houseman, oneVsAllttest")+theme(legend.position="bottom")
+dev.off()
+
+
+
+table(as.character(as.matrix(clinicalTab[424,])))
+
+#female   male 
+#180    290 
+
+##### Survival plots
+survTab <- clinicalTab[c(17,19, 932),]
+samples <- substr(rownames(Houseman_res),1,12)
+## patient.days_to_death; patient.days_to_last_followup; patient.follow_ups.follow_up.vital_status 
+survTab <- t(survTab)
+survTab <- as.data.frame(survTab)
+survTab[,1] <- as.numeric(as.character(survTab[,1]))
+survTab[,2] <- as.numeric(as.character(survTab[,2]))
+survTab <- cbind(survTab,Houseman_res[match(rownames(survTab),samples),])
+survTab$status <- as.numeric(survTab$patient.vital_status == "dead")
+
+
+
+
+library(survival)
+library(ranger)
+library(ggplot2)
+library(dplyr)
+library(ggfortify)
+library(survminer)
+
+survTab$days <- rep(NA,dim(survTab)[1])
+survTab[which(survTab$status == 1),13] <- survTab[which(survTab$status == 1),1]
+survTab[which(survTab$status == 0),13] <- survTab[which(survTab$status == 0),2]
+
+
+survTab$trt <- factor((survTab$Fibroblast < 0.347),labels = c("high_Fibroblast","low_Fibroblast"))
+## 0 cencored 1 observed.
+km_trt_fit <- survfit(Surv(days, status) ~ trt, data=survTab)
+# summary(km_trt_fit)
+# autoplot(km_trt_fit)
+# autoplot(km_trt_fit,main = "KICH: Blood-Houseman")
+## or ggplot
+
+ggsurvplot(km_trt_fit, data = survTab, pval = TRUE, conf.int = TRUE,title = "SKCM, Houseman, high 50% vs low 50%")
+
+
+
+survTab_sub <- survTab[survTab$CD8T < 0.114|survTab$CD8T > 0.261,] ## high 25% low 25%
+survTab_sub$trt <- factor((survTab_sub$CD8T < 0.114),labels = c("high_CD8T","low_CD8T"))
+km_trt_fit <- survfit(Surv(days, status) ~ trt, data=survTab_sub)
+ggsurvplot(km_trt_fit, data = survTab_sub, pval = TRUE, conf.int = TRUE,title = "SKCM, Houseman, high 25% vs low 25%")
+
+
+## 282 patient.follow_ups.follow_up.days_to_death
+## 17 patient.days_to_death
+## 11 patient.age_at_initial_pathologic_diagnosis
+
+
+
+clinicalTab <- clinicalTab[c(11,244,265,276,323,325),]
+
+
+  
+  
 
 
 ######### add epithelial 
