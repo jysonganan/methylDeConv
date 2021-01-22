@@ -117,7 +117,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
       
       cat("\nCompleted LTS Deconvolution For This Mixture...\n")
       
-      }
+      
    }
 }
       
