@@ -1,9 +1,10 @@
 # MethylResolver(methylMix = MethylMix)
 # MethylResolver(methylMix = MethylMix, methylSig = MethylSig, purityModel = RFmodel)
 
-
+set.seed(5)
 
 ## alpha: from 0.5–0.9 in corresponding to fitting a regression to 50–90%, of the cpgs.
+## select best alpha for each mixture sample separately
 #Least Trimmed Squares Regression (LTS Regression)
 MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = TRUE, #outputPath = "./",
                            #outputName = "MethylResolver", #doPar = FALSE, numCores = 1,
@@ -54,10 +55,16 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
           }
           #choose the best empirical alpha value
           alphaBest = alpha[which(alphaRMSEs == min(alphaRMSEs))]
+          if (length(alphaBest) > 1){alphaBest = alphaBest[0]}
         }else{
           alphaBest = alpha
         }
-    
+        
+        ##
+        print(i)
+        print('alphaBest selected')
+        print(alphaRMSEs)
+        print(alphaBest)
             
         #the actual model
         regressionFormula = as.formula(paste0("methylMix[,i] ~ ",paste(colnames(methylSig),sep="",collapse=" + ")))
@@ -88,6 +95,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
         deconvoluteOne
       }
       
+      print('completed')
       #add row and column names
       rownames(ltsModel) <- colnames(methylMix)
       colnames(ltsModel) <- c("RMSE1","R1","RMSE2","R2",colnames(methylSig))
