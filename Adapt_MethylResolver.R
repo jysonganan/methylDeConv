@@ -55,7 +55,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
           }
           #choose the best empirical alpha value
           alphaBest = alpha[which(alphaRMSEs == min(alphaRMSEs))]
-          if (length(alphaBest) > 1){alphaBest = alphaBest[0]}
+          if (length(alphaBest) > 1){alphaBest = alphaBest[1]}
         }else{
           alphaBest = alpha
         }
