@@ -4,9 +4,9 @@
 
 #Least Trimmed Squares Regression (LTS Regression)
 MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = TRUE, outputPath = "./",
-                           outputName = "MethylResolver", doPar = FALSE, numCores = 1,
+                           outputName = "MethylResolver", #doPar = FALSE, numCores = 1,
                            alpha = seq(0.5,0.9,by = 0.05), absolute = TRUE, purityModel = RFmodel) {
-  i <- NULL 
+    i <- NULL 
   
     if(is.null(methylMix)){
     cat("Please provide a methylation mixture file")
@@ -28,7 +28,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
         methylMix = 1 - methylMix
       }
       
-      ltsModel = foreach::foreach(i=1:ncol(methylMix), .combine = 'rbind', .options.snow = opts, .packages = c("robustbase","Metrics")) %dopar% {
+      ltsModel = foreach::foreach(i=1:ncol(methylMix), .combine = 'rbind',.packages = c("robustbase","Metrics")){
         #the actual model
         regressionFormula = as.formula(paste0("methylMix[,i] ~ ",paste(colnames(methylSig),sep="",collapse=" + ")))
         #check if a specific alpha value is supplied, otherwise use a grid search
