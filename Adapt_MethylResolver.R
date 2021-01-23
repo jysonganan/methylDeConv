@@ -5,17 +5,14 @@
 
 ## alpha: from 0.5–0.9 in corresponding to fitting a regression to 50–90%, of the cpgs.
 #Least Trimmed Squares Regression (LTS Regression)
-MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = TRUE, outputPath = "./",
-                           outputName = "MethylResolver", #doPar = FALSE, numCores = 1,
+MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = TRUE, #outputPath = "./",
+                           #outputName = "MethylResolver", #doPar = FALSE, numCores = 1,
                            alpha = seq(0.5,0.9,by = 0.05), absolute = TRUE, purityModel = RFmodel) {
     i <- NULL 
   
     if(is.null(methylMix)){
     cat("Please provide a methylation mixture file")
   } else{
-    if(file.exists(file=paste0(outputPath,outputName,".txt"))){
-      cat("LTS Deconvolution Already Exists For This Mixture...\n")
-    } else{
       cat("Beginning LTS Deconvolution For This Mixture...\n")
       
       #Format input matrices
@@ -115,11 +112,11 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
       }
       
             #write to file
-      write.table(ltsModel,file=paste0(outputPath,outputName,".txt"),quote = F, sep="\t")
+      #write.table(ltsModel,file=paste0(outputPath,outputName,".txt"),quote = F, sep="\t")
       
       cat("\nCompleted LTS Deconvolution For This Mixture...\n")
-      
+      return(ltsModel)
       
    }
 }
- }     
+     
