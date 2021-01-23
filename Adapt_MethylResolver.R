@@ -30,7 +30,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
         methylMix = 1 - methylMix
       }
       
-      ltsModel = foreach::foreach(i=1:ncol(methylMix), .combine = 'rbind',.packages = c("robustbase","Metrics")){
+      ltsModel = foreach::foreach(i=1:ncol(methylMix), .combine = 'rbind',.packages = c("robustbase","Metrics")) %do% {
         #the actual model
         regressionFormula = as.formula(paste0("methylMix[,i] ~ ",paste(colnames(methylSig),sep="",collapse=" + ")))
         #check if a specific alpha value is supplied, otherwise use a grid search
