@@ -2,6 +2,8 @@
 # MethylResolver(methylMix = MethylMix, methylSig = MethylSig, purityModel = RFmodel)
 
 
+
+## alpha: from 0.5–0.9 in corresponding to fitting a regression to 50–90%, of the cpgs.
 #Least Trimmed Squares Regression (LTS Regression)
 MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = TRUE, outputPath = "./",
                            outputName = "MethylResolver", #doPar = FALSE, numCores = 1,
