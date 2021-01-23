@@ -115,7 +115,7 @@ MethylResolver <- function(methylMix = NULL, methylSig = MethylSig, betaPrime = 
       #write.table(ltsModel,file=paste0(outputPath,outputName,".txt"),quote = F, sep="\t")
       
       cat("\nCompleted LTS Deconvolution For This Mixture...\n")
-      return(ltsModel)
+      return(list(ltsModel, bestCpGs))
       
    }
 }
