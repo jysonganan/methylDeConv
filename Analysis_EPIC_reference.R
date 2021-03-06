@@ -1475,30 +1475,32 @@ library(EpiDISH)
 #probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
 #Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]))
 
-RPC_res_epicEpithelial <- epidish(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]), method = "RPC")$estF
+RPC_res_epicEpithelial <- epidish(betaMat[probes_select,],as.matrix(compTable[probes_select,3:9]), method = "RPC")$estF
 
 
 
 group <- pD[,"time point:ch1"]
-gender_dat_blood <- matrix(NA, 144, 9)
+group[group == "0"] <- "pre-treatment"
+group[group == "1"] <- "post-treatment"
+gender_dat_blood <- matrix(NA, 144, 8)
 samples <- rownames(RPC_res_epicEpithelial)
 rownames(gender_dat_blood) <- samples
-gender_dat_blood[,1:8] <- RPC_res_epicEpithelial
-gender_dat_blood[,9] <- group
+gender_dat_blood[,1:7] <- RPC_res_epicEpithelial
+gender_dat_blood[,8] <- group
 gender_dat_blood <- as.data.frame(gender_dat_blood)
-gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
-gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
-colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"group")
+gender_dat_blood[1:7] <- apply(gender_dat_blood[1:7], 2, as.numeric)
+gender_dat_blood[,8] <- as.character(gender_dat_blood[,8])
+colnames(gender_dat_blood) <- c(colnames(RPC_res_epicEpithelial),"group")
 
 
 library(ggplot2)
 library(tidyr)
-pdf(file = "Plot3.pdf",  
+pdf(file = "Plot1.pdf",  
     width = 10,
     height = 8) 
 df <- gather(gender_dat_blood, series,value,-group)
 ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   xlab('cell types')+
   ylab('proportions') +
-  ggtitle("GSE112308-Melanoma_Houseman-onevsAllttest (EPICEpithelial)")
+  ggtitle("GSE140038_RPC-onevsAllttest (EPICEpithelial)")
 dev.off()
