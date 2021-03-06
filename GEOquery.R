@@ -957,3 +957,26 @@ ggplot(df) + geom_boxplot(aes(series ,value,color= gender)) +
   xlab('cell types')+
   ylab('proportions') +
   ggtitle("GSE116298-EPIC-RPC")
+
+
+
+
+### GSE140038
+library(minfi)
+rgSet <- read.metharray.exp("GSE140038/idat", force = TRUE)
+
+library(GEOquery)
+geoMat<- getGEO("GSE140038")
+pD.all <- pData(geoMat[[1]])
+
+pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
+
+
+
+grSet<- preprocessNoob(rgSet)
+getBeta(grSet)[1:3,1:3]
+head(getIslandStatus(grSet))
+betaMat <- getBeta(grSet)
+## 
+
+
