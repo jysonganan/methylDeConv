@@ -1459,37 +1459,45 @@ betaMat <- getBeta(grSet)
 pD <- pD.all[, c("title", "geo_accession","age:ch1","chemotherapy any:ch1","radiationtherapy any:ch1","time point:ch1")]
 
 colnames(betaMat) <- substr(colnames(betaMat), 1, 10)
-sampleNames(rgSet_116298) <- substr(sampleNames(rgSet_116298), 1, 10)
+
+pD <- pD[colnames(betaMat),]
+
+source("refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
 
-tissue_dat_blood <- matrix(NA, 47, 8)
-samples <- rownames(res2)
-rownames(tissue_dat_blood) <- samples
-tissue_dat_blood[,1:6] <- res2
-tissue_dat_blood[,7] <- pD[,4]
-tissue_dat_blood[,8] <- pD[,"title"]
-tissue_dat_blood <- as.data.frame(tissue_dat_blood)
-tissue_dat_blood[1:6] <- apply(tissue_dat_blood[1:6], 2, as.numeric)
-tissue_dat_blood[,7] <- as.character(tissue_dat_blood[,7])
-tissue_dat_blood[,8] <- as.character(tissue_dat_blood[,8])
-colnames(tissue_dat_blood) <- c(colnames(res2),"tissue", "title")
+load("FlowEPIC_Epithelial_nocfDNAProbesdefault.RData")
+probes_select <- probes_oneVsAllttest
+library(EpiDISH)
+#source("projectCellType.R")
+#Houseman_res_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]))
+#probes_select <- ProbePreselect_multiclassGlmnet[[1]][-1]
+#Houseman_res_glmnetpreselect_epicEpithelial <- projectCellType(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]))
 
-df <- aggregate(tissue_dat_blood[,1:6],list(tissue_dat_blood$title), mean)
-df[,1] <- c(rep("High-grade glioma",12), rep("Meningioma",3))
-colnames(df)[1] <- "tissue"
+RPC_res_epicEpithelial <- epidish(betaMat[probes_select,],as.matrix(compTable[probes_select,3:10]), method = "RPC")$estF
+
+
+
+group <- pD[,"time point:ch1"]
+gender_dat_blood <- matrix(NA, 144, 9)
+samples <- rownames(RPC_res_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:8] <- RPC_res_epicEpithelial
+gender_dat_blood[,9] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:8] <- apply(gender_dat_blood[1:8], 2, as.numeric)
+gender_dat_blood[,9] <- as.character(gender_dat_blood[,9])
+colnames(gender_dat_blood) <- c(colnames(Houseman_res_epicEpithelial),"group")
+
+
 library(ggplot2)
 library(tidyr)
-df1 <- gather(df, series,value,-tissue)
-ggplot(df1) + geom_boxplot(aes(series ,value,color= tissue)) +
+pdf(file = "Plot3.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   xlab('cell types')+
   ylab('proportions') +
-  ggtitle("GSE116298-EPIC-RPC")
-
-df <- data.frame("Houseman" = corr, "RPC" = corr2, "CBS" = corr3)
-df1 <- gather(df, series,value,-tissue)
-ggplot(df1) + geom_jitter(aes(series ,value,color= tissue), position=position_jitter(0.2)) +
-  xlab('cell types')+
-  ylab('proportions') +
-  ggtitle("GSE116298-EPIC-RPC")
-
-
+  ggtitle("GSE112308-Melanoma_Houseman-onevsAllttest (EPICEpithelial)")
+dev.off()
