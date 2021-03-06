@@ -1438,6 +1438,11 @@ ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   ggtitle("GSE112308-Melanoma_Houseman-glmnetPreselect (EPICEpithelial)")
 dev.off()
 
+
+
+
+
+
 ### GSE140038
 library(minfi)
 rgSet <- read.metharray.exp("GSE140038/idat", force = TRUE)
@@ -1446,13 +1451,7 @@ library(GEOquery)
 geoMat<- getGEO("GSE140038")
 pD.all <- pData(geoMat[[1]])
 
-pD <- pD.all[, c("title", "geo_accession", "gender:ch1", "tissue:ch1")]
-
-
-
 grSet<- preprocessNoob(rgSet)
-getBeta(grSet)[1:3,1:3]
-head(getIslandStatus(grSet))
 betaMat <- getBeta(grSet)
 ## 
 
@@ -1461,6 +1460,8 @@ pD <- pD.all[, c("title", "geo_accession","age:ch1","chemotherapy any:ch1","radi
 colnames(betaMat) <- substr(colnames(betaMat), 1, 10)
 
 pD <- pD[colnames(betaMat),]
+
+
 
 source("refCompTableProbeSelection.R")
 compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
