@@ -1525,3 +1525,36 @@ for (i in 1:nrow(pD)){
     }
  
 }
+
+group <- pD[,"time point:ch1"]
+group[group == "0"] <- "pre-treatment"
+group[group == "1"] <- "post-treatment"
+
+for (i in 1:length(group)){
+  group[i] <- paste(therapy_type[i], group[i], sep = ", ")
+  }
+
+gender_dat_blood <- matrix(NA, 144, 8)
+samples <- rownames(RPC_res_epicEpithelial)
+rownames(gender_dat_blood) <- samples
+gender_dat_blood[,1:7] <- RPC_res_epicEpithelial
+gender_dat_blood[,8] <- group
+gender_dat_blood <- as.data.frame(gender_dat_blood)
+gender_dat_blood[1:7] <- apply(gender_dat_blood[1:7], 2, as.numeric)
+gender_dat_blood[,8] <- as.character(gender_dat_blood[,8])
+colnames(gender_dat_blood) <- c(colnames(RPC_res_epicEpithelial),"group")
+
+
+
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot2.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE140038_RPC-onevsAllttest (EPICEpithelial)")
+dev.off()
+
