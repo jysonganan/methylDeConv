@@ -1504,3 +1504,24 @@ ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   ylab('proportions') +
   ggtitle("GSE140038_RPC-onevsAllttest (EPICEpithelial)")
 dev.off()
+
+
+
+
+
+
+therapy_type <- rep(NA, nrow(pD))
+for i in (1:nrow(pD)){
+  if (pD[i,"chemotherapy any:ch1"] == 1 &  pD[i,"radiationtherapy any:ch1"] == 0){
+     therapy_type[i] <- "chemotherapy_only"
+    }
+  
+  if (pD[i,"chemotherapy any:ch1"] == 1 &  pD[i,"radiationtherapy any:ch1"] == 1){
+     therapy_type[i] <- "both"
+    }
+  
+  if (pD[i,"chemotherapy any:ch1"] == 0 &  pD[i,"radiationtherapy any:ch1"] == 1){
+     therapy_type[i] <- "radiationtherapy_only"
+    }
+ 
+}
