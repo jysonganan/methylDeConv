@@ -61,6 +61,9 @@ save("probes_oneVsAllttest", "ProbePreselect_multiclassGlmnet", file = "Flow450k
 
 #### TCGA SKCM analysis
 
+source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
+compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
+
 ## or
 
 #https://xenabrowser.net/datapages
@@ -70,12 +73,13 @@ x <- x[,-1]
 ## 485577 475
 BetaMatrix_noNA <- na.omit(x)
 
+probes <- probes_oneVsAllttest
+library(EpiDISH)
+SKCM_RPC_res <- epidish(BetaMatrix_noNA, as.matrix(compTable[probes,3:10]), method = "RPC")$estF
+save("SKCM_RPC_res", file = "SKCM_RPC_res.RData")
 
 
 
-
-source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
-compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
 
 disease <- "SKCM"
