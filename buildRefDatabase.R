@@ -60,6 +60,20 @@ save("probes_oneVsAllttest", "ProbePreselect_multiclassGlmnet", file = "Flow450k
 
 
 #### TCGA SKCM analysis
+
+## or
+
+#https://xenabrowser.net/datapages
+x <- read.table("TCGA-SKCM.methylation450.tsv", header = T, sep = "\t")
+rownames(x) <- x[,1]
+x <- x[,-1]
+## 485577 475
+BetaMatrix_noNA <- na.omit(x)
+
+
+
+
+
 source("/sonas-hs/wigler/hpc/home/jsong/MethylDeConv/refCompTableProbeSelection.R")
 compTable <- ref_compTable(ref_betamatrix, ref_phenotype)
 
