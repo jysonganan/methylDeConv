@@ -78,7 +78,9 @@ library(EpiDISH)
 SKCM_RPC_res <- epidish(BetaMatrix_noNA, as.matrix(compTable[probes,3:10]), method = "RPC")$estF
 save("SKCM_RPC_res", file = "SKCM_RPC_res.RData")
 
-
+pheno_tab <- read.table("TCGA-SKCM.GDC_phenotype.tsv", header = T, sep = "\t", quote = "")
+rownames(SKCM_RPC_res) <- gsub('\\.','-',rownames(SKCM_RPC_res))
+pheno_tab[match(rownames(SKCM_RPC_res), pheno_tab[,1]),]
 
 
 
