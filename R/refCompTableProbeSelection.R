@@ -59,14 +59,14 @@ ref_compTable <- function(ref_betamatrix, ref_phenotype){
 #'@param ref_phenotype The cell type information for the reference matrix.
 #'@param probeSelect The selection can be "any" or "both". If "any", the function selects top probes regardless of
 #'up-regulation or down-regulation. If "both", half of top probes are picked up from the up-regulated probes while
-#'the other half of the top probes are picked up from the down-regulated probes.
+#'the other half of the top probes are picked up from the down-regulated probes. Default value is "both".
 #'@param pv The p-value threshold with default value as 1e-8
 #'@param MaxDMRs The number of probes selected with default value as 100.
 #'@return A vector of the selected probes.
 #'@export
 
 
-ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect, pv = 1e-8, MaxDMRs = 100){
+ref_probe_selection_oneVsAllttest <- function(ref_betamatrix, ref_phenotype, probeSelect = "both", pv = 1e-8, MaxDMRs = 100){
 
   ref_phenotype <- as.factor(ref_phenotype)
 
