@@ -7,7 +7,7 @@
 ref_probe_selection_oneVsAllttest(
   ref_betamatrix,
   ref_phenotype,
-  probeSelect,
+  probeSelect = "both",
   pv = 1e-08,
   MaxDMRs = 100
 )
@@ -19,7 +19,7 @@ ref_probe_selection_oneVsAllttest(
 
 \item{probeSelect}{The selection can be "any" or "both". If "any", the function selects top probes regardless of
 up-regulation or down-regulation. If "both", half of top probes are picked up from the up-regulated probes while
-the other half of the top probes are picked up from the down-regulated probes.}
+the other half of the top probes are picked up from the down-regulated probes. Default value is "both".}
 
 \item{pv}{The p-value threshold with default value as 1e-8}
 

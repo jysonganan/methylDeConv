@@ -2,7 +2,7 @@
 % Please edit documentation in R/refCompTableProbeSelection.R
 \name{up_probes_oneVsAllttest_celltype}
 \alias{up_probes_oneVsAllttest_celltype}
-\title{One-vs-All t test feature selection}
+\title{One-vs-All t test feature selection (up-regulated)}
 \usage{
 up_probes_oneVsAllttest_celltype(
   ref_betamatrix,
@@ -24,5 +24,5 @@ up_probes_oneVsAllttest_celltype(
 A vector of the selected probes.
 }
 \description{
-The One-vs-All t test feature selection based on the reference matrix.
+The One-vs-All t test feature selection (up-regulated) based on the reference matrix.
 }

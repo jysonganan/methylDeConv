@@ -366,8 +366,7 @@ ref_probe_selection_multiclassRF_cv <- function(ref_betamatrix, ref_phenotype, n
 #'@export
 
 ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselect = 300, ml_model = "elastic net"){
-  probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype,
-                                                                probeSelect = "both", MaxDMRs = preselect)
+  probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = preselect)
 
   if (ml_model == "elastic net"){
     model <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
@@ -409,9 +408,9 @@ ref_probe_selection_HighVar <- function(ref_betamatrix, ranks = 601:1200){
 
 
 
-#'One-vs-All t test feature selection
+#'One-vs-All t test feature selection (up-regulated)
 #'
-#'The One-vs-All t test feature selection based on the reference matrix.
+#'The One-vs-All t test feature selection (up-regulated) based on the reference matrix.
 #'@param ref_betamatrix The reference matrix ref_betamatrix.
 #'@param ref_phenotype The cell type information for the reference matrix.
 #'@param pv The p-value threshold with default value as 1e-8

@@ -51,14 +51,18 @@ build_reference_450k <- function(extend = TRUE){
 #'Build the reference library for EPIC arrays
 #'
 #'Build the reference library for EPIC arrays to include "CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu",
-#'And extend the reference library for 450k to include "Epithelial".
+#'And extend the reference library for 450k to include "Epithelial" or "cfDNA".
 #'@param extend If TRUE, generate the extended reference library; otherwise, generate the reference library of
 #'only 6 immune cell types. Default value is TRUE.
+#'@param include If include = "Epithelial", extend the reference library by only adding epithelial cells;
+#'if include = "cfDNA", extend the reference library by only adding cell free DNAs;
+#'if include = "Epithelial and cfDNA", extend the reference library by add both epithelial and cell free DNAs.
+#'Default value is "Epithelial".
 #'@return A list of beta value reference matrix (ref_betamatrix) and reference cell types (ref_phenotype).
 #'@export
 
 
-build_reference_EPIC <- function(extend = TRUE){
+build_reference_EPIC <- function(extend = TRUE, include = "Epithelial"){
   library(ExperimentHub)
   hub <- ExperimentHub()
   query(hub, "FlowSorted.Blood.EPIC")
@@ -94,15 +98,31 @@ build_reference_EPIC <- function(extend = TRUE){
     betaMat_122126 <- betaMat[,rownames(pD.all)]
     phenotype_122126 <- pD.all[,"sample type:ch1"]
 
-    betaMat_122126_sub <- betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
-                                                                "Pancreatic acinar cells","Pancreatic duct cells")]
-    phenotype_122126_sub <- rep("Epithelial",10)
+    if (include == "Epithelial"){
+      betaMat_122126_sub <- betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                  "Pancreatic acinar cells","Pancreatic duct cells")]
+      phenotype_122126_sub <- rep("Epithelial",10)
+    }
+
+    if (include == "Epithelial and cfDNA"){
+      set.seed(3)
+      betaMat_122126_sub <- cbind(betaMat_122126[,phenotype_122126%in%c("Colon epithelial cells","Lung epithelial cells",
+                                                                        "Pancreatic acinar cells","Pancreatic duct cells")],
+                                  betaMat_122126[,sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)])
+      phenotype_122126_sub <- c(rep("Epithelial",10), rep("cfDNA", 10))
+    }
+
+    if (include == "cfDNA"){
+      set.seed(3)
+      betaMat_122126_sub <- betaMat_122126[,sample(which(phenotype_122126 == "cfDNA"),10,replace = FALSE)]
+      phenotype_122126_sub <- rep("cfDNA", 10)
+    }
+
 
     ref_betamatrix <- cbind(ref_betamatrix, betaMat_122126_sub)
     ref_phenotype <- c(ref_phenotype, phenotype_122126_sub)
     return(list(ref_betamatrix = ref_betamatrix, ref_phenotype = ref_phenotype))
   }
-
 }
 
 

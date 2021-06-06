@@ -4,16 +4,21 @@
 \alias{build_reference_EPIC}
 \title{Build the reference library for EPIC arrays}
 \usage{
-build_reference_EPIC(extend = TRUE)
+build_reference_EPIC(extend = TRUE, include = "Epithelial")
 }
 \arguments{
 \item{extend}{If TRUE, generate the extended reference library; otherwise, generate the reference library of
 only 6 immune cell types. Default value is TRUE.}
+
+\item{include}{If include = "Epithelial", extend the reference library by only adding epithelial cells;
+if include = "cfDNA", extend the reference library by only adding cell free DNAs;
+if include = "Epithelial and cfDNA", extend the reference library by add both epithelial and cell free DNAs.
+Default value is "Epithelial".}
 }
 \value{
 A list of beta value reference matrix (ref_betamatrix) and reference cell types (ref_phenotype).
 }
 \description{
 Build the reference library for EPIC arrays to include "CD8T", "CD4T", "NK", "Bcell", "Mono", "Neu",
-And extend the reference library for 450k to include "Epithelial".
+And extend the reference library for 450k to include "Epithelial" or "cfDNA".
 }
