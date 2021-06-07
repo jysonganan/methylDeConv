@@ -14,7 +14,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
-Imports: caret, dplyr, doParallel, EpiDISH, estimate, ExperimentHub, foreach, FlowSorted.Blood.450k, FlowSorted.DLPFC.450k, 
+biocViews:
+Imports: caret, dplyr, doParallel, EpiDISH, ExperimentHub, foreach, FlowSorted.Blood.450k, FlowSorted.DLPFC.450k, 
          FlowSorted.Blood.EPIC, FlowSorted.CordBlood.450k, glmnet, GEOquery, GSVA, GSEABase, genefilter, limma, minfi, matrixStats, 
          MCMCpack, MASS, MKmisc, plyr, pracma, parallel, quadprog, recipes, randomForest, stats
 
