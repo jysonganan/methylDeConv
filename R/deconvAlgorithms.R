@@ -110,8 +110,11 @@ CBS <- function(betamatrix, compTable, probes_select){
 #'@export
 
 MethylResolver <- function(methylMix, methylSig,
-                           alpha = seq(0.5, 0.9, by = 0.05)) {
+                           alpha = seq(0.5, 0.9, by = 0.05), probes_select) {
   i <- NULL
+  methlMix <- methylMix[probes_select,]
+  methylSig <- methylSig[probes_select,]
+
   methylSig <- as.data.frame(methylSig)
   methylMix <- data.matrix(varhandle::unfactor(methylMix))
   overlappingCpGs = intersect(rownames(methylSig),rownames(methylMix))
@@ -183,10 +186,11 @@ MethylResolver <- function(methylMix, methylSig,
 
   ignoreMetrics = which(colnames(ltsModel) %in% c("RMSE1","R1","RMSE2","R2"))
   Fractions = ltsModel[,-ignoreMetrics]
-  ltsModel = cbind(ltsModel,Fractions)
+  #ltsModel = cbind(ltsModel,Fractions)
 
   cat("\nCompleted LTS Deconvolution For This Mixture...\n")
-  return(list(ltsModel, bestCpGs))
+  #return(list(ltsModel, bestCpGs))
+  return(Fractions)
 }
 
 
