@@ -376,8 +376,8 @@ ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselec
                                                  tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
   }
   else if (ml_model == "rfe"){
-    control <- rfeControl(functions=rfFuncs, method="cv", number=5)
-    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(1:8), rfeControl=control)
+    control <- caret::rfeControl(functions=caret::rfFuncs, method="cv", number=5)
+    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(1:length(probes)), rfeControl=control)
   }
   return(model)
 }
