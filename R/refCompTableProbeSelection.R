@@ -370,6 +370,7 @@ ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselec
 
   if (ml_model == "elastic net"){
     model <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
+    probes_selected <- model[[1]]
   }
   else if (ml_model == "RF"){
     model <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes,], ref_phenotype, reps.resamp = 5,
@@ -377,9 +378,11 @@ ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselec
   }
   else if (ml_model == "rfe"){
     control <- caret::rfeControl(functions=caret::rfFuncs, method="cv", number=5)
-    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(1:length(probes)), rfeControl=control)
+    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(600:length(probes)), rfeControl=control)
+    #probes_selected <- caret::predictors(model)
+    probes_selected <- model$optVariables
   }
-  return(model)
+  return(probes_selected)
 }
 
 
