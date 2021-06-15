@@ -1,6 +1,6 @@
 # methylDeConv
 
-Computational Deconvolution Pipeline for Methylation data
+R package methylDeConv: A Computational Deconvolution Pipeline for Methylation data
 
 
 ## Install
