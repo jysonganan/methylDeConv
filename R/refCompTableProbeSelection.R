@@ -367,6 +367,7 @@ ref_probe_selection_multiclassRF_cv <- function(ref_betamatrix, ref_phenotype, n
 
 ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselect = 300, ml_model = "elastic net"){
   probes <- ref_probe_selection_oneVsAllttest(ref_betamatrix, ref_phenotype, probeSelect = "both", MaxDMRs = preselect)
+  probes_dmr <- (preselect/3) * length(unique(ref_phenotype))
 
   if (ml_model == "elastic net"){
     model <- ref_probe_selection_multiclassGlmnet_cv(ref_betamatrix[probes,], ref_phenotype)
@@ -375,10 +376,12 @@ ref_probe_selection_twoStage <- function(ref_betamatrix, ref_phenotype, preselec
   else if (ml_model == "RF"){
     model <- ref_probe_selection_multiclassRF_cv(ref_betamatrix[probes,], ref_phenotype, reps.resamp = 5,
                                                  tune_grid = c(3,5,10,15,18,20,24,26,30,32,34,36,40,45,50,55,60))
+    importance <- varImp(model, scale=FALSE)
+    probes_selected <- rownames(importance$importance)[1:probes_dmr]
   }
   else if (ml_model == "rfe"){
     control <- caret::rfeControl(functions=caret::rfFuncs, method="cv", number=5)
-    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(600:length(probes)), rfeControl=control)
+    model <- caret::rfe(t(ref_betamatrix[probes,]), factor(ref_phenotype), sizes=c(probes_dmr:length(probes)), rfeControl=control)
     #probes_selected <- caret::predictors(model)
     probes_selected <- model$optVariables
   }
