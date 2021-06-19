@@ -24,11 +24,11 @@ df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwise
                                        "glmnetpreselect", "RFpreselect", "Rfepreselect"),
                   Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
 
-ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
        aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
                                                   "glmnetpreselect", "RFpreselect", "Rfepreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
   geom_bar(stat = 'identity', position = 'dodge')+
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
   labs(x = "Feature selection")+
   labs(y = "Average Spearman correlation")+
-  labs(fill = "Deconvolution algorithms")
+  labs(fill = "Deconvolution algorithms"))
