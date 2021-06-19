@@ -102,17 +102,16 @@ CBS <- function(betamatrix, compTable, probes_select){
 #'MethylResolver deconvolution algorithm
 #'@param methylMix Beta value matrix of methylation array for mixture samples.
 #'@param methylSig Average reference profiles over each cell type.
+#'@param probes_select Probes selected.
 #'@param alpha Tuning parameters. Default range 0.5–0.9, which corresponds to fitting a trimmed least square regression
 #'to 50–90%, of the cpgs. Get the best alpha value based on RMSE between original and reconstructed mixture, and select
 #'best alpha for each mixture sample separately
-#'@param probes_select Probes selected.
 #'@return The matrix of deconvolution results with rows as mixture samples and columns as cell types.
 #'@export
 
-MethylResolver <- function(methylMix, methylSig,
-                           alpha = seq(0.5, 0.9, by = 0.05), probes_select) {
+MethylResolver <- function(methylMix, methylSig, probes_select, alpha = seq(0.5, 0.9, by = 0.05)) {
   i <- NULL
-  methlMix <- methylMix[probes_select,]
+  methylMix <- methylMix[probes_select,]
   methylSig <- methylSig[probes_select,]
 
   methylSig <- as.data.frame(methylSig)
