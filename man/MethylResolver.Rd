@@ -4,18 +4,23 @@
 \alias{MethylResolver}
 \title{MethylResolver algorithm}
 \usage{
-MethylResolver(methylMix, methylSig, alpha = seq(0.5, 0.9, by = 0.05))
+MethylResolver(
+  methylMix,
+  methylSig,
+  probes_select,
+  alpha = seq(0.5, 0.9, by = 0.05)
+)
 }
 \arguments{
 \item{methylMix}{Beta value matrix of methylation array for mixture samples.}
 
 \item{methylSig}{Average reference profiles over each cell type.}
 
+\item{probes_select}{Probes selected.}
+
 \item{alpha}{Tuning parameters. Default range 0.5–0.9, which corresponds to fitting a trimmed least square regression
 to 50–90\%, of the cpgs. Get the best alpha value based on RMSE between original and reconstructed mixture, and select
 best alpha for each mixture sample separately}
-
-\item{probes_select}{Probes selected.}
 }
 \value{
 The matrix of deconvolution results with rows as mixture samples and columns as cell types.

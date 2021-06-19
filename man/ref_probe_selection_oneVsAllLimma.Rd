@@ -7,7 +7,7 @@
 ref_probe_selection_oneVsAllLimma(
   ref_betamatrix,
   ref_phenotype,
-  probeSelect,
+  probeSelect = "both",
   FDR = 1e-06,
   MaxDMRs = 100
 )
@@ -19,7 +19,7 @@ ref_probe_selection_oneVsAllLimma(
 
 \item{probeSelect}{The selection can be "any" or "both". If "any", the function selects top probes regardless of
 up-regulation or down-regulation. If "both", half of top probes are picked up from the up-regulated probes while
-the other half of the top probes are picked up from the down-regulated probes.}
+the other half of the top probes are picked up from the down-regulated probes. Default value is "both".}
 
 \item{FDR}{The fdr threshold with default value as 1e-6}
 
