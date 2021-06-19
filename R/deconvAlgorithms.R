@@ -110,6 +110,7 @@ CBS <- function(betamatrix, compTable, probes_select){
 #'@export
 
 MethylResolver <- function(methylMix, methylSig, probes_select, alpha = seq(0.5, 0.9, by = 0.05)) {
+  set.seed(5)
   i <- NULL
   methylMix <- methylMix[probes_select,]
   methylSig <- methylSig[probes_select,]
