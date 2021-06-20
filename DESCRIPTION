@@ -1,11 +1,15 @@
 Package: methylDeConv
 Title: Computational pipeline for deconvolution of methylation data.
 Version: 0.1.1
-Authors@R: 
+Authors@R: c(
     person(given = "Junyan",
            family = "Song",
            role = c("aut", "cre"),
-           email = "jysongane@gmail.com")
+           email = "jysongane@gmail.com"),
+    person(given = "Pei Fen",
+           family = "Kuan",
+           role = c("aut"),
+           email = "peifen.kuan@stonybrook.edu"))   
 Description: An integrated computational pipeline for methylaion data of different platforms and tissues, with a variety of feature selection methods, deconvolution algorithms and extensions of reference library.
 License: `use_gpl3_license()` 
 Encoding: UTF-8
