@@ -39,10 +39,10 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
 
 library(tidyr)
 library(ggplot2)
-cor_Houseman <- c(0.971, 0.978, 0.964, 0.978)
-cor_RPC <- c(0.973, 0.978, 0.969, 0.978)
-cor_CBS <- c(0.952, 0.956, 0.966, 0.956)
-cor_MethylResolver <- c(0.971, 0.978, 0.964, 0.978)
+cor_Houseman <- c(0.971, 0.978, 0.964, 0.964)
+cor_RPC <- c(0.973, 0.978, 0.969, 0.964)
+cor_CBS <- c(0.952, 0.956, 0.966, 0.968)
+cor_MethylResolver <- c(0.971, 0.978, 0.964, 0.964)
 df1 <- data.frame(FeatureSelection = c("top 50","top 100","top 150","top 200"),
                   Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
 
