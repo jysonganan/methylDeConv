@@ -87,6 +87,14 @@ build_reference_EPIC <- function(extend = TRUE, include = "Epithelial"){
 
     idatFiles <- list.files("GSE122126/idat", pattern = "idat.gz$", full = TRUE)
     sapply(idatFiles, gunzip, overwrite = TRUE)
+    system("mkdir GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM345576*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455770*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455771*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455772*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455773*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455774*idat GSE122126/idat/450k")
+    system("mv GSE122126/idat/GSM3455775*idat GSE122126/idat/450k")
     rgSet <- read.metharray.exp("GSE122126/idat", force = TRUE)
     grSet <- preprocessNoob(rgSet, dyeMethod = "single")
     betaMat <- getBeta(grSet) #866091     90
