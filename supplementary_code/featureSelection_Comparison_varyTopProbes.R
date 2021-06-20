@@ -27,7 +27,7 @@ compTable_EPIC <- compTable_EPIC[,3:8]
 probe_1 <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype, MaxDMRs = 50)
 probe_2 <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype, MaxDMRs = 100)
 probe_3 <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype, MaxDMRs = 150)
-probe_4 <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype, MaxDMRs = 100)
+probe_4 <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype, MaxDMRs = 200)
 
 
 ####################################
