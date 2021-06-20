@@ -4,11 +4,10 @@
 ## barplots of deconvolution performance (average corr with true proportions) using different feature selection + deconvolution algorithms
 library(tidyr)
 library(ggplot2)
-cor_Houseman <- c(0.978, 0.969, 0.950, 0.966, 0.947, 0.947, 0.831, 0.866)
-cor_RPC <- c(0.978, 0.978, 0.828, 0.983, 0.952, 0.938, 0.800, 0.886)
-cor_CBS <- c(0.956, 0.962, 0.839, 0.952, 0.942, 0.940, 0.850, 0.877)
-##
-cor_MethylResolver <- c(0.956, 0.962, 0.839, 0.952, 0.942, 0.940, 0.850, 0.877)
+cor_Houseman <- c(0.978, 0.969, 0.950, 0.966, 0.947, 0.947, 0.831, 0.955)
+cor_RPC <- c(0.978, 0.978, 0.828, 0.983, 0.952, 0.938, 0.800, 0.950)
+cor_CBS <- c(0.956, 0.962, 0.839, 0.952, 0.942, 0.950, 0.846, 0.932)
+cor_MethylResolver <- c(0.978, 0.983, 0.868, 0.978, 0.956, 0.920, 0.788, 0.959)
 
 #####  or load results from featureSelection_Comparison.R
 
