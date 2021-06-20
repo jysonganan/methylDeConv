@@ -10,7 +10,7 @@ devtools::install_github("jysonganan/methylDeConv")
 ```
 
 ## Demo
-:point_right: Check the **Google Colab Demos** [here](https://github.com/jysonganan/methylDeConv/tree/master/GoogleColab_demos).
+:point_right:   Check the **Google Colab Demos** [here](https://github.com/jysonganan/methylDeConv/tree/master/GoogleColab_demos).
 
 ## References
 EpiDISH
