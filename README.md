@@ -8,6 +8,10 @@ In R session:
 ```
 devtools::install_github("jysonganan/methylDeConv")
 ```
+
+## Demo
+Check the Demo [here](https://github.com/jysonganan/methylDeConv/tree/master/GoogleColab_demos).
+
 ## References
 EpiDISH
 https://www.bioconductor.org/packages/release/bioc/html/EpiDISH.html
