@@ -1,13 +1,17 @@
 # methylDeConv
 
-R package methylDeConv: A Computational Deconvolution Pipeline for Methylation data
+R package **methylDeConv**: A Computational Deconvolution Pipeline for Methylation data
 
 
 ## Install
-In R session:
+In **R** session:
 ```
 devtools::install_github("jysonganan/methylDeConv")
 ```
+
+## Demo
+Check the **Google Colab Demos** :point_right:   [here](https://github.com/jysonganan/methylDeConv/tree/master/GoogleColab_demos).
+
 ## References
 EpiDISH
 https://www.bioconductor.org/packages/release/bioc/html/EpiDISH.html
