@@ -23,6 +23,7 @@ probes_EPIC <- ref_probe_selection_oneVsAllttest(reference_EPIC$ref_betamatrix,
 Houseman_res_EPIC <- Houseman_project(sim_data$mixture_sim_mat, compTable_EPIC, probes_EPIC)
 RPC_res_EPIC <- RPC(sim_data$mixture_sim_mat, compTable_EPIC, probes_EPIC)
 CBS_res_EPIC <- CBS(sim_data$mixture_sim_mat, compTable_EPIC, probes_EPIC)
+MethylResolver_res_EPIC <- MethylResolver(sim_data$mixture_sim_mat, compTable_EPIC, probes_EPIC)
 
 
 ## Deconvolution with Extended reference library
@@ -33,6 +34,7 @@ probes_Extended <- ref_probe_selection_oneVsAllttest(reference_Extended$ref_beta
 Houseman_res_Extended <- Houseman_project(sim_data$mixture_sim_mat, compTable_Extended, probes_Extended)
 RPC_res_Extended <- RPC(sim_data$mixture_sim_mat, compTable_Extended, probes_Extended)
 CBS_res_Extended <- CBS(sim_data$mixture_sim_mat, compTable_Extended, probes_Extended)
+MethylResolver_res_Extended <- MethylResolver(sim_data$mixture_sim_mat, compTable_Extended, probes_Extended)
 
 
 
@@ -46,12 +48,17 @@ within_sample_corr <- function(true_proportions, deconv_res){
   print(mean(corr))
 }
 
+
+
 within_sample_corr(sim_data$true_proportions_sim, Houseman_res_EPIC)
 within_sample_corr(sim_data$true_proportions_sim, RPC_res_EPIC)
 within_sample_corr(sim_data$true_proportions_sim, CBS_res_EPIC)
+within_sample_corr(sim_data$true_proportions_sim, MethylResolver_res_EPIC)
 within_sample_corr(sim_data$true_proportions_sim, Houseman_res_Extended)
 within_sample_corr(sim_data$true_proportions_sim, RPC_res_Extended)
 within_sample_corr(sim_data$true_proportions_sim, CBS_res_Extended)
+within_sample_corr(sim_data$true_proportions_sim, MethylResolver_res_Extended)
+
 
 
 
@@ -68,6 +75,7 @@ within_celltype_corr <- function(true_proportions, deconv_res){
 within_celltype_corr(sim_data$true_proportions_sim, Houseman_res_EPIC)
 within_celltype_corr(sim_data$true_proportions_sim, RPC_res_EPIC)
 within_celltype_corr(sim_data$true_proportions_sim, CBS_res_EPIC)
+within_celltype_corr(sim_data$true_proportions_sim, MethylResolver_res_EPIC)
 within_celltype_corr(sim_data$true_proportions_sim, Houseman_res_Extended)
 within_celltype_corr(sim_data$true_proportions_sim, RPC_res_Extended)
 within_celltype_corr(sim_data$true_proportions_sim, CBS_res_Extended)
