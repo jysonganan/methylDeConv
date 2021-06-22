@@ -1,6 +1,6 @@
 ## enrichment analysis
 library(methylDeConv)
-library(methylGSA)
+#library(methylGSA)
 library(missMethyl)
 
 reference_EPIC <- build_reference_EPIC(extend = FALSE)
