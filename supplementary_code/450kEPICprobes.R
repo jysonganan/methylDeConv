@@ -74,3 +74,58 @@ phyper(length(intersect(common_probes, intersect(probe_2_450k, probe_2_EPIC))),
        length(intersect(common_probes, probe_2_EPIC)),
        length(common_probes) - length(intersect(common_probes, probe_2_EPIC)),
        length(intersect(common_probes, probe_2_450k)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+
+
+### use 450k reference library for EPIC methylation arrays (Benchmark dataset 1)
+### probes are selected on the complete 450k reference library
+library(methylDeConv)
+####################################
+#### Benchmark dataset 1
+####################################
+library(ExperimentHub)
+hub <- ExperimentHub()
+query(hub, "FlowSorted.Blood.EPIC")
+FlowSorted.Blood.EPIC <- hub[["EH1136"]]
+annot <- as.data.frame(colData(FlowSorted.Blood.EPIC))
+benchmark <- which(annot$CellType == "MIX")
+tmp <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+benchmark_betamatrix <- tmp[,rownames(annot)[benchmark]]
+benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")]
+
+####################################
+#### build reference
+####################################
+
+reference_450k <- build_reference_450k(extend = FALSE)
+compTable_450k <- ref_compTable(reference_450k$ref_betamatrix, reference_450k$ref_phenotype)
+compTable_450k <- compTable_450k[,3:8]
+
+
+probe <- ref_probe_selection_oneVsAllttest(reference_450k$ref_betamatrix, reference_450k$ref_phenotype)
+
+Houseman_res <- Houseman_project(benchmark_betamatrix, compTable_450k, probe)
+RPC_res <- RPC(benchmark_betamatrix, compTable_450k, probe)
+CBS_res <- CBS(benchmark_betamatrix, compTable_450k, probe)
+MethylResolver_res <- MethylResolver(benchmark_betamatrix, compTable_450k, probe)
+
+
+## within sample correalations with true proportions; average over samples
+within_sample_corr <- function(true_proportions, deconv_res){
+  corr <- rep(NA, 12)
+  for (i in 1:12){
+    corr[i] <- cor(as.numeric(true_proportions[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]),
+                   as.numeric(deconv_res[i,c("Bcell", "CD4T","CD8T","Mono","Gran","NK")]), method = "spearman")
+  }
+  print(mean(corr))
+  return(mean(corr))
+}
+
+
+cor_Houseman <- within_sample_corr(benchmark_trueprop, Houseman_res)
+cor_RPC <-within_sample_corr(benchmark_trueprop, RPC_res)
+cor_CBS <- within_sample_corr(benchmark_trueprop, CBS_res)
+cor_MethylResolver <- within_sample_corr(benchmark_trueprop, MethylResolver_res)
+
