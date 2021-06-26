@@ -75,6 +75,124 @@ phyper(length(intersect(common_probes, intersect(probe_2_450k, probe_2_EPIC))),
        length(common_probes) - length(intersect(common_probes, probe_2_EPIC)),
        length(intersect(common_probes, probe_2_450k)), lower.tail = FALSE,  log.p = FALSE)
 
+## by each cell type 
+## Bcell
+probe_1_EPIC_tmp <- probe_1_EPIC[1:100]
+probe_2_EPIC_tmp <- probe_2_EPIC[1:300]
+
+probe_1_450k_tmp <- probe_1_450k[1:100]
+probe_2_450k_tmp <- probe_2_450k[1:300]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+## CD4T
+probe_1_EPIC_tmp <- probe_1_EPIC[101:200]
+probe_2_EPIC_tmp <- probe_2_EPIC[301:600]
+
+probe_1_450k_tmp <- probe_1_450k[101:200]
+probe_2_450k_tmp <- probe_2_450k[301:600]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+## CD8T
+probe_1_EPIC_tmp <- probe_1_EPIC[201:300]
+probe_2_EPIC_tmp <- probe_2_EPIC[601:900]
+
+probe_1_450k_tmp <- probe_1_450k[201:300]
+probe_2_450k_tmp <- probe_2_450k[601:900]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+## Mono
+probe_1_EPIC_tmp <- probe_1_EPIC[301:400]
+probe_2_EPIC_tmp <- probe_2_EPIC[901:1200]
+
+probe_1_450k_tmp <- probe_1_450k[401:500]
+probe_2_450k_tmp <- probe_2_450k[1201:1500]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+## Neu
+probe_1_EPIC_tmp <- probe_1_EPIC[401:500]
+probe_2_EPIC_tmp <- probe_2_EPIC[1201:1500]
+
+probe_1_450k_tmp <- probe_1_450k[301:400]
+probe_2_450k_tmp <- probe_2_450k[901:1200]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+## NK
+probe_1_EPIC_tmp <- probe_1_EPIC[501:600]
+probe_2_EPIC_tmp <- probe_2_EPIC[1501:1800]
+
+probe_1_450k_tmp <- probe_1_450k[501:600]
+probe_2_450k_tmp <- probe_2_450k[1501:1800]
+
+phyper(length(intersect(common_probes, intersect(probe_1_450k_tmp, probe_1_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_1_EPIC_tmp)),
+       length(intersect(common_probes, probe_1_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+phyper(length(intersect(common_probes, intersect(probe_2_450k_tmp, probe_2_EPIC_tmp))) - 1,
+       length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(common_probes) - length(intersect(common_probes, probe_2_EPIC_tmp)),
+       length(intersect(common_probes, probe_2_450k_tmp)), lower.tail = FALSE,  log.p = FALSE)
+
+
+
+
+
+
 
 
 
