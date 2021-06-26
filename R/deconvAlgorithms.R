@@ -276,7 +276,7 @@ ssGSEAESTIMATE_score_within_celltype <- function(betamatrix, probeList){
 
 #'Enrichment score-based algorithm
 #'
-#'CBS deconvolution algorithm
+#'Enrichment score-based deconvolution algorithm
 #'@param betamatrix Beta value matrix of methylation array for mixture samples.
 #'@param ref_betamatrix The reference matrix ref_betamatrix.
 #'@param ref_phenotype The cell type information for the reference matrix.

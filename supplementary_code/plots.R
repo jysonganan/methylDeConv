@@ -43,6 +43,7 @@ cor_Houseman <- c(0.971, 0.978, 0.964, 0.964)
 cor_RPC <- c(0.973, 0.978, 0.969, 0.964)
 cor_CBS <- c(0.952, 0.956, 0.966, 0.968)
 cor_MethylResolver <- c(0.971, 0.978, 0.964, 0.964)
+
 df1 <- data.frame(FeatureSelection = c("top 50","top 100","top 150","top 200"),
                   Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
 
@@ -53,4 +54,28 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
         labs(x = "Feature selection with oneVsAllttest")+
         labs(y = "Average Spearman correlation")+
         labs(fill = "Deconvolution algorithms"))
+
+
+cor_Houseman <- c(0.9710931, 0.9783402, 0.9640545, 0.9640545)
+cor_RPC <- c(0.9734393, 0.9783402, 0.9688164, 0.9640545)
+cor_CBS <- c(0.9515192, 0.9562116, 0.9663312, 0.9682206)
+cor_MethylResolver <- c(0.9711626, 0.9783402, 0.9640545, 0.9640545)
+df1 <- data.frame(FeatureSelection = c("top 50","top 100","top 150","top 200"),
+                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+       aes(x = factor(FeatureSelection, level = c("top 50","top 100","top 150","top 200")),
+           y = Spearman_Correlation, group = Deconvolution)) +
+  geom_point(aes(col = Deconvolution))+
+  geom_line(aes(colour = Deconvolution, alpha= Deconvolution, linetype= Deconvolution, size = Deconvolution))+
+  #geom_line(aes(linetype= Deconvolution, colour = Deconvolution), size = 1)+
+  scale_linetype_manual(values=c("solid", "twodash", "dotted", "solid"))+
+  scale_alpha_manual(values=c(1,0.4,0.6,1))+
+  scale_color_manual(values=c('violet','green','red', 'cyan3'))+
+  scale_size_manual(values=c(1,1.4,1.4,1))+
+  labs(x = "oneVsAllttest")+
+  labs(y = "Average Spearman correlation")+
+  labs(group = "Deconvolution algorithms") +
+  theme_grey(base_size = 15)
+
+
 
