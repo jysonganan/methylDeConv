@@ -42,20 +42,20 @@ gst_Extended_overlapping_KEGG <- gometh(sig.cpg=probes_Extended_overlapping, all
 gst_Extended_overlapping_GO <- gometh(sig.cpg=probes_Extended_overlapping, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
 
 
-gst_EPIC_oneVsAllttest_KEGG <- gst_EPIC_oneVsAllttest_KEGG[order(gst_EPIC_oneVsAllttest_KEGG[,"P.DE"]),]
-gst_EPIC_oneVsAllttest_GO <- gst_EPIC_oneVsAllttest_GO[order(gst_EPIC_oneVsAllttest_GO[,"P.DE"]),]
-gst_EPIC_glmnetpreselect_KEGG <- gst_EPIC_glmnetpreselect_KEGG[order(gst_EPIC_glmnetpreselect_KEGG[,"P.DE"]),]
-gst_EPIC_glmnetpreselect_GO <- gst_EPIC_glmnetpreselect_GO[order(gst_EPIC_glmnetpreselect_GO[,"P.DE"]),]
-gst_EPIC_overlapping_KEGG <- gst_EPIC_overlapping_KEGG[order(gst_EPIC_overlapping_KEGG[,"P.DE"]),]
-gst_EPIC_overlapping_GO <- gst_EPIC_overlapping_GO[order(gst_EPIC_overlapping_GO[,"P.DE"]),]
+gst_EPIC_oneVsAllttest_KEGG <- gst_EPIC_oneVsAllttest_KEGG[order(gst_EPIC_oneVsAllttest_KEGG[,"FDR"]),]
+gst_EPIC_oneVsAllttest_GO <- gst_EPIC_oneVsAllttest_GO[order(gst_EPIC_oneVsAllttest_GO[,"FDR"]),]
+gst_EPIC_glmnetpreselect_KEGG <- gst_EPIC_glmnetpreselect_KEGG[order(gst_EPIC_glmnetpreselect_KEGG[,"FDR"]),]
+gst_EPIC_glmnetpreselect_GO <- gst_EPIC_glmnetpreselect_GO[order(gst_EPIC_glmnetpreselect_GO[,"FDR"]),]
+gst_EPIC_overlapping_KEGG <- gst_EPIC_overlapping_KEGG[order(gst_EPIC_overlapping_KEGG[,"FDR"]),]
+gst_EPIC_overlapping_GO <- gst_EPIC_overlapping_GO[order(gst_EPIC_overlapping_GO[,"FDR"]),]
 
 
-gst_Extended_oneVsAllttest_KEGG <- gst_Extended_oneVsAllttest_KEGG[order(gst_Extended_oneVsAllttest_KEGG[,"P.DE"]),]
-gst_Extended_oneVsAllttest_GO <- gst_Extended_oneVsAllttest_GO[order(gst_Extended_oneVsAllttest_GO[,"P.DE"]),]
-gst_Extended_glmnetpreselect_KEGG <- gst_Extended_glmnetpreselect_KEGG[order(gst_Extended_glmnetpreselect_KEGG[,"P.DE"]),]
-gst_Extended_glmnetpreselect_GO <- gst_Extended_glmnetpreselect_GO[order(gst_Extended_glmnetpreselect_GO[,"P.DE"]),]
-gst_Extended_overlapping_KEGG <- gst_Extended_overlapping_KEGG[order(gst_Extended_overlapping_KEGG[,"P.DE"]),]
-gst_Extended_overlapping_GO <- gst_Extended_overlapping_GO[order(gst_Extended_overlapping_GO[,"P.DE"]),]
+gst_Extended_oneVsAllttest_KEGG <- gst_Extended_oneVsAllttest_KEGG[order(gst_Extended_oneVsAllttest_KEGG[,"FDR"]),]
+gst_Extended_oneVsAllttest_GO <- gst_Extended_oneVsAllttest_GO[order(gst_Extended_oneVsAllttest_GO[,"FDR"]),]
+gst_Extended_glmnetpreselect_KEGG <- gst_Extended_glmnetpreselect_KEGG[order(gst_Extended_glmnetpreselect_KEGG[,"FDR"]),]
+gst_Extended_glmnetpreselect_GO <- gst_Extended_glmnetpreselect_GO[order(gst_Extended_glmnetpreselect_GO[,"FDR"]),]
+gst_Extended_overlapping_KEGG <- gst_Extended_overlapping_KEGG[order(gst_Extended_overlapping_KEGG[,"FDR"]),]
+gst_Extended_overlapping_GO <- gst_Extended_overlapping_GO[order(gst_Extended_overlapping_GO[,"FDR"]),]
 
 # save("gst_EPIC_oneVsAllttest_KEGG", "gst_EPIC_oneVsAllttest_GO", "gst_EPIC_glmnetpreselect_KEGG", "gst_EPIC_glmnetpreselect_GO",
 #      "gst_EPIC_overlapping_KEGG", "gst_EPIC_overlapping_GO", "gst_Extended_oneVsAllttest_KEGG", "gst_Extended_oneVsAllttest_GO",
