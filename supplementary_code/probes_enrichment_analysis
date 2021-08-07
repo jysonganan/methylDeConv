@@ -26,20 +26,20 @@ probes_Extended_overlapping <- intersect(probes_Extended_oneVsAllttest, probes_E
 
 
 #### missMethyl, hypergeometric test (taking into account the number of CpG sites per gene on the 450K array)
-gst_EPIC_oneVsAllttest_KEGG <- gometh(sig.cpg=probes_EPIC_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_EPIC_oneVsAllttest_GO <- gometh(sig.cpg=probes_EPIC_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="GO")
-gst_EPIC_glmnetpreselect_KEGG <- gometh(sig.cpg=probes_EPIC_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_EPIC_glmnetpreselect_GO <- gometh(sig.cpg=probes_EPIC_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="GO")
-gst_EPIC_overlapping_KEGG <- gometh(sig.cpg=probes_EPIC_overlapping, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_EPIC_overlapping_GO <- gometh(sig.cpg=probes_EPIC_overlapping, all.cpg=rownames(compTable_EPIC), collection="GO")
+gst_EPIC_oneVsAllttest_KEGG <- gometh(sig.cpg=probes_EPIC_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_EPIC_oneVsAllttest_GO <- gometh(sig.cpg=probes_EPIC_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
+gst_EPIC_glmnetpreselect_KEGG <- gometh(sig.cpg=probes_EPIC_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_EPIC_glmnetpreselect_GO <- gometh(sig.cpg=probes_EPIC_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
+gst_EPIC_overlapping_KEGG <- gometh(sig.cpg=probes_EPIC_overlapping, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_EPIC_overlapping_GO <- gometh(sig.cpg=probes_EPIC_overlapping, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
 
 
-gst_Extended_oneVsAllttest_KEGG <- gometh(sig.cpg=probes_Extended_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_Extended_oneVsAllttest_GO <- gometh(sig.cpg=probes_Extended_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="GO")
-gst_Extended_glmnetpreselect_KEGG <- gometh(sig.cpg=probes_Extended_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_Extended_glmnetpreselect_GO <- gometh(sig.cpg=probes_Extended_glmnetpreselect,all.cpg=rownames(compTable_EPIC), collection="GO")
-gst_Extended_overlapping_KEGG <- gometh(sig.cpg=probes_Extended_overlapping, all.cpg=rownames(compTable_EPIC), collection="KEGG")
-gst_Extended_overlapping_GO <- gometh(sig.cpg=probes_Extended_overlapping, all.cpg=rownames(compTable_EPIC), collection="GO")
+gst_Extended_oneVsAllttest_KEGG <- gometh(sig.cpg=probes_Extended_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_Extended_oneVsAllttest_GO <- gometh(sig.cpg=probes_Extended_oneVsAllttest, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
+gst_Extended_glmnetpreselect_KEGG <- gometh(sig.cpg=probes_Extended_glmnetpreselect, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_Extended_glmnetpreselect_GO <- gometh(sig.cpg=probes_Extended_glmnetpreselect,all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
+gst_Extended_overlapping_KEGG <- gometh(sig.cpg=probes_Extended_overlapping, all.cpg=rownames(compTable_EPIC), collection="KEGG", array.type="EPIC")
+gst_Extended_overlapping_GO <- gometh(sig.cpg=probes_Extended_overlapping, all.cpg=rownames(compTable_EPIC), collection="GO", array.type="EPIC")
 
 
 gst_EPIC_oneVsAllttest_KEGG <- gst_EPIC_oneVsAllttest_KEGG[order(gst_EPIC_oneVsAllttest_KEGG[,"P.DE"]),]
