@@ -110,12 +110,12 @@ Extended_oneVsAllttest_GO = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001,
 cpg.mypval <- rep(0.5, nrow(compTable_Extended))
 names(cpg.mypval) <- rownames(compTable_Extended)
 cpg.mypval[which(names(cpg.mypval) %in% probes_Extended_glmnetpreselect)] <- 0.0005
-Extended_oneVsAllttest_KEGG = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "KEGG", array.type = "EPIC", minsize = 15, maxsize = 500)
-Extended_oneVsAllttest_GO = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "GO", array.type = "EPIC", minsize = 15, maxsize = 500)
+Extended_glmnetpreselect_KEGG = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "KEGG", array.type = "EPIC", minsize = 15, maxsize = 500)
+Extended_glmnetpreselect_GO = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "GO", array.type = "EPIC", minsize = 15, maxsize = 500)
 
 
 cpg.mypval <- rep(0.5, nrow(compTable_Extended))
 names(cpg.mypval) <- rownames(compTable_Extended)
 cpg.mypval[which(names(cpg.mypval) %in% probes_Extended_overlapping)] <- 0.0005
-Extended_oneVsAllttest_KEGG = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "KEGG", array.type = "EPIC", minsize = 15, maxsize = 500)
-Extended_oneVsAllttest_GO = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "GO", array.type = "EPIC", minsize = 15, maxsize = 500)
+Extended_overlapping_KEGG = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "KEGG", array.type = "EPIC", minsize = 15, maxsize = 500)
+Extended_overlapping_GO = methylgometh(cpg.pval = cpg.mypval, sig.cut = 0.001, topDE = NULL, GS.type = "GO", array.type = "EPIC", minsize = 15, maxsize = 500)
