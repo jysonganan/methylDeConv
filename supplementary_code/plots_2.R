@@ -38,8 +38,11 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
 #####################
 ### Figure 2
 #####################
-
-
+library(VennDiagram)
+grid.newpage()
+draw.triple.venn(area1 = 600, area2= 600, area3 = 946, n12 = 576, n23 = 350, n13 = 347, 
+                 n123 = 345, category = c("oneVsAllttest", "oneVsAllLimma", "glmnetpreselect"), lty = "blank", 
+                 fill = c("skyblue", "pink1", "mediumorchid"))
 
 
 
@@ -66,6 +69,15 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   labs(fill = "Deconvolution algorithms")+
   coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
+
+
+
+
+
+#####################
+### Figure 5
+#####################
+
 
 
 
