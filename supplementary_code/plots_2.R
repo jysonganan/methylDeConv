@@ -17,6 +17,7 @@ cor_MethylResolver <- c(0.978, 0.983, 0.868, 0.978, 0.956, 0.920, 0.788, 0.959)
 # cor_MethylResolver <- c(cor_MethylResolver_1, cor_MethylResolver_2, cor_MethylResolver_3, cor_MethylResolver_4,
 #                         cor_MethylResolver_5, cor_MethylResolver_6, cor_MethylResolver_7, cor_MethylResolver_8,
 #                         cor_MethylResolver_9)
+
 df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
                                        "glmnetpreselect", "RFpreselect", "Rfepreselect"),
                   Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
@@ -28,9 +29,14 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
   labs(x = "Feature selection")+
   labs(y = "Average Spearman correlation")+
-  labs(fill = "Deconvolution algorithms"))
+  labs(fill = "Deconvolution algorithms")+
+  coord_cartesian(ylim=c(0.5,1)))
 
 
+
+#####################
+### Figure 2
+#####################
 
 
 
