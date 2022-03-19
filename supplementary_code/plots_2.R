@@ -389,14 +389,14 @@ Houseman <- c(0.991,0.917,0.734,0.504,0.201,0.986,0.984,0.975,0.910,0.722)
 RPC <- c(0.992,0.914,0.710,0.472,0.154,0.991,0.985,0.976,0.908,0.728)
 CBS <- c(0.976,0.885,0.686,0.461,0.126,0.969,0.971,0.963,0.892,0.703)
 df1 <- data.frame(NonImmuneProportions = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9", "0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9"),
-                  facet = c(rep("EPIC reference library", 5), rep("EPIC + Epithelial reference library",5)),
+                  facet = c(rep("EPIC reference library", 5), rep("EPIC + cfDNA reference library",5)),
                   Houseman = Houseman, RPC = RPC, CBS = CBS)
 
 ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmuneProportions,facet)), 
        aes(x = factor(NonImmuneProportions, level = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9")), y = Spearman_Correlation, fill = Deconvolution)) + 
   geom_bar(stat = 'identity', position = 'dodge')+
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
-  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + cfDNA reference library")))+
   labs(x = "Non-Immune (cfDNA) Proportions")+
   labs(y = "Average Spearman correlation")+
   labs(fill = "Deconvolution algorithms")
