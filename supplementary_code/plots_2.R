@@ -52,9 +52,9 @@ draw.triple.venn(area1 = 600, area2= 600, area3 = 946, n12 = 576, n23 = 350, n13
 #####################
 ### Figure 3
 #####################
-Houseman <- c(0.978, 0.947, 0.95, 0.94)
-RPC <- c(0.978, 0.938, 0.94, 0.94)
-CBS <- c(0.956, 0.940, 0.95, 0.92)
+Houseman <- c(0.978, 0.947, 0.947, 0.942)
+RPC <- c(0.978, 0.938, 0.942, 0.937)
+CBS <- c(0.956, 0.940, 0.952, 0.923)
 df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
                   facet = c("A. EPIC reference library", "A. EPIC reference library", "B. EPIC + Epithelial reference library", "B. EPIC + Epithelial reference library"), 
                   Houseman = Houseman, RPC = RPC, CBS = CBS)
