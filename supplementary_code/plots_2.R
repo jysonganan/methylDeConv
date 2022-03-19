@@ -56,20 +56,19 @@ Houseman <- c(0.978, 0.947, 0.947, 0.942)
 RPC <- c(0.978, 0.938, 0.942, 0.937)
 CBS <- c(0.956, 0.940, 0.952, 0.923)
 df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
-                  facet = c("A. EPIC reference library", "A. EPIC reference library", "B. EPIC + Epithelial reference library", "B. EPIC + Epithelial reference library"), 
+                  facet = c("A. EPIC reference library", "A. EPIC reference library", "B. 450k reference library", "B. 450k reference library"), 
                   Houseman = Houseman, RPC = RPC, CBS = CBS)
 
 ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSelection,facet)), 
        aes(x = factor(FeatureSelection, level = c("oneVsAllttest","glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) + 
   geom_bar(stat = 'identity', position = 'dodge')+
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
-  facet_wrap(~factor(facet,level = c("A. EPIC reference library","B. EPIC + Epithelial reference library")))+
+  facet_wrap(~factor(facet,level = c("A. EPIC reference library","B. 450k reference library")))+
   labs(x = "Feature selection")+
   labs(y = "Average Spearman correlation")+
   labs(fill = "Deconvolution algorithms")+
   coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
-
 
 
 
