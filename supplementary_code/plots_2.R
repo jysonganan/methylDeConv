@@ -319,7 +319,7 @@ dev.off()
 ## Figure 15
 ###################
 
-load("GSE133395.RData")
+load("res_133395.RData")
 library(ggplot2)
 library(tidyr)
 pdf(file = "Plot3.pdf",  
