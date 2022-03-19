@@ -315,6 +315,23 @@ dev.off()
 
 
 
+###################
+## Figure 15
+###################
+
+load("GSE133395.RData")
+library(ggplot2)
+library(tidyr)
+pdf(file = "Plot3.pdf",  
+    width = 10,
+    height = 8) 
+df <- gather(gender_dat_blood, series,value,-group)
+ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
+  xlab('cell types')+
+  ylab('proportions') +
+  ggtitle("GSE133395-RPC-onevsAllttest")
+dev.off()
+
 
 ##################
 ## Figure 16
