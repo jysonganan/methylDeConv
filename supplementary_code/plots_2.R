@@ -78,7 +78,25 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
 ### Figure 5
 #####################
 
+library(tidyr)
+library(ggplot2)
+cor_Houseman <- c(0.969, 0.969, 0.911, 0.957, 0.952, 0.937)
+cor_RPC <- c(0.983, 0.974, 0.911, 0.983, 0.971, 0.932)
+cor_CBS <- c(0.964, 0.974, 0.935, 0.966, 0.952, 0.952)
 
+
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet","glmnetpreselect"),
+                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS)
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                  "glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")+
+  coord_cartesian(ylim=c(0.5,1)))
 
 
 
