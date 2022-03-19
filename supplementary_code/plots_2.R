@@ -383,7 +383,7 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelect
 
 
 ####################
-## Supp Figure 9
+## Supp Figure 8
 ####################
 Houseman <- c(0.991,0.917,0.734,0.504,0.201,0.986,0.984,0.975,0.910,0.722)
 RPC <- c(0.992,0.914,0.710,0.472,0.154,0.991,0.985,0.976,0.908,0.728)
