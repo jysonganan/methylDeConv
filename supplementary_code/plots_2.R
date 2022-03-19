@@ -344,7 +344,7 @@ df <- gather(gender_dat_blood, series,value,-group)
 ggplot(df) + geom_boxplot(aes(series ,value,color=group)) +
   xlab('cell types')+
   ylab('proportions') +
-  ggtitle("GSE112308-Melanoma_Houseman-RPC-onevsAllttest")
+  ggtitle("GSE112308-RPC-onevsAllttest")
 dev.off()
 
 
