@@ -401,3 +401,29 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmunePr
   labs(y = "Average Spearman correlation")+
   labs(fill = "Deconvolution algorithms")
 
+
+
+####################
+## Supp Figure 9
+####################
+
+### within cell type Houseman
+Bcell <- c(0.998,0.995,0.987,0.968,0.837,0.998,0.997,0.996,0.986,0.866)
+CD4T <- c(0.996,0.994,0.982,0.900,0.827,0.994,0.994,0.982,0.924,0.829)
+CD8T <- c(0.995,0.992,0.970,0.943,0.839,0.992,0.988,0.972,0.934,0.764)
+Mono <- c(0.996,0.993,0.975,0.912,0.788,0.996,0.997,0.990,0.932,0.814)
+Neu <- c(0.996,0.974,0.805,0.465,0.451,0.997,0.995,0.983,0.928,0.480)
+NK <- c(0.997,0.994,0.978,0.957,0.865,0.997,0.997,0.995,0.977,0.923)
+cfDNA <- c(NA,NA,NA,NA,NA,NA,0.975,0.978,0.956,0.796)
+df1 <- data.frame(NonImmuneProportions = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9", "0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9"),
+                  facet = c(rep("EPIC reference library", 5), rep("EPIC + cfDNA reference library",5)),
+                  Bcell = Bcell, CD4T = CD4T, CD8T = CD8T, Mono = Mono, Neu = Neu, NK = NK, Nonimmune_cfDNA = cfDNA)
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmuneProportions,facet)),
+       aes(x = factor(NonImmuneProportions, level = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9")), y = Spearman_Correlation, fill = Deconvolution)) +
+  geom_bar(stat = 'identity', position = 'dodge')+
+  geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + cfDNA reference library")),dir = "v")+
+  labs(x = "Non-immune (cfDNA) proportions")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Cell Types")
+
