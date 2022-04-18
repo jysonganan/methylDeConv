@@ -138,32 +138,37 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmunePr
 #####################
 ### Figure 7
 #####################
+
 Houseman <- c(0.707,0.753,0.662,0.406,0.161,0.538,0.561,0.392,0.066,-0.016)
 RPC <- c(0.926,0.951,0.840,0.528,0.191,0.940,0.927,0.922,0.825,0.601)
 CBS <- c(0.936,0.947,0.812,0.504,0.229,0.938,0.933,0.925,0.819,0.586)
 MethylResolver <- c(0.923,0.948,0.874,0.606,0.266,0.938,0.932,0.924,0.836,0.600)
 df1 <- data.frame(NonImmuneProportions = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9", "0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9"),
-                  facet = c(rep("EPIC reference library", 5), rep("EPIC + Epithelial reference library",5)),
+                  facet = c(rep("EPIC reference library", 5), rep("EPIC + Epithelial reference library", 5)),
                   Houseman = Houseman, RPC = RPC, CBS = CBS, MethylResolver = MethylResolver)
+
 
 se = c(0.00884,0.00819,0.01214,0.01586,0.01673,	0.01382,0.01143,0.01245,0.01676,0.01761,
        0.00324,0.00258,0.00706,0.01374,0.01759, 0.00282,0.00382,0.00293,0.00612,0.01403,
        0.00297,0.00242,0.00905,0.01483,0.01764,	0.00299,0.00356,0.00304,0.00754,0.01440,
        0.00330,0.00288,0.00612,0.01297,0.01739,0.00286,0.00373,0.00299,0.00702,0.01409)
 
-se <- se * 1.96
+
 ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmuneProportions,facet)),
        aes(x = factor(NonImmuneProportions, level = c("0","0.1-0.2", "0.2-0.5","0.5-0.8","0.8-0.9")), 
-           y = Spearman_Correlation, group =Deconvolution)) +
-  geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se, col = Deconvolution), width=.1) +
-  geom_point(aes(col = Deconvolution))+ 
-  geom_line(aes(col = Deconvolution), size = 1)+
+           y = Spearman_Correlation, fill =Deconvolution)) +
+  
+  #geom_point(aes(col = Deconvolution))+ 
+  #geom_line(aes(col = Deconvolution), size = 1)+
   #geom_line(group = 4, aes(col = factor(Deconvolution)))+
-  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  geom_bar(stat = 'identity', position = 'dodge')+
+  #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
   facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
   labs(x = "Non-immune (Epithelial) proportions")+
   labs(y = "Average Spearman correlation")+
   labs(group= "Deconvolution algorithms")
+
 
 
 
