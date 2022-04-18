@@ -195,7 +195,7 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmunePr
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
   facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")),dir = "v")+
   labs(x = "Non-immune (Epithelial) proportions")+
-  labs(y = "Average Spearman correlation")+
+  labs(y = "Spearman correlation")+
   labs(fill = "Cell Types")
 
 
@@ -222,7 +222,7 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmunePr
   geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
   facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")),dir = "v")+
   labs(x = "Non-immune (Epithelial) proportions")+
-  labs(y = "Average Spearman correlation")+
+  labs(y = "Spearman correlation")+
   labs(fill = "Cell Types")
 
 
