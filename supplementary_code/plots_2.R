@@ -241,7 +241,34 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(NonImmunePr
   labs(fill = "Cell Types")
 
 
+######################
+### Figure 10
+######################
+pdf(file = "Figure10.pdf",  
+    width = 12,
+    height = 8) 
 
+cell_types <- unique(reference_EPIC_extend$ref_phenotype)
+
+## coefficient of variation
+cv_mat <- matrix(NA, nrow = dim(reference_EPIC_extend$ref_betamatrix)[1], ncol = 7)
+for (i in 1:7){
+  ids <- which(reference_EPIC_extend$ref_phenotype == cell_types[i])
+  dat <- reference_EPIC_extend$ref_betamatrix[,ids]
+  cv_mat[,i] <- apply(dat, 1, function(x){return(sd(x)/mean(x))})
+}
+
+
+df <- data.frame(cell_type = rep(cell_types, rep(866091,7)), 
+                 cv = c(cv_mat[,1], cv_mat[,2], cv_mat[,3], cv_mat[,4], 
+                        cv_mat[,5], cv_mat[,6], cv_mat[,7]))
+ggplot(df, aes(x=cv, fill=cell_type, color = cell_type)) +
+  geom_histogram(position="identity", alpha=0.4, bins = 100) + 
+  labs(x = "coefficients of variation")+
+  labs(y = "count of CpGs")+
+  coord_cartesian(xlim=c(0,1.5))
+
+dev.off()
 
 
 
