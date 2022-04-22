@@ -316,6 +316,78 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   labs(fill = "Deconvolution algorithms")
 
 
+
+
+
+####################
+## Figure 11  (new)
+####################
+pdf(file = "Figure11.pdf",  
+    width = 16,
+    height = 8) 
+
+
+Houseman <- c(0.876, 0.752, 0.781, 0.838)
+RPC <- c(0.781, 0.848, 0.762, 0.876)
+CBS <- c(0.743, 0.876, 0.648, 0.886)
+MethylResolver <- c(0.8, 0.810, 0.848, 0.8)
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
+                  facet = c("EPIC reference library", "EPIC reference library", "EPIC + Epithelial reference library", "EPIC + Epithelial reference library"), 
+                  Houseman = Houseman, RPC = RPC, CBS = CBS, MethylResolver = MethylResolver)
+
+sd_1 <- c(0.0668, 0.3306, 0.2298, 0.1892, 0.2151, 0.2906, 0.2089, 0.1927,
+          0.2549, 0.1221, 0.3011, 0.2012, 0.2130, 0.2884, 0.1384, 0.1869)
+se = sd_1/sqrt(6)
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSelection,facet)), 
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")+
+  coord_cartesian(ylim=c(0.5,1))
+
+dev.off()
+
+
+####################
+## Figure 12  (new)
+####################
+pdf(file = "Figure12.pdf",  
+    width = 16,
+    height = 8) 
+
+
+Houseman <- c(0.590, 0.781, 0.270, 0.362)
+RPC <- c(0.793, 0.957, 0.224, -0.005)
+CBS <- c(0.674, 0.850, 0.231, 0.187)
+MethylResolver <- c(0.581, 0.895, 0.392, -0.019)
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","glmnetpreselect", "oneVsAllttest","glmnetpreselect"), 
+                  facet = c("EPIC reference library", "EPIC reference library", "EPIC + Epithelial reference library", "EPIC + Epithelial reference library"), 
+                  Houseman = Houseman, RPC = RPC, CBS = CBS, MethylResolver = MethylResolver)
+
+sd_1 <- c(0.1711, 0.1749, 0.3077, 0.3139, 0.1110, 0.0689, 0.1320, 0.0743,
+          0.2429, 0.1177, 0.1825, 0.1519, 0.3226, 0.1221, 0.1775, 0.0812)
+se = sd_1/sqrt(6)
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSelection,facet)), 
+       aes(x = factor(FeatureSelection, level = c("oneVsAllttest","glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) + 
+  geom_bar(stat = 'identity', position = 'dodge')+
+  #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+  geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+  facet_wrap(~factor(facet,level = c("EPIC reference library","EPIC + Epithelial reference library")))+
+  labs(x = "Feature selection")+
+  labs(y = "Average Spearman correlation")+
+  labs(fill = "Deconvolution algorithms")+
+  coord_cartesian(ylim=c(-0.1,1))
+
+dev.off()
+
+
+
 ###################
 ## Figure 13
 ##################
