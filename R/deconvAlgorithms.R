@@ -1,5 +1,10 @@
 
 projectCellType <- function(Y, coefCellType, contrastCellType = NULL, nonnegative = TRUE, lessThanOne = FALSE){
+  ### This function is modified from package minfi https://github.com/hansenlab/minfi/blob/master/R/estimateCellCounts.R.
+  ### Please cite the paper (Aryee MJ, Jaffe AE, Corrada-Bravo H, Ladd-Acosta C, Feinberg AP, Hansen KD, Irizarry RA (2014). “Minfi: A flexible and comprehensive Bioconductor package for the analysis of Infinium DNA Methylation microarrays.” 
+  ### Bioinformatics, 30(10), 1363–1369. doi: 10.1093/bioinformatics/btu049.) or Citation (from within R, enter citation("minfi"))
+  
+  
   library(quadprog)
   if (is.null(contrastCellType)) {
     Xmat <- coefCellType
