@@ -100,6 +100,8 @@ CBS <- function(betamatrix, compTable, probes_select){
 #'MethylResolver algorithm
 #'
 #'MethylResolver deconvolution algorithm
+#'Modified from the code in package MethylResolver (https://github.com/darneson/MethylResolver). 
+#'Please also cite Arneson, Douglas, Xia Yang, and Kai Wang. "MethylResolver—a method for deconvoluting bulk DNA methylation profiles into known and unknown cell contents." Communications biology 3, no. 1 (2020): 1-13.
 #'@param methylMix Beta value matrix of methylation array for mixture samples.
 #'@param methylSig Average reference profiles over each cell type.
 #'@param probes_select Probes selected.
@@ -109,6 +111,9 @@ CBS <- function(betamatrix, compTable, probes_select){
 #'@return The matrix of deconvolution results with rows as mixture samples and columns as cell types.
 #'@export
 
+                       
+                       
+                       
 MethylResolver <- function(methylMix, methylSig, probes_select, alpha = seq(0.5, 0.9, by = 0.05)) {
   set.seed(5)
   i <- NULL
