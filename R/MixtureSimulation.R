@@ -138,7 +138,7 @@ betaSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_sim, 
   else if (nonimmune_level == 3){
     set.seed(11)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.2, 0.5)
+    proportions_sim_epithelial <- stats::runif(n, 0.2, 0.5)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
@@ -147,7 +147,7 @@ betaSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_sim, 
   else if (nonimmune_level == 4){
     set.seed(7)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.5, 0.8)
+    proportions_sim_epithelial <- stats::runif(n, 0.5, 0.8)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
@@ -156,7 +156,7 @@ betaSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_sim, 
   else if (nonimmune_level == 5){
     set.seed(5)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.8, 0.9)
+    proportions_sim_epithelial <- stats::runif(n, 0.8, 0.9)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
@@ -227,7 +227,7 @@ GaussianSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_s
   else if (nonimmune_level == 3){
     set.seed(11)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.2, 0.5)
+    proportions_sim_epithelial <- stats::runif(n, 0.2, 0.5)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
@@ -236,7 +236,7 @@ GaussianSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_s
   else if (nonimmune_level == 4){
     set.seed(7)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.5, 0.8)
+    proportions_sim_epithelial <- stats::runif(n, 0.5, 0.8)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
@@ -245,7 +245,7 @@ GaussianSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_s
   else if (nonimmune_level == 5){
     set.seed(5)
     proportions_sim <- MCMCpack::rdirichlet(n, c(1,1,1,1,1,1))
-    proportions_sim_epithelial <- runif(n, 0.8, 0.9)
+    proportions_sim_epithelial <- stats::runif(n, 0.8, 0.9)
     proportions_sim <- proportions_sim * (1-proportions_sim_epithelial)
     proportions_sim <- cbind(proportions_sim, proportions_sim_epithelial)
     proportions_sim <- proportions_sim[,c(1,2,3,7,4,5,6)]
