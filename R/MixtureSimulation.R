@@ -283,7 +283,7 @@ GaussianSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_s
 
 
 
-#'Beta Mixture Simulation
+#'Beta Mixture Simulation (rare setting)
 #'
 #'Beta Mixture Simulation to generate the mixture profiles with true/known proportions.
 #'@param nonimmune_level The levels are 1,2,3,4,5. Default value is 1. 
@@ -375,7 +375,7 @@ betaSim_mixtureProfiles_rare <- function(nonimmune_level = 1, purified_datasets_
 
 
 
-#'Gaussian Mixture Simulation
+#'Gaussian Mixture Simulation (rare settng)
 #'
 #'Gaussian Mixture Simulation to generate the mixture profiles with true/known proportions.
 #'@param nonimmune_level The levels are 1,2,3,4,5. Default value is 1. 1: No non-immune component; level 2: the non-immune proportion is 0.1-0.2;
@@ -385,7 +385,7 @@ betaSim_mixtureProfiles_rare <- function(nonimmune_level = 1, purified_datasets_
 #'@return The simulated mixture profiles.
 #'@export
 
-GaussianSim_mixtureProfiles <- function(nonimmune_level = 1, purified_datasets_sim, n = 30){
+GaussianSim_mixtureProfiles_rare <- function(nonimmune_level = 1, purified_datasets_sim, n = 30){
   n_purified = length(purified_datasets_sim)
   if (nonimmune_level == 1){
     set.seed(3)
