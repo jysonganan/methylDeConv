@@ -21,3 +21,6 @@ compTable_EPIC <- ref_compTable(reference_EPIC$ref_betamatrix, reference_EPIC$re
 compTable_EPIC <- compTable_EPIC[,3:8]
 
 save("compTable_EPIC", "benchmark_betamatrix", "benchmark_trueprop", file = "Benchmark_EPICref.RData")
+
+
+
