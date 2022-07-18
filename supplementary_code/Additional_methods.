@@ -1,0 +1,23 @@
+#### feature selection comparison on Benchmark dataset 1
+library(methylDeConv)
+####################################
+#### Benchmark dataset 1
+####################################
+library(ExperimentHub)
+hub <- ExperimentHub()
+query(hub, "FlowSorted.Blood.EPIC")
+FlowSorted.Blood.EPIC <- hub[["EH1136"]]
+annot <- as.data.frame(colData(FlowSorted.Blood.EPIC))
+benchmark <- which(annot$CellType == "MIX")
+tmp <- getBeta(preprocessNoob(FlowSorted.Blood.EPIC, dyeMethod = "single"))
+benchmark_betamatrix <- tmp[,rownames(annot)[benchmark]]
+benchmark_trueprop <- annot[benchmark, c("Bcell", "CD4T", "CD8T", "Mono", "Neu", "NK")]
+
+####################################
+#### build reference
+####################################
+reference_EPIC <- build_reference_EPIC(extend = FALSE)
+compTable_EPIC <- ref_compTable(reference_EPIC$ref_betamatrix, reference_EPIC$ref_phenotype)
+compTable_EPIC <- compTable_EPIC[,3:8]
+
+save("compTable_EPIC", "benchmark_betamatrix", "benchmark_trueprop", file = "Benchmark_EPICref.RData")
