@@ -118,6 +118,8 @@ within_sample_corr <- function(true_proportions, deconv_res){
   return(mean(corr))
 }
 
+## Add RMSE, MAPD metrics
+
 
 print("oneVsAllttest")
 cor_Houseman_1 <- within_sample_corr(benchmark_trueprop, Houseman_res_1)
