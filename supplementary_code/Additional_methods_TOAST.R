@@ -34,6 +34,29 @@ outRF2 <- csDeconv(benchmark_betamatrix, K = K, nMarker = 1000,
 estProp_RF_semi_Improved <- outRF2$estProp
 
 
+
+###### performance on benchmark dataset
+
+within_sample_corr(benchmark_trueprop, estProp_RF_mostVariable)   #0.1197837
+within_sample_corr(benchmark_trueprop, estProp_RF_semi)     #0.6523315
+within_sample_corr(benchmark_trueprop, estProp_RF_mostVariable_Improved)    #0.2326111
+within_sample_corr(benchmark_trueprop, estProp_RF_semi_Improved)     #0.7123025
+within_sample_corr(benchmark_trueprop, estProp_Tsisal)       #0.3080416
+within_sample_corr(benchmark_trueprop, estProp_Tsisal_semi)     #0.3272978
+
+
+benchmark_trueprop_percent <- t(apply(benchmark_trueprop, 1, function(x){return(x/sum(x))}))
+within_sample_RMSE(benchmark_trueprop_percent, estProp_RF_mostVariable) #0.2940593
+within_sample_RMSE(benchmark_trueprop_percent, estProp_RF_semi) #0.1732393
+within_sample_RMSE(benchmark_trueprop_percent, estProp_RF_mostVariable_Improved) #0.3120699
+within_sample_RMSE(benchmark_trueprop_percent, estProp_RF_semi_Improved) #0.1888424
+within_sample_RMSE(benchmark_trueprop_percent, estProp_Tsisal) #0.1041043
+within_sample_RMSE(benchmark_trueprop_percent, estProp_Tsisal_semi)  #0.1079503
+
+
+
+
+
 ############# 5. Tsisal 
 out1 = Tsisal(benchmark_betamatrix, K = K, knowRef = NULL)
 estProp_Tsisal <- out1$estProp
