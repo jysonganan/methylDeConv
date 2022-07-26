@@ -118,7 +118,32 @@ within_sample_corr <- function(true_proportions, deconv_res){
   return(mean(corr))
 }
 
-## Add RMSE, MAPD metrics
+
+## Add RMSE, MAPE metrics
+library(Metrics)
+within_sample_RMSE <- function(true_proportions, deconv_res){
+  RMSE <- rep(NA, 12)
+  for (i in 1:12){
+    RMSE[i] <- rmse(as.numeric(true_proportions[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]), 
+                    as.numeric(deconv_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]))
+  }
+  print(mean(RMSE))
+  return(mean(RMSE))
+}
+
+
+
+within_sample_MAPE <- function(true_proportions, deconv_res){
+  MAPE <- rep(NA, 12)
+  for (i in 1:12){
+    MAPE[i] <- mape(as.numeric(true_proportions[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]), 
+                    as.numeric(deconv_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]))
+  }
+  print(mean(MAPE))
+  return(mean(MAPE))
+}
+
+
 
 
 print("oneVsAllttest")
