@@ -26,9 +26,15 @@ save("compTable_EPIC", "benchmark_betamatrix", "benchmark_trueprop", file = "Ben
 
 
 
-#################
+####################################
+####################################
+#### Simulation datasets
+####################################
+####################################
+
+##################################
 ## prepare data for ARIC algorithm
-#################
+##################################
 
 #### get ARIC deconvolution results for simulated datasets with EPIC reference library
 load("Benchmark1_featureSelection.rda")
@@ -66,6 +72,9 @@ for (i in 1:9){
             file = paste0(paste0("compTable_EPIC_probe_",i), ".csv"), row.names = TRUE)
 }
 
+##################################
+## Run ARIC algorithm
+##################################
 
 ``` {python}
 file_names = ["beta_sim_data_nonimmune_level1", "beta_sim_data_nonimmune_level2",
