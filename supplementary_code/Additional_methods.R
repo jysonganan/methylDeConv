@@ -53,9 +53,10 @@ file_names <- c("beta_sim_data_nonimmune_level1", "beta_sim_data_nonimmune_level
 
 for (i in 1:10){
   load(paste0(file_names[i],".RData"))
-  for (i in 1:9){
-    write.csv(sim_data[probes[[i]],],
-              file = paste0(paste0("sim_data_probe_",i), ".csv"), row.names = TRUE)
+  for (j in 1:9){
+    write.csv(sim_data[probes[[j]],],
+              file = paste0(paste0(file_names[i],paste0("_probe_",j)), ".csv"), 
+              row.names = TRUE)
   }
 }
 
