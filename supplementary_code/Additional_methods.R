@@ -77,9 +77,9 @@ file_names = ["beta_sim_data_nonimmune_level1", "beta_sim_data_nonimmune_level2"
 from ARIC import *
 for i in range(10):
     for j in range(9):
-        mixture_file = file_names[i] + "_probe_" + str(j) + ".csv"
-        ref_file = "compTable_EPIC_probe_" + str(j) + ".csv"
-        output_file = file_names[i] + "_probe_" + str(j) + "_deconv_ARIC.csv"
+        mixture_file = file_names[i] + "_probe_" + str(j+1) + ".csv"
+        ref_file = "compTable_EPIC_probe_" + str(j+1) + ".csv"
+        output_file = file_names[i] + "_probe_" + str(j+1) + "_deconv_ARIC.csv"
         ARIC(mix_path = mixture_file, ref_path = ref_file, save_path = output_file, selected_marker = False)
 
 ```
