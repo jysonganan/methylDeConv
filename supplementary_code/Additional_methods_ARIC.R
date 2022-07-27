@@ -148,9 +148,9 @@ probes <- list()
 probes[[1]] <- probe_1
 probes[[2]] <- probe_2
 probes[[3]] <- probe_3
-probes[[4]] <- probe_4[[-1]]
-probes[[5]] <- probe_5[[-1]]
-probes[[6]] <- probe_6[[-1]]
+probes[[4]] <- probe_4[-1]
+probes[[5]] <- probe_5[-1]
+probes[[6]] <- probe_6[-1]
 probes[[7]] <- probe_7
 probes[[8]] <- probe_8
 probes[[9]] <- probe_9
@@ -166,7 +166,7 @@ file_names <- c("beta_sim_data_nonimmune_level1", "beta_sim_data_nonimmune_level
 for (i in 1:10){
   load(paste0(file_names[i],".RData"))
   for (j in 1:9){
-    write.csv(sim_data[probes[[j]],],
+    write.csv(sim_data$mixture_sim_mat[probes[[j]],],
               file = paste0(paste0(file_names[i],paste0("_probe_",j)), ".csv"), 
               row.names = TRUE)
   }
