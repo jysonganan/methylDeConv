@@ -41,7 +41,6 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
         geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
         labs(x = "Feature selection")+
         labs(y = "Average Spearman correlation")+
-        labs(fill = "Deconvolution algorithms")+
-        coord_cartesian(ylim=c(0.5,1)))
+        labs(fill = "Deconvolution algorithms")
         
 dev.off()
