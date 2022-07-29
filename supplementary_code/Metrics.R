@@ -1,6 +1,6 @@
-############
+########################
 ## Spearman correlations
-############
+########################
 
 within_sample_corr <- function(true_proportions, deconv_res){
   corr <- rep(NA, 12)
