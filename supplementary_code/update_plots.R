@@ -60,8 +60,6 @@ pdf(file = "Figure1_RMSE.pdf",
     height = 8) 
 
 
-
-
 RMSE_Houseman <- c(0.0130, 0.0129, 0.0195, 0.0141, 0.0146, 0.0175, 0.0219, 0.0139)
 RMSE_RPC <- c(0.0147, 0.0142, 0.0288, 0.0115, 0.0134, 0.0194, 0.0256, 0.0144)
 RMSE_CBS <- c(0.0163, 0.0157, 0.0262, 0.0144, 0.0201, 0.0191, 0.0291, 0.0162)
@@ -73,8 +71,8 @@ RMSE_TOAST_2 <- c(0.1888, 0.1961, 0.2418, 0.2269, 0.1962, 0.1802, 0.2312, 0.2060
   
 df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
                                        "glmnetpreselect", "RFpreselect", "Rfepreselect"),
-                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver, ARIC = cor_ARIC, 
-                  TOAST_RefFree_1 = cor_TOAST_1, TOAST_RefFree_2 = cor_TOAST_2)
+                  Houseman = RMSE_Houseman, RPC = RMSE_RPC, CBS = RMSE_CBS, MethylResolver = RMSE_MethylResolver, ARIC = RMSE_ARIC, 
+                  TOAST_RefFree_1 = RMSE_TOAST_1, TOAST_RefFree_2 = RMSE_TOAST_2)
 
 
 sd_1 <- c(0.0031, 0.0031, 0.0037, 0.0036, 0.0049, 0.0051, 0.0071, 0.0024,
@@ -94,7 +92,56 @@ print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -Feature
         #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
         geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
         labs(x = "Feature selection")+
-        labs(y = "Average Spearman correlation")+
+        labs(y = "Average RMSE")+
         labs(fill = "Deconvolution algorithms"))
         
 dev.off()
+
+
+
+
+
+
+
+pdf(file = "Figure1_SMAPE.pdf",  
+    width = 16,
+    height = 8) 
+
+
+SMAPE_Houseman <- c(0.1657, 0.1667, 0.2348, 0.1628, 0.1360, 0.2078, 0.2693, 0.1482)
+SMAPE_RPC <- c(0.1509, 0.1497, 0.3088, 0.1185, 0.1237, 0.2040, 0.2951, 0.1367)
+SMAPE_CBS <- c(0.1591, 0.1560, 0.2806, 0.1485, 0.1674, 0.2141, 0.3111, 0.1642)
+SMAPE_MethylResolver <- c(0.1566, 0.1409, 0.2964, 0.1123, 0.1181, 0.1808, 0.3273, 0.1457)
+SMAPE_ARIC <- c(0.1398, 0.1418, 0.1858, 0.1255, 0.1254, 0.1590, 0.2505, 0.1374)
+SMAPE_TOAST_1 <- c(1.2084, 1.2098, 1.3597, 1.3964, 1.3637, 1.2809, 1.4500, 1.2372)
+SMAPE_TOAST_2 <- c(1.3131, 1.3176, 1.4966, 1.3964, 1.3637, 1.2809, 1.4500, 1.3643)
+  
+  
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                       "glmnetpreselect", "RFpreselect", "Rfepreselect"),
+                  Houseman = SMAPE_Houseman, RPC = SMAPE_RPC, CBS = SMAPE_CBS, MethylResolver = SMAPE_MethylResolver, ARIC = SMAPE_ARIC, 
+                  TOAST_RefFree_1 = SMAPE_TOAST_1, TOAST_RefFree_2 = SMAPE_TOAST_2)
+
+
+sd_1 <- c(0.1022, 0.0993, 0.1320, 0.1150, 0.1074, 0.1464, 0.2127, 0.0924,
+          0.1174, 0.1168, 0.1180, 0.0918, 0.1056, 0.1486, 0.2243, 0.0952,
+          0.0964, 0.0950, 0.1229, 0.0879, 0.1005, 0.1346, 0.1898, 0.1087
+          0.1656, 0.1255, 0.1198, 0.0947, 0.0991, 0.1363, 0.2557, 0.0917,
+          0.1215, 0.1208, 0.1213, 0.0984, 0.0945, 0.1267, 0.0991, 0.0813,
+          0.2141, 0.2080, 0.1634, 0.1469, 0.2086, 0.1986, 0.1926, 0.1669,
+          0.2160, 0.2393, 0.2096, 0.1469, 0.2086, 0.1986, 0.1926, 0.1762)
+
+se = sd_1/sqrt(12)
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+             aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                        "glmnetpreselect", "RFpreselect", "Rfepreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+        geom_bar(stat = 'identity', position = 'dodge')+
+        #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+        geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+        labs(x = "Feature selection")+
+        labs(y = "Average SMAPE")+
+        labs(fill = "Deconvolution algorithms"))
+        
+dev.off()
+
