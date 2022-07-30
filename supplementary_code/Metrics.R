@@ -85,3 +85,40 @@ within_sample_SMAPE_sd <- function(true_proportions, deconv_res){
 ## custom the function: if both actual and predicted are 0, the term is 0.
 
 
+SMAPE_custom <- function(actual, predicted){
+  id = which((actual == 0) & (predicted == 0) == TRUE)
+  if (length(id) > 0){
+    actual_noZero <- actual[-id]
+    predicted_noZero <- predicted[-id]
+  }
+  else{
+    actual_noZero <- actual
+    predicted_noZero <- predicted
+  }
+  nom = ae(actual_noZero, predicted_noZero)
+  denom = abs(actual_noZero) + abs(predicted_noZero)
+  mean_tmp = sum(nom/denom)/length(actual)
+  return(2*mean_tmp)
+}
+
+
+within_sample_SMAPE_custom <- function(true_proportions, deconv_res){
+  SMAPE <- rep(NA, 12)
+  for (i in 1:12){
+    SMAPE[i] <- SMAPE_custom(as.numeric(true_proportions[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]), 
+                             as.numeric(deconv_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]))
+  }
+  print(mean(SMAPE))
+  return(mean(SMAPE))
+}
+
+
+within_sample_SMAPE_sd_custom <- function(true_proportions, deconv_res){
+  SMAPE <- rep(NA, 12)
+  for (i in 1:12){
+    SMAPE[i] <- SMAPE_custom(as.numeric(true_proportions[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]), 
+                             as.numeric(deconv_res[i,c("Bcell", "CD4T","CD8T","Mono","Neu","NK")]))
+  }
+  print(sd(SMAPE))
+  return(sd(SMAPE))
+}
