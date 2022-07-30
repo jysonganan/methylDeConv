@@ -81,3 +81,7 @@ within_sample_SMAPE_sd <- function(true_proportions, deconv_res){
 }
 
 
+## SMAPE is undefined if any |actual|+|predicted| is 0.
+## custom the function: if both actual and predicted are 0, the term is 0.
+
+
