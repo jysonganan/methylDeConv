@@ -245,7 +245,7 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
   facet_wrap(~factor(facet,level = c("A. EPIC reference library","B. 450k reference library")))+
   labs(x = "Feature selection")+
-  labs(y = "Average Spearman correlation")+
+  labs(y = "Average RMSE")+
   labs(fill = "Deconvolution algorithms")+
   coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
@@ -299,7 +299,7 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
   facet_wrap(~factor(facet,level = c("A. EPIC reference library","B. 450k reference library")))+
   labs(x = "Feature selection")+
-  labs(y = "Average Spearman correlation")+
+  labs(y = "Average SMAPE")+
   labs(fill = "Deconvolution algorithms")+
   coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
