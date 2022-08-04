@@ -247,7 +247,6 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   labs(x = "Feature selection")+
   labs(y = "Average RMSE")+
   labs(fill = "Deconvolution algorithms")+
-  coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
 
 dev.off()
@@ -301,7 +300,6 @@ ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -c(FeatureSele
   labs(x = "Feature selection")+
   labs(y = "Average SMAPE")+
   labs(fill = "Deconvolution algorithms")+
-  coord_cartesian(ylim=c(0.5,1))+
   theme(strip.text.x = element_text(size = 15))
 
 dev.off()
