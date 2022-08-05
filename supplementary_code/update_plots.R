@@ -307,3 +307,164 @@ dev.off()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+pdf(file = "Figure4.pdf",  
+    width = 16,
+    height = 8) 
+
+
+cor_Houseman <- c(0.969, 0.969, 0.911, 0.957, 0.952, 0.937, 0.907, 0.899)
+cor_RPC <- c(0.983, 0.974, 0.911, 0.983, 0.971, 0.932, 0.899, 0.885)
+cor_CBS <- c(0.964, 0.974, 0.920, 0.971, 0.952, 0.952, 0.868, 0.911)
+cor_MethylResolver <- c(0.978, 0.962, 0.877, 0.978, 0.971, 0.944, 0.885, 0.911)
+cor_ARIC <- c(0.981, 0.983, 0.939, 0.974, 0.952, 0.976, 0.861, 0.868)
+cor_TOAST_1 <- c(0.366, 0.391, 0.372, 0.281, 0.383, 0.508, 0.414, 0.502)
+cor_TOAST_2 <- c(0.366, 0.391, 0.325, 0.281, 0.383, 0.508, 0.312, 0.502)
+  
+  
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                       "glmnetpreselect", "RFpreselect", "Rfepreselect"),
+                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver, ARIC = cor_ARIC, 
+                  TOAST_RefFree_1 = cor_TOAST_1, TOAST_RefFree_2 = cor_TOAST_2)
+
+
+sd_1 <- c(0.0521, 0.0521, 0.1116, 0.0688, 0.0679, 0.0755, 0.0752, 0.0965,
+          0.0252, 0.0306, 0.1193, 0.0252, 0.0354, 0.0729, 0.0969, 0.0855,
+          0.0516, 0.0306, 0.0872, 0.0482, 0.0664, 0.0675, 0.1488, 0.0774,
+          0.0502, 0.0555, 0.1323, 0.0299, 0.0354, 0.0760, 0.1327, 0.0836,
+          0.0340, 0.0252, 0.0961, 0.0506, 0.0679, 0.0351, 0.1922, 0.2302,
+          0.3469, 0.3382, 0.2564, 0.4497, 0.3937, 0.3972, 0.2827, 0.2950,
+          0.3469, 0.3382, 0.4171, 0.4497, 0.3937, 0.3972, 0.4793, 0.2950)
+
+se = sd_1/sqrt(12)
+
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+             aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                        "glmnetpreselect", "RFpreselect", "Rfepreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+        geom_bar(stat = 'identity', position = 'dodge')+
+        #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+        geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+        labs(x = "Feature selection")+
+        labs(y = "Average Spearman correlation")+
+        labs(fill = "Deconvolution algorithms"))
+        
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+pdf(file = "Figure4_RMSE.pdf",  
+    width = 16,
+    height = 8) 
+
+
+RMSE_Houseman <- c(0.0148, 0.0147, 0.0179, 0.0150, 0.0140, 0.0189, 0.0171, 0.0207)
+RMSE_RPC <- c(0.0146, 0.0152, 0.0177, 0.0124, 0.0121, 0.0199, 0.0184, 0.0204)
+RMSE_CBS <- c(0.0142, 0.0152, 0.0169, 0.0113, 0.0108, 0.0153, 0.0257, 0.0169)
+RMSE_MethylResolver <- c(0.0143, 0.0152, 0.0192, 0.0139, 0.0110, 0.0183, 0.0192, 0.0193)
+RMSE_ARIC <- c(0.0192, 0.0196, 0.0209, 0.0162, 0.0124, 0.0180, 0.0434, 0.0372)
+RMSE_TOAST_1 <- c(0.2187, 0.2146, 0.2062, 0.2133, 0.2121, 0.2134, 0.2496, 0.2141)
+RMSE_TOAST_2 <- c(0.2187, 0.2146, 0.2239, 0.2133, 0.2121, 0.2134, 0.2499, 0.2141)
+  
+  
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                       "glmnetpreselect", "RFpreselect", "Rfepreselect"),
+                  Houseman = RMSE_Houseman, RPC = RMSE_RPC, CBS = RMSE_CBS, MethylResolver = RMSE_MethylResolver, ARIC = RMSE_ARIC, 
+                  TOAST_RefFree_1 = RMSE_TOAST_1, TOAST_RefFree_2 = RMSE_TOAST_2)
+
+
+sd_1 <- c(0.0033, 0.0038, 0.0032, 0.0033, 0.0028, 0.0050, 0.0033, 0.0024,
+          0.0062, 0.0061, 0.0042, 0.0030, 0.0023, 0.0081, 0.0040, 0.0021,
+          0.0037, 0.0041, 0.0035, 0.0062, 0.0025, 0.0062, 0.0086, 0.0035,
+          0.0067, 0.0073, 0.0042, 0.0043, 0.0047, 0.0064, 0.0042, 0.0044,
+          0.0079, 0.0082, 0.0066, 0.0053, 0.0027, 0.0084, 0.0238, 0.0210,
+          0.0864, 0.0875, 0.0958, 0.0958, 0.1010, 0.0958, 0.0963, 0.0894,
+          0.0864, 0.0875, 0.1084, 0.0958, 0.1010, 0.0958, 0.0945, 0.0894)
+
+se = sd_1/sqrt(12)
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+             aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                        "glmnetpreselect", "RFpreselect", "Rfepreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+        geom_bar(stat = 'identity', position = 'dodge')+
+        #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+        geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+        labs(x = "Feature selection")+
+        labs(y = "Average RMSE")+
+        labs(fill = "Deconvolution algorithms"))
+        
+dev.off()
+
+
+
+
+
+
+
+pdf(file = "Figure4_SMAPE.pdf",  
+    width = 16,
+    height = 8) 
+
+
+SMAPE_Houseman <- c(0.1540, 0.1532, 0.2393, 0.1566, 0.1236, 0.1967, 0.1843, 0.1941)
+SMAPE_RPC <- c(0.1279, 0.1350, 0.2300, 0.1179, 0.1132, 0.1715, 0.1602, 0.1961)
+SMAPE_CBS <- c(0.1353, 0.1429, 0.2187, 0.1286, 0.1128, 0.1527, 0.2009, 0.1972)
+SMAPE_MethylResolver <- c(0.1233, 0.1353, 0.2385, 0.1134, 0.1407, 0.1360, 0.1784, 0.2045)
+SMAPE_ARIC <- c(0.1649, 0.1562, 0.2053, 0.1264, 0.1441, 0.1452, 0.2762, 0.2414)
+SMAPE_TOAST_1 <- c(1.4729, 1.4618, 1.4758, 1.5140, 1.4847, 1.5348, 1.5889, 1.4619)
+SMAPE_TOAST_2 <- c(1.4729, 1.4618, 1.6317, 1.5140, 1.4847, 1.5348, 1.5887, 1.4619)
+  
+  
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                       "glmnetpreselect", "RFpreselect", "Rfepreselect"),
+                  Houseman = SMAPE_Houseman, RPC = SMAPE_RPC, CBS = SMAPE_CBS, MethylResolver = SMAPE_MethylResolver, ARIC = SMAPE_ARIC, 
+                  TOAST_RefFree_1 = SMAPE_TOAST_1, TOAST_RefFree_2 = SMAPE_TOAST_2)
+
+
+sd_1 <- c(0.1071, 0.1119, 0.1291, 0.0999, 0.1048, 0.1330, 0.1218, 0.1047,
+          0.1087, 0.1103, 0.1457, 0.0942, 0.0998, 0.1309, 0.0431, 0.1135,
+          0.1117, 0.1132, 0.1283, 0.0874, 0.1036, 0.1232, 0.0419, 0.1175,
+          0.1187, 0.1215, 0.1577, 0.0953, 0.1261, 0.1017, 0.1058, 0.1101,
+          0.1311, 0.1112, 0.1243, 0.0959, 0.1029, 0.1153, 0.1654, 0.1543,
+          0.2013, 0.2074, 0.2390, 0.2028, 0.2250, 0.2172, 0.2169, 0.2231,
+          0.2013, 0.2074, 0.2209, 0.2028, 0.2250, 0.2172, 0.2672, 0.2231)
+
+se = sd_1/sqrt(12)
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+             aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet","multiGlmnet",
+                                                        "glmnetpreselect", "RFpreselect", "Rfepreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+        geom_bar(stat = 'identity', position = 'dodge')+
+        #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+        geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+        labs(x = "Feature selection")+
+        labs(y = "Average SMAPE")+
+        labs(fill = "Deconvolution algorithms"))
+        
+dev.off()
+
+
+
+
+
+
+
