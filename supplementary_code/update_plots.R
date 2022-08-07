@@ -502,3 +502,22 @@ dev.off()
 
 
 
+
+
+pdf(file = "AddDL_feature_selection_vennPlot.pdf",  
+    width = 16,
+    height = 8)
+
+library(VennDiagram)
+grid.newpage()
+
+
+draw.quad.venn(area1 = 700, area2= 700, area3 = 1000, area4 = 1049, n12 = 647, n13 = 10, n14 = 389, n23 = 10, n24 = 402,
+               n34 = 16, n123 = 10, n124 = 389, n134 = 8, n234 = 8, n1234 = 8, category = c("oneVsAllttest", "oneVsAllLimma", 
+                                                                "pairwiseLimma + DualNet", "glmnetpreselect"), lty = "blank", 
+               fill = c("skyblue", "pink1", "mediumorchid", "red")) 
+
+dev.off()
+
+
+
