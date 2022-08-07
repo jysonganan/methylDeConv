@@ -527,3 +527,59 @@ dev.off()
 
 
 
+
+
+
+
+
+
+
+
+
+
+cor_Houseman <- c(0.9710931, 0.9783402, 0.9640545, 0.9640545)
+cor_RPC <- c(0.9734393, 0.9783402, 0.9688164, 0.9640545)
+cor_CBS <- c(0.9515192, 0.9562116, 0.9663312, 0.9682206)
+cor_MethylResolver <- c(0.9711626, 0.9783402, 0.9640545, 0.9640545)
+cor_ARIC <- c(0.9759245, 0.9926955, 0.9784097, 0.9926955)
+cor_TOAST_1 <- c(0.7078313, 0.6523315, 0.616035, 0.6272147)
+cor_TOAST_2 <- c(0.7304166, 0.7123025, 0.616035, 0.6272147)
+df1 <- data.frame(FeatureSelection = c("top 50","top 100","top 150","top 200"),
+                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver,
+                  ARIC = cor_ARIC, TOAST_1 = cor_TOAST_1, TOAST_2 = cor_TOAST_2)
+
+sd_1 <- c(0.03751289, 0.02986513, 0.06668487, 0.06668487, 
+          0.04135397, 0.02986513, 0.0521313, 0.06668487,
+          0.05849983, 0.06388394, 0.04791372, 0.05424489,
+          0.03537208, 0.02986513, 0.06668487, 0.06668487,
+          0.0350601, 0.01716289, 0.05015845, 0.01716289,
+          0.2712032, 0.3488297, 0.3626591, 0.3321317,
+          0.2675082, 0.2586131, 0.3626591, 0.3321317)
+se <- sd_1/sqrt(12)
+
+
+pdf(file = "Supp_Figure_1.pdf",  
+    width = 12,
+    height = 8) 
+
+ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+       aes(x = factor(FeatureSelection, level = c("top 50","top 100","top 150","top 200")),
+           y = Spearman_Correlation, group = Deconvolution, color=Deconvolution)) +
+  geom_point(aes(col = Deconvolution))+
+  geom_line(aes(colour = Deconvolution, alpha= Deconvolution, linetype= Deconvolution, size = Deconvolution))+
+  geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.2, position=position_dodge(.05)) +
+  #geom_line(aes(linetype= Deconvolution, colour = Deconvolution), size = 1)+
+  scale_linetype_manual(values=c("solid", "twodash", "dotted", "solid","dotted", "solid","dotted"))+
+  scale_alpha_manual(values=c(1,0.4,0.6,1,1,1,1))+
+  scale_color_manual(values=c('violet','green','red', 'cyan3', 'blue', 'brown', 'darkgreen'))+
+  scale_size_manual(values=c(1,1.4,1.4,1,1,1,1))+
+  labs(x = "oneVsAllttest")+
+  labs(y = "Average Spearman correlation")+
+  labs(group = "Deconvolution algorithms") +
+  #coord_cartesian(ylim=c(0.90,1))+
+  
+  theme_grey(base_size = 15)
+
+
+dev.off()
+
