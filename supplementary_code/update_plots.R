@@ -466,5 +466,39 @@ dev.off()
 
 
 
+pdf(file = "AddDL_feature_selection.pdf",  
+    width = 16,
+    height = 8) 
+library(tidyr)
+library(ggplot2)
+
+cor_Houseman <- c(0.969, 0.969, 0.911, 0.938, 0.937)
+cor_RPC <- c(0.983, 0.974, 0.911, 0.983, 0.932)
+cor_CBS <- c(0.964, 0.974, 0.920, 0.974, 0.952)
+cor_MethylResolver <- c(0.978, 0.962, 0.877, 0.952, 0.944)
+
+
+df1 <- data.frame(FeatureSelection = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet + DualNet", "glmnetpreselect"),
+                  Houseman = cor_Houseman, RPC = cor_RPC, CBS = cor_CBS, MethylResolver = cor_MethylResolver)
+
+sd_1 <- c(0.0521, 0.0521, 0.1116, 0.0598, 0.0755,
+          0.0252, 0.0306, 0.1193, 0.0252, 0.0729, 
+          0.0516, 0.0306, 0.0872, 0.0280, 0.0675, 
+          0.0502, 0.0555, 0.1323, 0.0608, 0.0760)
+
+se = sd_1/sqrt(12)
+
+print(ggplot(data = df1 %>% gather(Deconvolution, Spearman_Correlation, -FeatureSelection),
+             aes(x = factor(FeatureSelection, level = c("oneVsAllttest","oneVsAllLimma","pairwiseLimma","pairwiseGlmnet + DualNet",
+                                                        "glmnetpreselect")), y = Spearman_Correlation, fill = Deconvolution)) +
+        geom_bar(stat = 'identity', position = 'dodge')+
+        #geom_text(aes(label= round(Spearman_Correlation,2)), position = position_dodge(0.9))+
+        geom_errorbar(aes(ymin=Spearman_Correlation-se, ymax=Spearman_Correlation+se), width=.5, position=position_dodge(.9)) +
+        labs(x = "Feature selection")+
+        labs(y = "Average Spearman correlation")+
+        labs(fill = "Deconvolution algorithms"))
+
+dev.off()
+
 
 
